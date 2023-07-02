@@ -1,4 +1,4 @@
-package com.example.hello_there.config;
+package com.example.hello_there.exception;
 
 import lombok.Getter;
 
@@ -30,7 +30,7 @@ public enum BaseResponseStatus {
     POST_USERS_INVALID_EMAIL(false, 2016, "이메일 형식을 확인해주세요."),
     POST_USERS_EXISTS_EMAIL(false,2017,"중복된 이메일입니다."),
     POST_USERS_NONE_EXISTS_EMAIL(false,2018,"등록되지 않은 이메일입니다."),
-    LOG_OUT_MEMBER(false,2019,"이미 로그아웃된 유저입니다."),
+    LOG_OUT_USER(false,2019,"이미 로그아웃된 유저입니다."),
 
     // [POST] /boards
     POST_BOARDS_EMPTY_TITLE(false, 2019, "제목은 두 글자 이상으로 작성해주세요."),

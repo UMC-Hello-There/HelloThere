@@ -24,13 +24,13 @@ public class JwtProvider {
     private Key key = Keys.hmacShaKeyFor(Decoders.BASE64URL.decode(Secret.JWT_SECRET_KEY));
 
     //==토큰 생성 메소드==//
-    public String createToken(Long memberId) {
+    public String createToken(Long userId) {
         Date now = new Date();
         Date expiration = new Date(now.getTime() + ACCESS_TOKEN_EXPIRE_TIME); // 만료기간 6시간
 
         return Jwts.builder()
                 .setHeaderParam(Header.TYPE, Header.JWT_TYPE) // (1)
-                .claim("memberId", memberId)
+                .claim("userId", userId)
                 .setIssuer("test") // 토큰발급자(iss)
                 .setIssuedAt(now) // 발급시간(iat)
                 .setExpiration(expiration) // 만료시간(exp)
@@ -38,13 +38,13 @@ public class JwtProvider {
                 .compact();
     }
 
-    public String createRefreshToken(Long memberId) {
+    public String createRefreshToken(Long userId) {
         Date now = new Date();
         Date expiration = new Date(now.getTime() + REFRESH_TOKEN_EXPIRE_TIME); // 만료기간 14일
 
         return Jwts.builder()
                 .setHeaderParam(Header.TYPE, Header.JWT_TYPE) // (1)
-                .claim("memberId", memberId)
+                .claim("userId", userId)
                 .setIssuer("test") // 토큰발급자(iss)
                 .setIssuedAt(now) // 발급시간(iat)
                 .setExpiration(expiration) // 만료시간(exp)
@@ -53,13 +53,13 @@ public class JwtProvider {
     }
 
     // 유저 정보를 가지고 AccessToken, RefreshToken 을 생성하는 메서드
-    public JwtResponseDTO.TokenInfo generateToken(Long memberId) {
+    public JwtResponseDTO.TokenInfo generateToken(Long userId) {
         long now = (new Date()).getTime();
 
         // Access Token 생성
         String accessToken = Jwts.builder()
                 .setHeaderParam(Header.TYPE, Header.JWT_TYPE) // (1)
-                .claim("memberId", memberId)
+                .claim("userId", userId)
                 .setExpiration(new Date(now + ACCESS_TOKEN_EXPIRE_TIME)) // 만료시간
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
@@ -67,7 +67,7 @@ public class JwtProvider {
         // Refresh Token 생성
         String refreshToken = Jwts.builder()
                 .setHeaderParam(Header.TYPE, Header.JWT_TYPE) // (1)
-                .claim("memberId", memberId)
+                .claim("userId", userId)
                 .setExpiration(new Date(now + REFRESH_TOKEN_EXPIRE_TIME))
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
@@ -91,7 +91,7 @@ public class JwtProvider {
         // 토큰 복호화
         Claims claims = parseClaims(accessToken);
 
-        String memberId = claims.get("memberId").toString();
+        String memberId = claims.get("userId").toString();
 
         return Long.valueOf(memberId);
 

@@ -40,7 +40,7 @@ public class KakaoService {
         return responseEntity.getBody();
     }
 
-    public String getMemberEmail(String accessToken) {
+    public String getUserEmail(String accessToken) {
         //Httpheader 생성
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.add("Authorization", "Bearer " + accessToken);
@@ -61,11 +61,11 @@ public class KakaoService {
         );
 
         //카카오 인증 서버가 반환한 사용자 정보
-        String memberInfo = responseEntity.getBody();
+        String userInfo = responseEntity.getBody();
 
         //JSON 데이터에서 추출한 정보로 User 객체 설정
         Gson gsonObj = new Gson();
-        Map<?, ?> data = gsonObj.fromJson(memberInfo, Map.class);
+        Map<?, ?> data = gsonObj.fromJson(userInfo, Map.class);
 
         Double id = (Double)(data.get("id"));
         String email = (String) ((Map<?, ?>)(data.get("kakao_account"))).get("email");
@@ -73,7 +73,7 @@ public class KakaoService {
         return email;
     }
 
-    public String getMemberNickname(String accessToken) {
+    public String getUserNickname(String accessToken) {
         // HttpHeader 생성
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.add("Authorization", "Bearer " + accessToken);
@@ -94,11 +94,11 @@ public class KakaoService {
         );
 
         // 카카오 인증 서버가 반환한 사용자 정보
-        String memberInfo = responseEntity.getBody();
+        String userInfo = responseEntity.getBody();
 
         // JSON 데이터에서 닉네임 추출
         Gson gsonObj = new Gson();
-        Map<?, ?> data = gsonObj.fromJson(memberInfo, Map.class);
+        Map<?, ?> data = gsonObj.fromJson(userInfo, Map.class);
 
         String nickname = (String) ((Map<?, ?>) (data.get("properties"))).get("nickname");
 

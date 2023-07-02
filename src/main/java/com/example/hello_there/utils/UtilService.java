@@ -1,7 +1,11 @@
 package com.example.hello_there.utils;
 
-import com.example.hello_there.config.BaseException;
-import com.example.hello_there.config.BaseResponseStatus;
+import com.example.hello_there.board.Board;
+import com.example.hello_there.board.BoardRepository;
+import com.example.hello_there.exception.BaseException;
+import com.example.hello_there.exception.BaseResponseStatus;
+import com.example.hello_there.login.jwt.Token;
+import com.example.hello_there.login.jwt.TokenRepository;
 import com.example.hello_there.user.User;
 import com.example.hello_there.user.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -12,7 +16,7 @@ import org.springframework.stereotype.Service;
 public class UtilService {
     private final UserRepository userRepository;
     private final BoardRepository boardRepository;
-    private final CommentRepository commentRepository;
+    private final TokenRepository tokenRepository;
 
     public User findByUserIdWithValidation(Long userId) throws BaseException {
         User user = userRepository.findUserById(userId).orElse(null);
@@ -30,5 +34,11 @@ public class UtilService {
         Board board = boardRepository.findBoardById(boardId).orElse(null);
         if(board == null) throw new BaseException(BaseResponseStatus.NONE_EXIST_BOARD);
         return board;
+    }
+
+    public Token findTokenByUserIdWithValidation(Long userId) throws BaseException {
+        Token token = tokenRepository.findTokenByUserId(userId).orElse(null);
+        if(token == null) throw new BaseException(BaseResponseStatus.INVALID_USER_JWT);
+        return token;
     }
 }

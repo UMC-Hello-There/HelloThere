@@ -1,5 +1,6 @@
 package com.example.hello_there.user.profile;
 
+import com.example.hello_there.board.photo.dto.GetS3Res;
 import com.example.hello_there.user.User;
 import com.example.hello_there.utils.S3Service;
 import com.example.hello_there.utils.UtilService;

@@ -1,4 +1,4 @@
-package com.example.hello_there.config;
+package com.example.hello_there.exception;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

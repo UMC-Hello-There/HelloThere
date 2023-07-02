@@ -73,6 +73,9 @@ public class PostPhotoService {
         return postPhotoRepository.findAllByBoardId(boardId).orElse(null);
     }
 
+    /**
+     * 썸네일 적용을 위한 메서드
+     */
     public String findFirstByPostId(Long boardId) {
         List<PostPhoto> postPhotos = postPhotoRepository.findAllByBoardId(boardId).orElse(null);
 

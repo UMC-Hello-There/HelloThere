@@ -1,6 +1,5 @@
 package com.example.hello_there.user;
 
-import com.example.hello_there.config.UserStatus;
 import com.example.hello_there.login.jwt.Token;
 import com.example.hello_there.user.profile.Profile;
 import com.example.hello_there.utils.BaseTimeEntity;

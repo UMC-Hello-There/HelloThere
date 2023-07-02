@@ -1,5 +1,15 @@
 package com.example.hello_there.login.kakao;
 
+import com.example.hello_there.exception.BaseResponse;
+import com.example.hello_there.exception.BaseResponseStatus;
+import com.example.hello_there.login.dto.JwtResponseDTO;
+import com.example.hello_there.login.jwt.JwtProvider;
+import com.example.hello_there.login.jwt.JwtService;
+import com.example.hello_there.login.jwt.Token;
+import com.example.hello_there.login.jwt.TokenRepository;
+import com.example.hello_there.user.User;
+import com.example.hello_there.user.UserRepository;
+import com.example.hello_there.user.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -9,42 +19,51 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Optional;
 
+import static com.example.hello_there.exception.BaseResponseStatus.*;
+
 @Slf4j
 @RestController
 @RequiredArgsConstructor
 public class KakaoController {
 
     private final KakaoService kaKaoLoginService;
-    private final MemberService memberService;
-    private final MemberRepository memberRepository;
+    private final UserService userService;
+    private final UserRepository userRepository;
+    private final TokenRepository tokenRepository;
     private final JwtProvider jwtProvider;
     private final JwtService jwtService;
 
-    //카카오 로그인 코드
+    //카카오 로그인 코드, 카카오 디벨로퍼스에서 성별이랑 생일 추가해야함.
     @ResponseBody
     @PostMapping("/oauth/kakao")
-    public BaseResponse<?> kakaoCallback(@RequestParam("accToken") String accessToken,
-                                         @RequestParam("refToken") String refreshToken) {
-        String memberEmail = kaKaoLoginService.getMemberEmail(accessToken);
-        String memberNickName = kaKaoLoginService.getMemberNickname(accessToken);
-        Optional<Member> findMember = memberRepository.findByEmail(memberEmail);
-        if (!findMember.isPresent()) {
-            Member kakaoMember = new Member();
-            kakaoMember.updateEmail(memberEmail);
-            kakaoMember.updateNickName(memberNickName);
-            kakaoMember.updateIsSocialLogin();
-            JwtResponseDTO.TokenInfo tokenInfo = jwtProvider.generateToken(kakaoMember.getId());
-            kakaoMember.updateAccessToken(tokenInfo.getAccessToken());
-            kakaoMember.updateRefreshToken(tokenInfo.getRefreshToken());
-            memberRepository.save(kakaoMember);
+    public BaseResponse<?> kakaoCallback(@RequestParam("accToken") String accessToken) {
+        String userEmail = kaKaoLoginService.getUserEmail(accessToken);
+        String userNickName = kaKaoLoginService.getUserNickname(accessToken);
+        Optional<User> findUser = userRepository.findByEmail(userEmail);
+        if (!findUser.isPresent()) {
+            User kakaoUser = new User();
+            kakaoUser.updateEmail(userEmail);
+            kakaoUser.updateNickName(userNickName);
+            // kakaoUser.updateIsSocialLogin();
+            JwtResponseDTO.TokenInfo tokenInfo = jwtProvider.generateToken(kakaoUser.getId());
+            Token token = new Token();
+            token.updateAccessToken(tokenInfo.getAccessToken());
+            token.updateRefreshToken(tokenInfo.getRefreshToken());
+            token.updateUser(kakaoUser);
+            tokenRepository.save(token);
+            userRepository.save(kakaoUser);
             return new BaseResponse<>(tokenInfo);
         }
 
         else {
-            Member member = findMember.get();
-            JwtResponseDTO.TokenInfo tokenInfo = jwtProvider.generateToken(member.getId());
-            member.updateRefreshToken(tokenInfo.getRefreshToken());
-            memberRepository.save(member);
+            User user = findUser.get();
+            JwtResponseDTO.TokenInfo tokenInfo = jwtProvider.generateToken(user.getId());
+            Token token = Token.builder()
+                    .accessToken(tokenInfo.getAccessToken())
+                    .refreshToken(tokenInfo.getRefreshToken())
+                    .user(user)
+                    .build();
+            tokenRepository.save(token);
             return new BaseResponse<>(tokenInfo);
         }
     }
@@ -58,10 +77,10 @@ public class KakaoController {
     {
         try{
             String accessToken = jwtService.getJwt();
-            String result = memberService.socialLogout(accessToken);
+            String result = userService.socialLogout(accessToken);
             return new BaseResponse<>(result);
         } catch(Exception e){
-            return new BaseResponse<>(BaseResponseStatus.KAKAO_ERROR);
+            return new BaseResponse<>(KAKAO_ERROR);
         }
     }
 }

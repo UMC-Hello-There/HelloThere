@@ -1,4 +1,4 @@
-package com.example.hello_there.config;
+package com.example.hello_there.exception;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
-import static com.example.hello_there.config.BaseResponseStatus.*;
+import static com.example.hello_there.exception.BaseResponseStatus.*;
 
 @Getter
 @AllArgsConstructor
