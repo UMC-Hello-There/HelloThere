@@ -1,0 +1,32 @@
+spring:
+  servlet:
+    multipart:
+      max-request-size: 30MB
+      max-file-size: 30MB
+  datasource:
+    url: jdbc:mysql://{RDS 엔드포인트}:3306/{초기데이터베이스 이름}?userSSL=false&useUnicode=true&serverTimezone=Asia/Seoul&autoReconnect=True
+    username : root
+    password : password
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    show-sql: true
+    generate-ddl: true
+    hibernate:
+      ddl-auto: create
+    properties:
+      hibernate:
+        format_sql: true
+cloud:
+  aws:
+    s3:
+      bucket: umcbucketchrome
+    region:
+      static: ap-northeast-2
+    stack:
+      auto: false
+    credentials:
+      access-key: {버킷에 대한 IAM 액세스 키}
+      secret-key: {버킷에 대한 IAM 비밀 키}
+
+
