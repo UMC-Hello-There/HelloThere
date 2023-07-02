@@ -20,7 +20,7 @@ public class Profile {
     private String profileFileName; // 프로필 사진명
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id")
+    @JoinColumn(name = "user_id")
     private User user;
 
     //==객체 생성 메서드==//
