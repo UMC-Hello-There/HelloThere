@@ -1,6 +1,5 @@
 package com.example.hello_there.login.jwt;
 
-import com.example.hello_there.login.jwt.Token;
 import com.example.hello_there.user.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -18,5 +17,9 @@ public interface TokenRepository extends JpaRepository<Token, Long> {
 
     @Modifying
     @Query("delete from Token t where t.user.id = :userId")
-    void deleteToken(@Param("userId") Long userId);
+    void deleteTokenByUserId(@Param("userId") Long userId);
+
+    @Modifying
+    @Query("delete from Token t where t.accessToken = :accessToken")
+    void deleteTokenByAccessToken(@Param("accessToken") String accessToken);
 }

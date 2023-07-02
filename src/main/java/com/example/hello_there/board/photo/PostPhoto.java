@@ -1,11 +1,12 @@
 package com.example.hello_there.board.photo;
 
 import com.example.hello_there.board.Board;
-import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import javax.persistence.*;
 
 @Entity
 @Builder

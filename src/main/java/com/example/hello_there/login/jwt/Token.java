@@ -1,11 +1,12 @@
 package com.example.hello_there.login.jwt;
 
 import com.example.hello_there.user.User;
-import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import javax.persistence.*;
 
 @Entity
 @Builder
@@ -14,8 +15,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class Token {
     @Column
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int tokenId; // 토큰의 식별자
 
     @Column(nullable = true)

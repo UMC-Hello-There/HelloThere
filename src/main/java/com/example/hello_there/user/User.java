@@ -1,15 +1,18 @@
 package com.example.hello_there.user;
 
+import com.example.hello_there.board.Board;
 import com.example.hello_there.login.jwt.Token;
 import com.example.hello_there.user.profile.Profile;
 import com.example.hello_there.utils.BaseTimeEntity;
-import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import javax.persistence.*;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Builder
@@ -42,20 +45,17 @@ public class User extends BaseTimeEntity {
     @Column(nullable = false) // status는 멤버 회원가입 시에 자동으로 ACTIVE로 설정됨.
     private UserStatus status; // 유저의 활성화, 비활성화, 징계 등을 체크
 
-//    @Column(columnDefinition = "boolean default false")
-//    private boolean isSocialLogin;
-
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private Token token; // 토큰과 일대일 매핑
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private Profile profile; // 프로필 사진과 일대일 매핑
 
-//    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
-//    private List<Board> boards = new ArrayList<>();
-//
-//    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
-//    private List<Board> comments = new ArrayList<>();
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Board> boards = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Board> comments = new ArrayList<>();
     public User createUser(String email, String password, String nickName, boolean gender, LocalDate birth){
         this.email = email;
         this.password = password;
@@ -74,8 +74,4 @@ public class User extends BaseTimeEntity {
     public void updateEmail(String email){
         this.email = email;
     }
-
-//    public void updateIsSocialLogin(){
-//        this.isSocialLogin = true;
-//    }
 }

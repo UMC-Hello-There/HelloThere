@@ -36,7 +36,7 @@ public class UserController {
     @PostMapping("/create")
     public BaseResponse<PostUserRes> createUser(@RequestBody PostUserReq postUserReq){
         if(!isRegexEmail(postUserReq.getEmail())) return new BaseResponse<>(POST_USERS_INVALID_EMAIL);
-        try{
+        try {
             return new BaseResponse<>(userService.createUser(postUserReq));
         } catch (BaseException exception) {
             return new BaseResponse<>((exception.getStatus()));
@@ -56,15 +56,15 @@ public class UserController {
         }
     }
 
-    @PostMapping("/log-out")
+    @PostMapping("/log-out") // Redis가 켜져있어야 동작한다.
     public BaseResponse<String> logoutUser() {
         try {
             Long UserId = jwtService.getLogoutUserIdx(); // 토큰 만료 상황에서 로그아웃을 시도하면 0L을 반환
             if (UserId == 0L) { // 로그아웃 요청은 access token이 만료되더라도 재발급할 필요가 없음.
                 User user = tokenRepository.findUserByAccessToken(jwtService.getJwt()).orElse(null);
                 if (user != null) {
-                    Token token = tokenRepository.findTokenByUserId(UserId).orElse(null);
-                    tokenRepository.delete(token);
+                    Token token = tokenRepository.findTokenByUserId(user.getId()).orElse(null);
+                    tokenRepository.deleteTokenByAccessToken(token.getAccessToken());
                     String result = "로그아웃 되었습니다.";
                     return new BaseResponse<>(result);
                 }
@@ -87,7 +87,7 @@ public class UserController {
      * nickname이 파라미터에 없을 경우 모두 조회
      */
     @GetMapping("Read")
-    public BaseResponse<List<GetUserRes>> getMembers(@RequestParam(required = false) String nickName){
+    public BaseResponse<List<GetUserRes>> getUsers(@RequestParam(required = false) String nickName){
         //  @RequestParam은, 1개의 HTTP Request 파라미터를 받을 수 있는 어노테이션(?뒤의 값).
         //  default로 RequestParam은 반드시 값이 존재해야 하도록 설정되어 있지만, (전송 안되면 400 Error 유발)
         //  지금 예시와 같이 required 설정으로 필수 값에서 제외 시킬 수 있음
@@ -97,7 +97,7 @@ public class UserController {
                 return new BaseResponse<>(userService.getMembers());
             }
             // query string인 nickname이 있을 경우, 조건을 만족하는 유저정보들을 불러온다.
-            return new BaseResponse<>(userService.getMembersByNickname(nickName));
+            return new BaseResponse<>(userService.getUsersByNickname(nickName));
         } catch (BaseException exception) {
             return new BaseResponse<>(exception.getStatus());
         }
@@ -108,7 +108,7 @@ public class UserController {
      * 멤버 닉네임 변경
      */
     @PatchMapping("/update")
-    public BaseResponse<String> modifyMemberName(@RequestParam String nickName) {
+    public BaseResponse<String> modifyUserName(@RequestParam String nickName) {
         // PostMan에서 Headers에 Authorization필드를 추가하고, 로그인할 때 받은 jwt 토큰을 입력해야 실행이 됩니다.
         try {
             Long userId = jwtService.getUserIdx();
@@ -136,10 +136,10 @@ public class UserController {
     }
 
     @DeleteMapping("/delete")
-    public BaseResponse<String> deleteMember(){
+    public BaseResponse<String> deleteUser(){
         try{
-            Long memberId = jwtService.getUserIdx();
-            return new BaseResponse<>(userService.deleteUser(memberId));
+            Long userId = jwtService.getUserIdx();
+            return new BaseResponse<>(userService.deleteUser(userId));
         } catch(BaseException exception){
             return new BaseResponse<>(exception.getStatus());
         }

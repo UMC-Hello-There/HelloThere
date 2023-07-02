@@ -25,7 +25,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -110,9 +112,11 @@ public class UserService {
      */
     public List<GetUserRes> getMembers() throws BaseException {
         try{
-            List<User> users = userRepository.findUsers(); //User를 List로 받아 GetUserRes로 바꿔줌
+            List<User> users = userRepository.findUsers(); // User를 List로 받아 GetUserRes로 바꿔줌
             List<GetUserRes> getUserRes = users.stream()
-                    .map(user -> new GetUserRes(user.getId(), user.getNickName(), user.getEmail(), user.getPassword()))
+                    .map(user -> new GetUserRes(user.getId(), user.getEmail(), user.getNickName(), user.isGender(),
+                            Optional.ofNullable(user.getBirth()).map(LocalDate::toString).orElse(null),
+                            user.isManager(), user.getStatus()))
                     .collect(Collectors.toList());
             return getUserRes;
         } catch (Exception exception) {
@@ -123,13 +127,15 @@ public class UserService {
     /**
      * 특정 닉네임 조회
      */
-    public List<GetUserRes> getMembersByNickname(String nickname) throws BaseException {
+    public List<GetUserRes> getUsersByNickname(String nickname) throws BaseException {
         try{
             List<User> users = userRepository.findUserByNickName(nickname);
-            List<GetUserRes> GetUserRes = users.stream()
-                    .map(user -> new GetUserRes(user.getId(), user.getNickName(), user.getEmail(), user.getPassword()))
+            List<GetUserRes> getUserRes = users.stream()
+                    .map(user -> new GetUserRes(user.getId(), user.getEmail(), user.getNickName(), user.isGender(),
+                            Optional.ofNullable(user.getBirth()).map(LocalDate::toString).orElse(null),
+                            user.isManager(), user.getStatus()))
                     .collect(Collectors.toList());
-            return GetUserRes;
+            return getUserRes;
         } catch (Exception exception) {
             throw new BaseException(DATABASE_ERROR);
         }
@@ -151,6 +157,7 @@ public class UserService {
         if(!boards.isEmpty()){
             throw new BaseException(CANNOT_DELETE);
         }
+        tokenRepository.deleteTokenByUserId(user.getId());
         userRepository.deleteUser(user.getEmail());
         String result = "요청하신 회원에 대한 삭제가 완료되었습니다.";
         return result;
@@ -197,7 +204,7 @@ public class UserService {
             //Redis Cache에 저장
             redisTemplate.opsForValue().set(accessToken, "logout", expiration, TimeUnit.MILLISECONDS);
             //리프레쉬 토큰 삭제
-            tokenRepository.delete(token);
+            tokenRepository.deleteTokenByUserId(logoutUser.getId());
             String result = "로그아웃 되었습니다.";
             return result;
         } catch (Exception e) {

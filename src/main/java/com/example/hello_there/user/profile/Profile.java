@@ -1,11 +1,12 @@
 package com.example.hello_there.user.profile;
 
 import com.example.hello_there.user.User;
-import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import javax.persistence.*;
 
 @Getter
 @Builder

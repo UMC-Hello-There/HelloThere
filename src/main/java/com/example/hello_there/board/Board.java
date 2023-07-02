@@ -3,12 +3,12 @@ package com.example.hello_there.board;
 import com.example.hello_there.board.photo.PostPhoto;
 import com.example.hello_there.user.User;
 import com.example.hello_there.utils.BaseTimeEntity;
-import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
