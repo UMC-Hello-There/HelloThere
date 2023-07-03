@@ -2,6 +2,8 @@ package com.example.hello_there.utils;
 
 import com.example.hello_there.board.Board;
 import com.example.hello_there.board.BoardRepository;
+import com.example.hello_there.board.comment.Comment;
+import com.example.hello_there.board.comment.CommentRepository;
 import com.example.hello_there.exception.BaseException;
 import com.example.hello_there.exception.BaseResponseStatus;
 import com.example.hello_there.login.jwt.Token;
@@ -16,6 +18,7 @@ import org.springframework.stereotype.Service;
 public class UtilService {
     private final UserRepository userRepository;
     private final BoardRepository boardRepository;
+    private final CommentRepository commentRepository;
     private final TokenRepository tokenRepository;
 
     public User findByUserIdWithValidation(Long userId) throws BaseException {
@@ -34,6 +37,12 @@ public class UtilService {
         Board board = boardRepository.findBoardById(boardId).orElse(null);
         if(board == null) throw new BaseException(BaseResponseStatus.NONE_EXIST_BOARD);
         return board;
+    }
+
+    public Comment findByCommentIdWithValidation(Long commentId) throws BaseException {
+        Comment comment = commentRepository.findCommentById(commentId).orElse(null);
+        if(comment == null) throw new BaseException(BaseResponseStatus.NONE_EXIST_COMMENT);
+        return comment;
     }
 
     public Token findTokenByUserIdWithValidation(Long userId) throws BaseException {

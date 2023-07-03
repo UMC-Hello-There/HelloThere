@@ -8,6 +8,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Getter
 public class DeleteUserReq {
-    String email;
-    String password;
+    private String email;
+    private String password;
 }

@@ -18,8 +18,6 @@ public enum BaseResponseStatus {
     EMPTY_JWT(false, 2001, "JWT를 입력해주세요."),
     INVALID_JWT(false, 2002, "유효하지 않은 JWT입니다."),
     INVALID_USER_JWT(false,2003,"권한이 없는 유저의 접근입니다."),
-    EXPIRED_USER_JWT(false,2004,"만료된 JWT입니다."),
-    REISSUE_TOKEN(false, 2005, "토큰이 만료되었습니다. 다시 로그인해주세요."),
     NONE_EXIST_MEMBER(false, 2006, "존재하지 않는 사용자입니다."),
     // users
     USERS_EMPTY_USER_ID(false, 2010, "유저 아이디 값을 확인해주세요."),
@@ -34,6 +32,7 @@ public enum BaseResponseStatus {
 
     // [POST] /boards
     POST_BOARDS_EMPTY_TITLE(false, 2019, "제목은 두 글자 이상으로 작성해주세요."),
+    INVALID_INPUT(false, 2020, "유효하지 않은 입력입니다."),
 
 
     /**
@@ -85,6 +84,7 @@ public enum BaseResponseStatus {
     NICKNAME_ERROR(false, 6000, "이미 존재하는 닉네임입니다."),
     KAKAO_ERROR(false, 6001, "카카오 로그아웃에 실패했습니다."),
     INTRODUCE_ERROR(false, 6002, "한줄 소개는 0~30자이어야 합니다."),
+    DISAGREE_TO_PROVIDE(false, 6003, "정보 제공에 동의해주세요."),
 
     /**
      *   7000 : 댓글 관련 오류
@@ -94,8 +94,10 @@ public enum BaseResponseStatus {
     /**
      *   8000 : 토큰 관련 오류
      */
-    FAILED_TO_UPDATE(false, 8000, "토큰을 만료시키는 작업에 실패하였습니다."),
-    FAILED_TO_REFRESH(false, 8001, "토큰 재발급에 실패하였습니다.");
+    EXPIRED_USER_JWT(false,8000,"만료된 JWT입니다."),
+    REISSUE_TOKEN(false, 8001, "토큰이 만료되었습니다. 다시 로그인해주세요."),
+    FAILED_TO_UPDATE(false, 8002, "토큰을 만료시키는 작업에 실패하였습니다."),
+    FAILED_TO_REFRESH(false, 8003, "토큰 재발급에 실패하였습니다.");
     private final boolean isSuccess;
     private final int code;
     private final String message;

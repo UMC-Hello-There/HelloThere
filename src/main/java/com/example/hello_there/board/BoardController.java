@@ -1,5 +1,8 @@
 package com.example.hello_there.board;
 
+import com.example.hello_there.board.dto.DeleteBoardReq;
+import com.example.hello_there.board.dto.GetBoardRes;
+import com.example.hello_there.board.dto.PatchBoardReq;
 import com.example.hello_there.board.dto.PostBoardReq;
 import com.example.hello_there.exception.BaseException;
 import com.example.hello_there.exception.BaseResponse;
@@ -25,11 +28,9 @@ public class BoardController {
     /** 게시글 생성하기 **/
     @PostMapping("/board")
     public BaseResponse<String> createBoard(@RequestPart(value = "image", required = false) List<MultipartFile> multipartFiles,
-                                            @RequestPart(value = "title") @Validated String title,
-                                            @RequestPart(value = "content") @Validated String content) {
+                                            @Validated @RequestPart(value = "postBoardReq") PostBoardReq postBoardReq) {
         try {
             Long memberId = jwtService.getUserIdx();
-            PostBoardReq postBoardReq = new PostBoardReq(BoardType.SHARE_BOARD, title, content);
             return new BaseResponse<>(boardService.createBoard(memberId, postBoardReq, multipartFiles));
         }
         catch (BaseException exception) {
@@ -37,44 +38,41 @@ public class BoardController {
         }
     }
 
-//    /** 게시글을 Id로 조회하기 **/
-//    @GetMapping("/board/{board-id}")
-//    public BaseResponse<GetBoardRes> getBoard(@PathVariable(name = "board-id") Long boardId) {
-//        try{
-//            Board board = boardService.getBoard(boardId);
-//            Member member = board.getMember();
-//            GetBoardRes getBoardRes = new GetBoardRes(boardId, member.getNickName(), board.getTitle(), board.getContent());
-//            return new BaseResponse<>(getBoardRes);
-//        } catch(BaseException exception){
-//            return new BaseResponse<>(exception.getStatus());
-//        }
-//    }
-//
-//    /** 게시글을 Id로 삭제하기 **/
-//    @DeleteMapping("/delete/{board-id}")
-//    public BaseResponse<String> deleteBoard(@PathVariable(name = "board-id") Long boardId){
-//        try{
-//            Long memberId = jwtService.getMemberIdx();
-//            DeleteBoardReq deleteBoardReq = new DeleteBoardReq(memberId, boardId);
-//            return new BaseResponse<>(boardService.deleteBoard(deleteBoardReq));
-//        } catch(BaseException exception){
-//            return new BaseResponse<>(exception.getStatus());
-//        }
-//    }
-//
-//    /** 게시글 수정하기 **/
-//    @PatchMapping("/modify")
-//    public BaseResponse<String> modifyBoard(@RequestParam Long boardId,
-//                                            @RequestPart(value = "image", required = false) List<MultipartFile> multipartFiles,
-//                                            @RequestPart(value = "title") @Validated String title,
-//                                            @RequestPart(value = "content") @Validated String content) {
-//        try {
-//            Long memberId = jwtService.getMemberIdx();
-//            PatchBoardReq patchBoardReq = new PatchBoardReq(title, content);
-//            return new BaseResponse<>(boardService.modifyBoard(memberId, boardId, patchBoardReq, multipartFiles));
-//        }
-//        catch (BaseException exception) {
-//            return new BaseResponse<>(exception.getStatus());
-//        }
-//    }
+    /** 게시글을 Id로 조회하기 **/
+    @GetMapping("/board")
+    public BaseResponse<List<GetBoardRes>> getBoard(@RequestParam(required = false) Long boardId) {
+        try{
+            if(boardId == null) {
+                return new BaseResponse<>(boardService.getBoards());
+            }
+            return new BaseResponse<>(boardService.getBoardById(boardId));
+        } catch(BaseException exception){
+            return new BaseResponse<>(exception.getStatus());
+        }
+    }
+
+    /** 게시글을 Id로 삭제하기 **/
+    @DeleteMapping("/delete/{board-id}")
+    public BaseResponse<String> deleteBoard(@PathVariable(name = "board-id") Long boardId){
+        try{
+            Long memberId = jwtService.getUserIdx();
+            DeleteBoardReq deleteBoardReq = new DeleteBoardReq(memberId, boardId);
+            return new BaseResponse<>(boardService.deleteBoard(deleteBoardReq));
+        } catch(BaseException exception){
+            return new BaseResponse<>(exception.getStatus());
+        }
+    }
+
+    /** 게시글 수정하기 **/
+    @PatchMapping("/modify")
+    public BaseResponse<String> modifyBoard(@RequestPart(value = "image", required = false) List<MultipartFile> multipartFiles,
+                                            @Validated @RequestPart(value = "patchBoardReq") PatchBoardReq patchBoardReq) {
+        try {
+            Long userId = jwtService.getUserIdx();
+            return new BaseResponse<>(boardService.modifyBoard(userId, patchBoardReq, multipartFiles));
+        }
+        catch (BaseException exception) {
+            return new BaseResponse<>(exception.getStatus());
+        }
+    }
 }

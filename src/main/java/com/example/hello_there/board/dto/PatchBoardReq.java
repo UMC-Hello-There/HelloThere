@@ -1,13 +1,29 @@
 package com.example.hello_there.board.dto;
 
+import com.example.hello_there.board.BoardType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.validation.annotation.Validated;
 
-@Getter // 해당 클래스에 대한 접근자 생성
-@Setter // 해당 클래스에 대한 설정자 생성
-@AllArgsConstructor // 해당 클래스의 모든 멤버 변수(userIdx, nickname)를 받는 생성자를 생성
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Size;
+
+@NoArgsConstructor
+@AllArgsConstructor
+@Getter
+@Validated
 public class PatchBoardReq {
+    // build.gradle의 dependencies에
+    // implementation 'org.springframework.boot:spring-boot-starter-validation'
+    // 추가해야 Not Blank와 Size사용 가능
+    private Long boardId;
+    private BoardType boardType;
+    @NotBlank(message = "제목을 입력하세요.")
+    @Size(min=2, max=20, message = "제목의 길이는 2~20글자까지 입력 가능합니다.")
     private String title;
+    @NotBlank(message = "본문을 입력하세요.")
+    @Size(min=2, max=100, message = "본문의 길이는 2~100글자까지 입력 가능합니다.")
     private String content;
 }

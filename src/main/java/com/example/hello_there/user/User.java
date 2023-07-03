@@ -43,6 +43,7 @@ public class User extends BaseTimeEntity {
     private LocalDate birth; // 유저의 생년월일을 yyyy-mm-dd 형식으로 표현
 
     @Column(nullable = false) // status는 멤버 회원가입 시에 자동으로 ACTIVE로 설정됨.
+    @Enumerated(EnumType.STRING)
     private UserStatus status; // 유저의 활성화, 비활성화, 징계 등을 체크
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -73,5 +74,17 @@ public class User extends BaseTimeEntity {
     }
     public void updateEmail(String email){
         this.email = email;
+    }
+
+    public void updateBirth(LocalDate birth){
+        this.birth = birth;
+    }
+
+    public void updateGender(boolean gender){
+        this.gender = gender;
+    }
+
+    public void updateStatus(UserStatus status){
+        this.status = status;
     }
 }

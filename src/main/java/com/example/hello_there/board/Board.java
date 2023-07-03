@@ -28,6 +28,7 @@ public class Board extends BaseTimeEntity {
     private String content;
 
     @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
     private BoardType boardType;
 
     // 멤버와 관계 매핑
@@ -39,7 +40,8 @@ public class Board extends BaseTimeEntity {
     @OneToMany(mappedBy = "board", cascade = {CascadeType.ALL}, orphanRemoval = true)
     private List<PostPhoto> photoList = new ArrayList<>();
 
-    public void updateBoard(String title, String content){
+    public void updateBoard(BoardType boardType, String title, String content){
+        this.boardType = boardType;
         this.title = title;
         this.content = content;
     }
