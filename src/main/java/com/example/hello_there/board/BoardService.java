@@ -28,6 +28,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.example.hello_there.exception.BaseResponseStatus.*;
+import static com.example.hello_there.utils.UtilService.*;
 
 @Service
 @RequiredArgsConstructor
@@ -75,6 +76,8 @@ public class BoardService {
             List<Board> boards = boardRepository.findBoards();
             List<GetBoardRes> getBoardRes = boards.stream()
                     .map(board -> new GetBoardRes(board.getBoardId(), board.getBoardType(),
+                            convertLocalDateTimeToLocalDate(board.getCreateDate()),
+                            convertLocalDateTimeToTime(board.getCreateDate()),
                             board.getUser().getNickName(), board.getTitle(), board.getContent()))
                     .collect(Collectors.toList());
             return getBoardRes;
@@ -84,12 +87,15 @@ public class BoardService {
     }
 
     @Transactional
-    public List<GetBoardRes> getBoardById(Long boardId) throws BaseException{
+    public List<GetBoardRes> getBoardById(Long userId) throws BaseException{
         try {
-            Board board = utilService.findByBoardIdWithValidation(boardId);
-            User user = board.getUser();
-            List<GetBoardRes> getBoardRes = new ArrayList<>(); // boardId는 유일하지만 반환형식을 맞추기 위해 List 사용
-            getBoardRes.add(new GetBoardRes(boardId, board.getBoardType(), user.getNickName(), board.getTitle(), board.getContent()));
+            List<Board> boards = boardRepository.findBoardByUserId(userId);
+            List<GetBoardRes> getBoardRes = boards.stream()
+                    .map(board -> new GetBoardRes(board.getBoardId(), board.getBoardType(),
+                            convertLocalDateTimeToLocalDate(board.getCreateDate()),
+                            convertLocalDateTimeToTime(board.getCreateDate()),
+                            board.getUser().getNickName(), board.getTitle(), board.getContent()))
+                    .collect(Collectors.toList());
             return getBoardRes;
         } catch (Exception exception) {
             throw new BaseException(DATABASE_ERROR);

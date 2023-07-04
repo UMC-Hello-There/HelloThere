@@ -38,14 +38,14 @@ public class BoardController {
         }
     }
 
-    /** 게시글을 Id로 조회하기 **/
+    /** 게시글을 멤버Id로 조회하기 **/
     @GetMapping("/board")
-    public BaseResponse<List<GetBoardRes>> getBoard(@RequestParam(required = false) Long boardId) {
+    public BaseResponse<List<GetBoardRes>> getBoard(@RequestParam(required = false) Long userId) {
         try{
-            if(boardId == null) {
+            if(userId == null) {
                 return new BaseResponse<>(boardService.getBoards());
             }
-            return new BaseResponse<>(boardService.getBoardById(boardId));
+            return new BaseResponse<>(boardService.getBoardById(userId));
         } catch(BaseException exception){
             return new BaseResponse<>(exception.getStatus());
         }

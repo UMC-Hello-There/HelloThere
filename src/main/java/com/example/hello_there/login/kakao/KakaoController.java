@@ -12,6 +12,7 @@ import com.example.hello_there.login.jwt.TokenRepository;
 import com.example.hello_there.user.User;
 import com.example.hello_there.user.UserRepository;
 import com.example.hello_there.user.UserService;
+import com.google.gson.Gson;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDate;
+import java.util.Map;
 import java.util.Optional;
 
 import static com.example.hello_there.exception.BaseResponseStatus.*;
@@ -38,7 +40,12 @@ public class KakaoController {
 
     @ResponseBody
     @PostMapping("/oauth/kakao")
+    // public BaseResponse<?> kakaoCallback(String code) { // 실제 프로덕션 환경에서는 주석을 풀어야 함.
     public BaseResponse<?> kakaoCallback(@RequestParam("accToken") String accessToken) {
+//        String accessToken = googleService.getAccessToken(code);
+//        Gson gsonObj = new Gson();
+//        Map<?, ?> data = gsonObj.fromJson(accessToken, Map.class);
+//        String atoken = (String) data.get("access_token");
         String userEmail = kaKaoLoginService.getUserEmail(accessToken);
         Optional<User> findUser = userRepository.findByEmail(userEmail);
         if (!findUser.isPresent()) { // 회원가입인 경우

@@ -128,13 +128,9 @@ public class JwtService {
      */
     private String refreshAccessToken(User user, String refreshToken) throws BaseException {
         try {
-            // 리프레시 토큰이 없는(로그인을 하지 않은) 경우
-            if (refreshToken.equals("")) {
-                throw new BaseException(INVALID_USER_JWT);
-            }
             // 리프레시 토큰이 만료 등의 이유로 유효하지 않은 경우
             if (!jwtProvider.validateToken(refreshToken)) {
-                throw new BaseException(EXPIRED_USER_JWT);
+                throw new BaseException(INVALID_JWT);
             }
             else { // 리프레시 토큰이 유효한 경우
                 Long userId = user.getId();
