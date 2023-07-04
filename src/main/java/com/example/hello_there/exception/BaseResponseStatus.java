@@ -97,7 +97,14 @@ public enum BaseResponseStatus {
     EXPIRED_USER_JWT(false,8000,"만료된 JWT입니다."),
     REISSUE_TOKEN(false, 8001, "토큰이 만료되었습니다. 다시 로그인해주세요."),
     FAILED_TO_UPDATE(false, 8002, "토큰을 만료시키는 작업에 실패하였습니다."),
-    FAILED_TO_REFRESH(false, 8003, "토큰 재발급에 실패하였습니다.");
+    FAILED_TO_REFRESH(false, 8003, "토큰 재발급에 실패하였습니다."),
+
+    /**
+     *   9000 : 채팅 관련 오류
+     */
+    CANNOT_CREATE_ROOM(false, 9000, "혼자만의 채팅방은 만들 수 없습니다."),
+    NONE_EXIST_ROOM(false, 9001, "요청하신 채팅방은 존재하지 않습니다.");
+
     private final boolean isSuccess;
     private final int code;
     private final String message;

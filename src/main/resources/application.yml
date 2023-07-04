@@ -4,9 +4,9 @@ spring:
       max-request-size: 30MB
       max-file-size: 30MB
   datasource:
-    url: jdbc:mysql://{RDS 엔드포인트}:3306/{초기데이터베이스 이름}?userSSL=false&useUnicode=true&serverTimezone=Asia/Seoul&autoReconnect=True
+    url: jdbc:mysql://hello-there.cttuoh0xl2hh.ap-northeast-2.rds.amazonaws.com:3306/MyDB?userSSL=false&useUnicode=true&serverTimezone=Asia/Seoul&autoReconnect=True
     username : root
-    password : password
+    password : wdrsus0520
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
@@ -20,13 +20,13 @@ spring:
 cloud:
   aws:
     s3:
-      bucket: umcbucketchrome
+      bucket: hello-there-spring
     region:
       static: ap-northeast-2
     stack:
       auto: false
     credentials:
-      access-key: {버킷에 대한 IAM 액세스 키}
-      secret-key: {버킷에 대한 IAM 비밀 키}
+      access-key: AKIA2NCQDTVFSGP6Y7JI
+      secret-key: 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
 
 

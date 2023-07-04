@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>WebSocket Test</title>
+</head>
+<body>
+<input type="text" id="messageInput" placeholder="메시지를 입력하세요" autofocus />
+<button onclick="sendMessage()">전송</button>
+<ul id="messageList"></ul>
+
+<script>
+    const socket = new WebSocket('ws://localhost:8080/ws');
+
+    socket.onopen = () => {
+        console.log('WebSocket 연결이 열렸습니다.');
+    };
+
+    socket.onmessage = event => {
+        const receivedMessage = JSON.parse(event.data);
+        console.log('서버로부터 메시지 수신:', receivedMessage);
+        showMessage(receivedMessage);
+    };
+
+    socket.onclose = () => {
+        console.log('WebSocket 연결이 닫혔습니다.');
+    };
+
+    function sendMessage() {
+        const inputElement = document.getElementById('messageInput');
+        const message = inputElement.value;
+        inputElement.value = '';
+
+        const senderId = 1;
+        const receiverId = 2;
+        const chatRoomId = 3;
+
+        const payload = {
+            message: message,
+            senderId: senderId,
+            receiverId: receiverId,
+            chatRoomId: chatRoomId
+        };
+
+        socket.send(JSON.stringify(payload));
+    }
+
+    function showMessage(message) {
+        const messageList = document.getElementById('messageList');
+        const listItem = document.createElement('li');
+        listItem.textContent = message;
+        messageList.appendChild(listItem);
+    }
+</script>
+</body>
+</html>

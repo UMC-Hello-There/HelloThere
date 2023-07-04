@@ -4,6 +4,8 @@ import com.example.hello_there.board.Board;
 import com.example.hello_there.board.BoardRepository;
 import com.example.hello_there.board.comment.Comment;
 import com.example.hello_there.board.comment.CommentRepository;
+import com.example.hello_there.chat.ChatRoom;
+import com.example.hello_there.chat.ChatRoomRepository;
 import com.example.hello_there.exception.BaseException;
 import com.example.hello_there.exception.BaseResponseStatus;
 import com.example.hello_there.login.jwt.Token;
@@ -20,6 +22,7 @@ public class UtilService {
     private final BoardRepository boardRepository;
     private final CommentRepository commentRepository;
     private final TokenRepository tokenRepository;
+    private final ChatRoomRepository chatRoomRepository;
 
     public User findByUserIdWithValidation(Long userId) throws BaseException {
         User user = userRepository.findUserById(userId).orElse(null);
@@ -49,5 +52,11 @@ public class UtilService {
         Token token = tokenRepository.findTokenByUserId(userId).orElse(null);
         if(token == null) throw new BaseException(BaseResponseStatus.INVALID_USER_JWT);
         return token;
+    }
+
+    public ChatRoom findChatRoomByChatRoomIdWithValidation(Long chatRoomId) throws BaseException {
+        ChatRoom chatRoom = chatRoomRepository.findChatRoomById(chatRoomId).orElse(null);
+        if(chatRoom == null) throw new BaseException(BaseResponseStatus.NONE_EXIST_ROOM);
+        return chatRoom;
     }
 }
