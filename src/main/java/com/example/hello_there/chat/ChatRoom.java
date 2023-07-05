@@ -2,6 +2,8 @@ package com.example.hello_there.chat;
 
 import com.example.hello_there.message.Message;
 import com.example.hello_there.user.User;
+import com.example.hello_there.utils.BaseTimeEntity;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.*;
 
 import javax.persistence.*;
@@ -13,7 +15,7 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class ChatRoom {
+public class ChatRoom extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long chatRoomId;

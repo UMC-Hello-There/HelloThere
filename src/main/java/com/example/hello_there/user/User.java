@@ -1,9 +1,11 @@
 package com.example.hello_there.user;
 
 import com.example.hello_there.board.Board;
+import com.example.hello_there.chat.ChatRoom;
 import com.example.hello_there.login.jwt.Token;
 import com.example.hello_there.user.profile.Profile;
 import com.example.hello_there.utils.BaseTimeEntity;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -54,6 +56,13 @@ public class User extends BaseTimeEntity {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Board> boards = new ArrayList<>();
+
+    @OneToMany(mappedBy = "participant", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ChatRoom> chatRoomsAsParticipant = new ArrayList<>();
+
+    @OneToMany(mappedBy = "inviter", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ChatRoom> chatRoomsAsInviter = new ArrayList<>();
+
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Board> comments = new ArrayList<>();

@@ -30,8 +30,8 @@ public class BoardController {
     public BaseResponse<String> createBoard(@RequestPart(value = "image", required = false) List<MultipartFile> multipartFiles,
                                             @Validated @RequestPart(value = "postBoardReq") PostBoardReq postBoardReq) {
         try {
-            Long memberId = jwtService.getUserIdx();
-            return new BaseResponse<>(boardService.createBoard(memberId, postBoardReq, multipartFiles));
+            Long userId = jwtService.getUserIdx();
+            return new BaseResponse<>(boardService.createBoard(userId, postBoardReq, multipartFiles));
         }
         catch (BaseException exception) {
             return new BaseResponse<>(exception.getStatus());

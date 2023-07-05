@@ -1,10 +1,7 @@
 package com.example.hello_there.chat;
 
-import com.example.hello_there.board.Board;
-import com.example.hello_there.board.dto.GetBoardRes;
-import com.example.hello_there.chat.dto.GetChatRoomDetailRes;
 import com.example.hello_there.chat.dto.GetChatRoomRes;
-import com.example.hello_there.chat.dto.PostChatRoomReq;
+import com.example.hello_there.chat.dto.PostPersonalChatRoomReq;
 import com.example.hello_there.exception.BaseException;
 import com.example.hello_there.user.User;
 import com.example.hello_there.utils.UtilService;
@@ -13,7 +10,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.example.hello_there.exception.BaseResponseStatus.*;
@@ -25,16 +21,19 @@ public class ChatRoomService {
     private final UtilService utilService;
 
     @Transactional(rollbackFor = Exception.class)
-    public Long joinChatRoom(PostChatRoomReq postChatRoomReq) throws BaseException {
-        if(postChatRoomReq.getInviterId().equals(postChatRoomReq.getParticipantId())) {
+    public Long joinChatRoom(PostPersonalChatRoomReq postPersonalChatRoomReq) throws BaseException {
+        if(postPersonalChatRoomReq.getInviterId().equals(postPersonalChatRoomReq.getParticipantId())) {
+            // 자기 자신과의 채팅방 기능은 제공하지 않는다.
             throw new BaseException(CANNOT_CREATE_ROOM);
         }
+        // 대화 상대와 이미 채팅방이 존재하는 경우를 판별.
+        // inviter-participant 쌍의 채팅방이 이미 있다면 새로운 채팅방을 만들 필요가 없다.
         ChatRoom chatRoom = chatRoomRepository.findChatRoomsByInviterAndParticipant(
-                postChatRoomReq.getInviterId(),
-                postChatRoomReq.getParticipantId()).orElse(null);
-        if(chatRoom == null) {
-            User participant = utilService.findByUserIdWithValidation(postChatRoomReq.getParticipantId());
-            User inviter = utilService.findByUserIdWithValidation(postChatRoomReq.getInviterId());
+                postPersonalChatRoomReq.getInviterId(),
+                postPersonalChatRoomReq.getParticipantId()).orElse(null);
+        if(chatRoom == null) { // 처음 대화하는 경우
+            User participant = utilService.findByUserIdWithValidation(postPersonalChatRoomReq.getParticipantId());
+            User inviter = utilService.findByUserIdWithValidation(postPersonalChatRoomReq.getInviterId());
             chatRoom = ChatRoom.builder()
                     .participant(participant)
                     .inviter(inviter)
@@ -45,12 +44,13 @@ public class ChatRoomService {
     }
 
     @Transactional(readOnly = true)
-    public List<GetChatRoomRes> getChatRooms(Long memberId) throws BaseException{
+    public List<GetChatRoomRes> getChatRooms(Long userId) throws BaseException{
         try{
-            List<ChatRoom> chatRooms = chatRoomRepository.findChatRoomsByUserId(memberId);
+            List<ChatRoom> chatRooms = chatRoomRepository.findChatRoomsByUserId(userId);
             List<GetChatRoomRes> getChatRoomRes = chatRooms.stream()
-                    .map(chatRoom -> new GetChatRoomRes(chatRoom.getChatRoomId(), chatRoom.getInviter(),
-                            chatRoom.getParticipant()))
+                    .map(chatRoom -> new GetChatRoomRes(chatRoom.getChatRoomId(), chatRoom.getInviter().getId(),
+                            chatRoom.getInviter().getNickName(), chatRoom.getParticipant().getId(),
+                            chatRoom.getParticipant().getNickName(), chatRoom.getMessageList()))
                     .collect(Collectors.toList());
             return getChatRoomRes;
         } catch (Exception exception) {
@@ -59,13 +59,15 @@ public class ChatRoomService {
     }
 
     @Transactional(readOnly = true)
-    public GetChatRoomDetailRes getChatRoomsDetail(Long chatRoomId) throws BaseException {
+    public GetChatRoomRes getChatRoomsById(Long chatRoomId) throws BaseException {
         ChatRoom chatRoom = chatRoomRepository.findChatRoomById(chatRoomId).orElse(null);
         if(chatRoom == null) {
             throw new BaseException(NONE_EXIST_ROOM);
         }
-        GetChatRoomDetailRes getChatRoomDetailRes = new GetChatRoomDetailRes(chatRoom.getChatRoomId(),
-                chatRoom.getParticipant(), chatRoom.getInviter(), chatRoom.getMessageList());
+        User inviter = chatRoom.getInviter();
+        User participant = chatRoom.getParticipant();
+        GetChatRoomRes getChatRoomDetailRes = new GetChatRoomRes(chatRoom.getChatRoomId(), inviter.getId(),
+                inviter.getNickName(), participant.getId(), participant.getNickName(), chatRoom.getMessageList());
         return getChatRoomDetailRes;
     }
 }

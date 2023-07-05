@@ -1,6 +1,7 @@
 package com.example.hello_there.user.profile;
 
 import com.example.hello_there.user.User;
+import com.example.hello_there.utils.BaseTimeEntity;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -13,7 +14,7 @@ import javax.persistence.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-public class Profile {
+public class Profile extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long profileId;
