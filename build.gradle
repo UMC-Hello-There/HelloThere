@@ -38,8 +38,7 @@ dependencies {
 
 	// openAPI 의존성
 	implementation 'org.springdoc:springdoc-openapi-ui:1.7.0'
-	// swagger 의존성
-	implementation 'io.springfox:springfox-boot-starter:3.0.0'
+
 	// S3 의존성
 	implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
 

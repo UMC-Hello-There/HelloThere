@@ -84,6 +84,10 @@ public class UserService {
      */
     public PostLoginRes login(PostLoginReq postLoginReq) throws BaseException {
         User user = utilService.findByEmailWithValidation(postLoginReq.getEmail());
+        Token existToken = tokenRepository.findTokenByUserId(user.getId()).orElse(null);
+        if(existToken != null) { // 이미 토큰 Repository에 토큰이 존재하는 경우
+            throw new BaseException(ALREADY_LOGIN);
+        }
         String password; // DB에 저장된 암호화된 비밀번호를 복호화한 값을 저장하기 위한 변수
         try{
             password = new AES128(Secret.USER_INFO_PASSWORD_KEY).decrypt(user.getPassword()); // 복호화

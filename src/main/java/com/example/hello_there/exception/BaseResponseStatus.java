@@ -18,7 +18,7 @@ public enum BaseResponseStatus {
     EMPTY_JWT(false, 2001, "JWT를 입력해주세요."),
     INVALID_JWT(false, 2002, "유효하지 않은 JWT입니다."),
     INVALID_USER_JWT(false,2003,"권한이 없는 유저의 접근입니다."),
-    NONE_EXIST_MEMBER(false, 2006, "존재하지 않는 사용자입니다."),
+    NONE_EXIST_USER(false, 2006, "존재하지 않는 사용자입니다."),
     // users
     USERS_EMPTY_USER_ID(false, 2010, "유저 아이디 값을 확인해주세요."),
     INVALID_MEMBER_ID(false, 2010, "멤버 아이디와 이메일이 일치하지 않습니다."),
@@ -85,6 +85,7 @@ public enum BaseResponseStatus {
     KAKAO_ERROR(false, 6001, "카카오 로그아웃에 실패했습니다."),
     INTRODUCE_ERROR(false, 6002, "한줄 소개는 0~30자이어야 합니다."),
     DISAGREE_TO_PROVIDE(false, 6003, "정보 제공에 동의해주세요."),
+    ALREADY_LOGIN(false, 6004, "이미 로그인된 유저입니다."),
 
     /**
      *   7000 : 댓글 관련 오류
@@ -103,7 +104,10 @@ public enum BaseResponseStatus {
      *   9000 : 채팅 관련 오류
      */
     CANNOT_CREATE_ROOM(false, 9000, "혼자만의 채팅방은 만들 수 없습니다."),
-    NONE_EXIST_ROOM(false, 9001, "요청하신 채팅방은 존재하지 않습니다.");
+    ALREADY_EXIST_MEMBER(false, 9001, "이미 추가된 유저입니다."),
+    FAILED_TO_ENTER(false, 9002, "채팅방 입장에 실패하였습니다."),
+    NONE_EXIST_ROOM(false, 9003, "요청하신 채팅방은 존재하지 않습니다."),
+    OVER_CAPACITY(false, 9004, "채팅방에서 지정한 최대 인원 수에 도달하여 추가할 수 없습니다.");
 
     private final boolean isSuccess;
     private final int code;

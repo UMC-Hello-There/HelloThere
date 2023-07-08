@@ -4,8 +4,8 @@ import com.example.hello_there.board.Board;
 import com.example.hello_there.board.BoardRepository;
 import com.example.hello_there.board.comment.Comment;
 import com.example.hello_there.board.comment.CommentRepository;
-import com.example.hello_there.chat.ChatRoom;
-import com.example.hello_there.chat.ChatRoomRepository;
+import com.example.hello_there.chat_room.ChatRoom;
+import com.example.hello_there.chat_room.ChatRoomRepository;
 import com.example.hello_there.exception.BaseException;
 import com.example.hello_there.exception.BaseResponseStatus;
 import com.example.hello_there.login.jwt.Token;
@@ -36,7 +36,7 @@ public class UtilService {
 
     public User findByUserIdWithValidation(Long userId) throws BaseException {
         User user = userRepository.findUserById(userId).orElse(null);
-        if(user == null) throw new BaseException(BaseResponseStatus.NONE_EXIST_MEMBER);
+        if(user == null) throw new BaseException(BaseResponseStatus.NONE_EXIST_USER);
         return user;
     }
 
@@ -64,13 +64,13 @@ public class UtilService {
         return token;
     }
 
-    public ChatRoom findChatRoomByChatRoomIdWithValidation(Long chatRoomId) throws BaseException {
+    public ChatRoom findChatRoomByChatRoomIdWithValidation(String chatRoomId) throws BaseException {
         ChatRoom chatRoom = chatRoomRepository.findChatRoomById(chatRoomId).orElse(null);
         if(chatRoom == null) throw new BaseException(BaseResponseStatus.NONE_EXIST_ROOM);
         return chatRoom;
     }
 
-    public static String convertLocalDateTimeToLocalDate(LocalDateTime localDateTime) {
+    public static String  convertLocalDateTimeToLocalDate(LocalDateTime localDateTime) {
         return localDateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
     }
     public static String convertLocalDateTimeToTime(LocalDateTime localDateTime) {
@@ -79,7 +79,7 @@ public class UtilService {
         long diffTime = localDateTime.until(now, ChronoUnit.SECONDS); // now보다 이후면 +, 전이면 -
 
         if (diffTime < SEC){
-            return diffTime + "초전";
+            return diffTime + "초 전";
         }
         diffTime = diffTime / SEC;
         if (diffTime < MIN) {
