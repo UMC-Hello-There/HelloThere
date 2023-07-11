@@ -1,4 +1,4 @@
-package com.example.hello_there.board.comment.dto;
+package com.example.hello_there.comment.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
