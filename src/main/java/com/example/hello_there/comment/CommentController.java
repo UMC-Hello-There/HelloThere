@@ -12,7 +12,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -27,7 +26,7 @@ public class CommentController {
 
     /** 댓글 생성 **/
     @PostMapping
-    public BaseResponse<PostCommentRes> commentAdd(
+    public BaseResponse<PostCommentRes> addComment(
             @RequestBody @Valid PostCommentReq postCommentReq,
             @PathVariable Long boardId) {
         try{
@@ -50,38 +49,4 @@ public class CommentController {
             return new BaseResponse<>(exception.getStatus());
         }
     }
-
-//    /** 멤버의 댓글 기록 조회 **/
-//    @GetMapping("/list-up/member/{user-id}")
-//    public BaseResponse<List<GetCommentRes>> getComments(@PathVariable(name = "user-id") Long userId) {
-//        try{
-//            return new BaseResponse<>(commentService.getComments(userId));
-//        } catch (BaseException exception) {
-//            return new BaseResponse<>(exception.getStatus());
-//        }
-//    }
-//
-//    /** 댓글을 Id로 삭제하기 **/
-//    @DeleteMapping("/delete/{comment-id}")
-//    public BaseResponse<String> deleteBoard(@PathVariable(name = "comment-id") Long commentId){
-//        try{
-//            Long userId = jwtService.getUserIdx();
-//            DeleteCommentReq deleteCommentReq = new DeleteCommentReq(userId, commentId);
-//            return new BaseResponse<>(commentService.deleteComment(deleteCommentReq));
-//        } catch(BaseException exception){
-//            return new BaseResponse<>(exception.getStatus());
-//        }
-//    }
-//
-//    /** 댓글 수정하기 **/
-//    @PatchMapping("/modify")
-//    public BaseResponse<String> modifyComment(@Validated @RequestBody PatchCommentReq patchCommentReq) {
-//        try {
-//            Long userId = jwtService.getUserIdx();
-//            return new BaseResponse<>(commentService.modifyComment(userId, patchCommentReq));
-//        }
-//        catch (BaseException exception) {
-//            return new BaseResponse<>(exception.getStatus());
-//        }
-//    }
 }

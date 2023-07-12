@@ -19,7 +19,7 @@ public class PostCommentRes {
     private final String content;    // 댓글 내용
     private final String nickName;   // 회원 닉네임
     private final Integer likeCount; // 전체 좋아요 수
-    private final LocalDateTime createdDate;
+    private final String createdDate;
 
     public PostCommentRes(Comment comment){
         this.commentId = comment.getCommentId();
