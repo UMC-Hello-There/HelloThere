@@ -91,7 +91,7 @@ public enum BaseResponseStatus {
      *   7000 : 댓글 관련 오류
      */
     NONE_EXIST_COMMENT(false, 7000, "요청하신 댓글은 존재하지 않습니다."),
-
+    NONE_EXIST_PARENT_COMMENT(false,7001,"부모댓글이 존재하지 않습니다."),
     /**
      *   8000 : 토큰 관련 오류
      */
