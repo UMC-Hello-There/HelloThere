@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Getter
@@ -29,7 +30,8 @@ public class GetCommentRes {
         this.content = comment.getContent();
         this.nickName = comment.getUser().getNickName();
         this.likeCount = comment.getLikeCount();
-        this.createdDate = comment.getCreateDate();
-        this.modifiedDate = comment.getModifiedDate();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+        this.createdDate = comment.getCreateDate().format(formatter);
+        this.modifiedDate = comment.getModifiedDate().format(formatter);
     }
 }
