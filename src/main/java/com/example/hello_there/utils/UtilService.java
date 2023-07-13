@@ -2,8 +2,8 @@ package com.example.hello_there.utils;
 
 import com.example.hello_there.board.Board;
 import com.example.hello_there.board.BoardRepository;
-import com.example.hello_there.board.comment.Comment;
-import com.example.hello_there.board.comment.CommentRepository;
+import com.example.hello_there.comment.Comment;
+import com.example.hello_there.comment.CommentRepository;
 import com.example.hello_there.chat_room.ChatRoom;
 import com.example.hello_there.chat_room.ChatRoomRepository;
 import com.example.hello_there.exception.BaseException;
@@ -53,9 +53,9 @@ public class UtilService {
     }
 
     public Comment findByCommentIdWithValidation(Long commentId) throws BaseException {
-        Comment comment = commentRepository.findCommentById(commentId).orElse(null);
-        if(comment == null) throw new BaseException(BaseResponseStatus.NONE_EXIST_COMMENT);
-        return comment;
+        return commentRepository
+                .findById(commentId)
+                .orElseThrow(()-> new BaseException(BaseResponseStatus.NONE_EXIST_COMMENT));
     }
 
     public Token findTokenByUserIdWithValidation(Long userId) throws BaseException {
