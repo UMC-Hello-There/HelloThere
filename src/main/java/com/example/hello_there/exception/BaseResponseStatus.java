@@ -92,6 +92,8 @@ public enum BaseResponseStatus {
      */
     NONE_EXIST_COMMENT(false, 7000, "요청하신 댓글은 존재하지 않습니다."),
     NONE_EXIST_PARENT_COMMENT(false,7001,"부모댓글이 존재하지 않습니다."),
+    INVALID_UPDATE_REQUEST(false,7002,"댓글 작성자 이외엔 수정할 수 없습니다."),
+    INVALID_DELETE_REQUEST(false,7003,"댓글 작성자 이외엔 삭제할 수 없습니다."),
     /**
      *   8000 : 토큰 관련 오류
      */

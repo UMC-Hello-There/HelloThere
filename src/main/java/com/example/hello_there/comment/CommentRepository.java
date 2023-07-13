@@ -19,24 +19,23 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
 
     // 댓글+대댓글 전체 조회 (페이징처리), count 쿼리 분리
     @Query( value = "SELECT c FROM Comment c " +
-            " join fetch c.user u " +
-            " left join fetch c.parent p" +
+            " JOIN FETCH c.user u " +
+            " LEFT JOIN FETCH c.parent p" +
             " WHERE c.board.boardId = :boardId" +
             " ORDER BY c.groupId asc, c.createDate asc",
             countQuery = "SELECT count(c.commentId) FROM Comment c")
     Page<Comment> findCommentsByBoardIdForPage(@Param("boardId") Long boardId, Pageable pageable);
 
+    //회원과 댓글 fetch join
+    @Query("SELECT c FROM Comment c" +
+            " JOIN FETCH c.user u" +
+            " WHERE c.commentId =:commentId")
+    Optional<Comment> findCommentByIdWithUser(@Param("commentId") Long commentId);
+
     @Query("SELECT c FROM Comment c WHERE c.board.boardId = :boardId")
     List<Comment> findCommentsByBoardId(@Param("boardId") Long boardId);
-
-    @Query("SElECT c FROM Comment c WHERE c.commentId = :commentId")
-    Optional<Comment> findCommentById(@Param("commentId") Long commentId);
 
     @Modifying
     @Query("delete from Comment c where c.board.boardId = :boardId")
     void deleteCommentsByBoardId(@Param("boardId") Long boardId);
-
-    @Modifying
-    @Query("delete from Comment c where c.commentId = :commentId")
-    void deleteCommentByCommentId(@Param("commentId") Long commentId);
 }

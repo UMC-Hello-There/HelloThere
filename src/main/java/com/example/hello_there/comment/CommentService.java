@@ -2,7 +2,6 @@ package com.example.hello_there.comment;
 
 import com.example.hello_there.board.Board;
 import com.example.hello_there.board.BoardRepository;
-import com.example.hello_there.board.BoardType;
 import com.example.hello_there.comment.dto.*;
 import com.example.hello_there.exception.BaseException;
 import com.example.hello_there.user.User;
@@ -13,13 +12,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 import static com.example.hello_there.exception.BaseResponseStatus.*;
 
@@ -71,7 +63,59 @@ public class CommentService {
     public Page<GetCommentRes> findComments(Long boardId, Pageable pageable) throws BaseException {
         utilService.findByBoardIdWithValidation(boardId);
         return commentRepository
-                .findCommentsByBoardIdForPage(boardId,pageable)
+                .findCommentsByBoardIdForPage(boardId, pageable)
                 .map(GetCommentRes::new);
+    }
+
+    /**
+     * 댓글 수정
+     */
+    @Transactional
+    public PatchCommentRes updateComment(Long requestUserId, Long commentId, PatchCommentReq patchCommentReq, Long boardId) throws BaseException {
+        // 게시판 존재 검증
+        utilService.findByBoardIdWithValidation(boardId);
+
+        // 수정 요청한 댓글 엔티티, 존재하지않으면 예외발생
+        Comment updateRequestComment = commentRepository
+                .findCommentByIdWithUser(commentId)
+                .orElseThrow(() -> new BaseException(NONE_EXIST_COMMENT));
+
+        // 조회한 댓글의 회원 ID
+        Long originUserId = updateRequestComment.getUser().getId();
+
+        // 수정 요청한 댓글이 자신의 댓글이 맞는지 검증
+        if (requestUserId.equals(originUserId)) {
+            // 작성자의 요청
+            updateRequestComment.updateComment(patchCommentReq.getContent());
+        } else {
+            // 작성자가 아닌 요청으로 예외발생
+            throw new BaseException(INVALID_UPDATE_REQUEST);
+        }
+        return new PatchCommentRes(updateRequestComment);
+    }
+
+    @Transactional
+    public DeleteCommentRes deleteComment(Long requestUserId, Long boardId, Long commentId)throws BaseException {
+        // 게시판 존재 검증
+        utilService.findByBoardIdWithValidation(boardId);
+
+        // 삭제 요청한 댓글 엔티티, 존재하지않으면 예외발생
+        Comment deleteRequestComment = commentRepository
+                .findCommentByIdWithUser(commentId)
+                .orElseThrow(() -> new BaseException(NONE_EXIST_COMMENT));
+
+        // 조회한 댓글의 회원 ID
+        Long originUserId = deleteRequestComment.getUser().getId();
+
+        // 수정 요청한 댓글이 자신의 댓글이 맞는지 검증
+        if (requestUserId.equals(originUserId)) {
+            // 작성자의 요청
+            commentRepository.deleteById(commentId);
+        } else {
+            // 작성자가 아닌 요청으로 예외발생
+            throw new BaseException(INVALID_DELETE_REQUEST);
+        }
+
+        return new DeleteCommentRes(commentId);
     }
 }
