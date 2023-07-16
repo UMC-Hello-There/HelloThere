@@ -1,9 +1,6 @@
 package com.example.hello_there.board;
 
-import com.example.hello_there.board.dto.DeleteBoardReq;
-import com.example.hello_there.board.dto.GetBoardRes;
-import com.example.hello_there.board.dto.PatchBoardReq;
-import com.example.hello_there.board.dto.PostBoardReq;
+import com.example.hello_there.board.dto.*;
 import com.example.hello_there.exception.BaseException;
 import com.example.hello_there.exception.BaseResponse;
 import com.example.hello_there.login.jwt.JwtProvider;
@@ -38,9 +35,19 @@ public class BoardController {
         }
     }
 
+    /** 게시글을 boardId로 조회하기 **/
+    @GetMapping("/board/{boardId}")
+    public BaseResponse<GetBoardDetailRes> getBoardByBoardId(@PathVariable Long boardId) {
+        try{
+            return new BaseResponse<>(boardService.getBoardByBoardId(boardId));
+        } catch(BaseException exception){
+            return new BaseResponse<>(exception.getStatus());
+        }
+    }
+
     /** 게시글을 멤버Id로 조회하기 **/
     @GetMapping("/board")
-    public BaseResponse<List<GetBoardRes>> getBoard(@RequestParam(required = false) Long userId) {
+    public BaseResponse<List<GetBoardRes>> getBoardByUserId(@RequestParam(required = false) Long userId) {
         try{
             if(userId == null) {
                 return new BaseResponse<>(boardService.getBoards());

@@ -4,8 +4,11 @@ import com.example.hello_there.exception.BaseException;
 import com.example.hello_there.exception.BaseResponse;
 import com.example.hello_there.exception.BaseResponseStatus;
 import com.example.hello_there.user.User;
+import com.example.hello_there.user.UserService;
 import com.example.hello_there.user.UserStatus;
+import com.example.hello_there.user.dto.PostUserReq;
 import com.google.gson.Gson;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -23,8 +26,8 @@ import static com.example.hello_there.exception.BaseResponseStatus.*;
 import static com.example.hello_there.user.UserStatus.*;
 
 @Service
+@RequiredArgsConstructor
 public class KakaoService {
-
     public String getAccessToken(String code){
         //HttpHeaders 생성00
         HttpHeaders httpHeaders = new HttpHeaders();
@@ -162,55 +165,8 @@ public class KakaoService {
             nickName = (String) ((Map<?, ?>) ((Map<?, ?>) data.get("properties"))).get("nickname");
         }
 
-        // 성별 동의 여부 확인
-        boolean genderAgreement = (boolean) ((Map<?, ?>) (data.get("kakao_account"))).get("gender_needs_agreement");
-        String gender;
-        if (genderAgreement) { // 사용자가 성별 동의를 하지 않은 경우
-            gender = ""; // 대체값 설정
-        } else { // 사용자가 성별 제공에 동의한 경우
-            // 성별 정보 가져오기
-            gender = (String) ((Map<?, ?>) ((Map<?, ?>) data.get("kakao_account"))).get("gender");
-        }
-
-        // 생일 동의 여부 확인
-        boolean birthAgreement = (boolean) ((Map<?, ?>) (data.get("kakao_account"))).get("birthday_needs_agreement");
-        String birth;
-        if (birthAgreement) { // 사용자가 생일 동의를 하지 않은 경우
-            birth = ""; // 대체값 설정
-        } else { // 사용자가 생일 제공에 동의한 경우
-            // 생일 정보 가져오기
-            birth = (String) ((Map<?, ?>) ((Map<?, ?>) data.get("kakao_account"))).get("birthday");
-        }
-
         User user = new User();
-        if(!email.equals("")){
-            user.updateEmail(email);
-        }
-        if(!nickName.equals("")){
-            user.updateNickName(nickName);
-        }
-        if(!gender.equals("")){
-            if(gender.equals("male")){
-                user.updateGender(true);
-            }
-            else {
-                user.updateGender(false);
-            }
-        } else {
-            user.updateGender(true);
-        }
-        if(!birth.equals("")){
-            int defaultYear = 2023; // 카카오 API에서 출생연도를 가져올 권한이 없어서 임의 값을 입력
-            String month = birth.substring(0, 2); // 달 추출
-            String day = birth.substring(2); // 일 추출
-            String formattedDate = defaultYear + "-" + month + "-" + day;
-            user.updateBirth(LocalDate.parse(formattedDate, DateTimeFormatter.ISO_DATE));
-        }
-        else {
-            LocalDate defaultDate = LocalDate.now();
-            user.updateBirth(defaultDate);
-        }
-        user.updateStatus(ACTIVE);
+        user.createUser(email, null, nickName, "", null);
         return user;
     }
 }
