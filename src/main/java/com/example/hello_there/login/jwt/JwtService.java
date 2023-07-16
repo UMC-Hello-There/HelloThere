@@ -139,7 +139,7 @@ public class JwtService {
                 if (refreshedAccessToken != null) {
                     Token token = utilService.findTokenByUserIdWithValidation(userId);
                     token.updateAccessToken(refreshedAccessToken);
-                    userRepository.save(user);
+                    tokenRepository.save(token);
                     return refreshedAccessToken;
                 }
                 throw new BaseException(FAILED_TO_REFRESH);

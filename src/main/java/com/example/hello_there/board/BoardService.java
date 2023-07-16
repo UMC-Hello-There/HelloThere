@@ -1,28 +1,37 @@
 package com.example.hello_there.board;
 
-import com.example.hello_there.board.comment.Comment;
-import com.example.hello_there.board.comment.CommentRepository;
-import com.example.hello_there.board.dto.DeleteBoardReq;
-import com.example.hello_there.board.dto.GetBoardRes;
-import com.example.hello_there.board.dto.PatchBoardReq;
-import com.example.hello_there.board.dto.PostBoardReq;
+import com.example.hello_there.board.dto.*;
 import com.example.hello_there.board.photo.PostPhoto;
 import com.example.hello_there.board.photo.PostPhotoRepository;
 import com.example.hello_there.board.photo.PostPhotoService;
 import com.example.hello_there.board.photo.dto.GetS3Res;
+import com.example.hello_there.comment.Comment;
+import com.example.hello_there.comment.CommentRepository;
+import com.example.hello_there.comment.dto.GetCommentByBoardRes;
+import com.example.hello_there.comment.dto.GetCommentRes;
 import com.example.hello_there.exception.BaseException;
+import com.example.hello_there.exception.BaseResponse;
 import com.example.hello_there.user.User;
 import com.example.hello_there.user.UserRepository;
 import com.example.hello_there.user.dto.GetUserRes;
 import com.example.hello_there.utils.S3Service;
 import com.example.hello_there.utils.UtilService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.reactive.function.client.WebClient;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -68,6 +77,36 @@ public class BoardService {
         } catch (BaseException exception) {
             throw new BaseException(INVALID_JWT);
         }
+    }
+
+    public GetBoardDetailRes getBoardByBoardId(Long boardId) throws BaseException {
+        Board board = utilService.findByBoardIdWithValidation(boardId);
+        List<PostPhoto> postPhotos = postPhotoRepository.findAllByBoardId(boardId).orElse(Collections.emptyList());
+
+        List<GetS3Res> getS3Res = postPhotos.stream()
+                .map(photo -> new GetS3Res(photo.getImgUrl(), photo.getFileName()))
+                .collect(Collectors.toList());
+
+        RestTemplate restTemplate = new RestTemplate();
+        ResponseEntity<List<GetCommentRes>> responseEntity = restTemplate.exchange(
+                "http://localhost:8080/boards/{boardId}/comments",  // 호출할 API의 URL
+                HttpMethod.GET,  // 요청 방법 (GET, POST 등)
+                null,  // 요청에 대한 데이터 (필요에 따라 설정)
+                new ParameterizedTypeReference<List<GetCommentRes>>() {},
+                boardId  // URL 경로 변수에 대한 값 (필요에 따라 설정)
+        );
+        List<GetCommentRes> response = new ArrayList<>();
+        if (responseEntity.getStatusCode() == HttpStatus.OK) {
+            response = responseEntity.getBody();
+        } else {
+            throw new BaseException(FAIL_TO_LOAD);
+        }
+        GetBoardDetailRes getBoardDetailRes = new GetBoardDetailRes(board.getBoardId(),
+                board.getBoardType(), convertLocalDateTimeToLocalDate(board.getCreateDate()),
+                convertLocalDateTimeToTime(board.getCreateDate()), board.getUser().getNickName(),
+                board.getTitle(), board.getContent(), getS3Res, response);
+
+        return getBoardDetailRes;
     }
 
     @Transactional
