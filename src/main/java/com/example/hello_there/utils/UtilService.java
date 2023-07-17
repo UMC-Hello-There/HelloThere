@@ -8,6 +8,8 @@ import com.example.hello_there.comment.Comment;
 import com.example.hello_there.comment.CommentRepository;
 import com.example.hello_there.chat_room.ChatRoom;
 import com.example.hello_there.chat_room.ChatRoomRepository;
+import com.example.hello_there.comment.Comment;
+import com.example.hello_there.comment.CommentRepository;
 import com.example.hello_there.exception.BaseException;
 import com.example.hello_there.login.jwt.Token;
 import com.example.hello_there.login.jwt.TokenRepository;
@@ -51,6 +53,12 @@ public class UtilService {
     public Apartment findApartmentWithValidation(String city, String distrct, String apartmentName) throws BaseException {
         return apartmentRepository.findApartment(city, distrct, apartmentName)
                 .orElseThrow(() -> new BaseException(POST_USERS_NONE_EXISTS_APARTMENT));
+    }
+
+    public Apartment findApartmentWithValidation(String city, String distrct, String apartmentName) throws BaseException {
+        Apartment apartment = apartmentRepository.findApartment(city, distrct, apartmentName).orElse(null);
+        if(apartment == null) throw new BaseException(BaseResponseStatus.POST_USERS_NONE_EXISTS_APARTMENT);
+        return apartment;
     }
 
     public Board findByBoardIdWithValidation(Long boardId) throws BaseException {
