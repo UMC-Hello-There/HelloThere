@@ -40,13 +40,36 @@ public class CommentController {
     }
 
     /** 댓글 전체 조회 **/
-    @GetMapping()
-    public BaseResponse<Page<GetCommentRes>> commentList(
-            @PathVariable(name = "boardId") Long boardId,
-            Pageable pageable) {
+    @GetMapping
+    public List<GetCommentRes> getCommentsByBoardId(@PathVariable Long boardId) {
+        return commentService.findComments(boardId); // 단독으로 호츨될 일은 없다고 가정
+    }
+
+    /** 댓글 수정 **/
+    @PatchMapping("/{commentId}")
+    public BaseResponse<PatchCommentRes> updateComment(
+            @PathVariable Long boardId,
+            @PathVariable Long commentId,
+            @RequestBody @Valid PatchCommentReq patchCommentReq){
         try{
-            return new BaseResponse<>(commentService.findComments(boardId,pageable));
-        } catch (BaseException exception) {
+            Long userId = jwtService.getUserIdx();
+            return new BaseResponse<>(commentService
+                    .updateComment(userId,commentId,patchCommentReq,boardId));
+        }catch (BaseException exception){
+            return new BaseResponse<>(exception.getStatus());
+        }
+    }
+
+    /** 댓글 삭제 **/
+    @DeleteMapping("/{commentId}")
+    public BaseResponse<DeleteCommentRes> deleteComment(
+            @PathVariable Long boardId,
+            @PathVariable Long commentId
+    ){
+        try{
+            Long userId = jwtService.getUserIdx();
+            return new BaseResponse<>(commentService.deleteComment(userId, boardId,commentId));
+        }catch (BaseException exception){
             return new BaseResponse<>(exception.getStatus());
         }
     }
