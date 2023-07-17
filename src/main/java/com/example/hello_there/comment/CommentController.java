@@ -10,6 +10,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -34,15 +35,9 @@ public class CommentController {
     }
 
     /** 댓글 전체 조회 **/
-    @GetMapping()
-    public BaseResponse<Page<GetCommentRes>> commentList(
-            @PathVariable(name = "boardId") Long boardId,
-            Pageable pageable) {
-        try{
-            return new BaseResponse<>(commentService.findComments(boardId,pageable));
-        } catch (BaseException exception) {
-            return new BaseResponse<>(exception.getStatus());
-        }
+    @GetMapping
+    public List<GetCommentRes> getCommentsByBoardId(@PathVariable Long boardId) {
+        return commentService.findComments(boardId); // 단독으로 호츨될 일은 없다고 가정
     }
 
     /** 댓글 수정 **/

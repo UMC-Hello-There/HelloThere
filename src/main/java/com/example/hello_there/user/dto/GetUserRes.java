@@ -12,8 +12,7 @@ public class GetUserRes {
     private Long userId;
     private String email;
     private String nickName;
-    private boolean gender;
-    private String birth;
-    private boolean isManager;
+    private String signupPurpose;
+    private String address;
     private UserStatus status;
 }
