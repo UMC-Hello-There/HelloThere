@@ -4,7 +4,7 @@ import com.example.hello_there.exception.BaseException;
 import com.example.hello_there.exception.BaseResponse;
 import com.example.hello_there.exception.BaseResponseStatus;
 import com.example.hello_there.user.User;
-import com.example.hello_there.user.UserService;
+import com.example.hello_there.user.UserRepository;
 import com.example.hello_there.user.UserStatus;
 import com.example.hello_there.user.dto.PostUserReq;
 import com.google.gson.Gson;
@@ -28,6 +28,9 @@ import static com.example.hello_there.user.UserStatus.*;
 @Service
 @RequiredArgsConstructor
 public class KakaoService {
+
+    private final UserRepository userRepository;
+
     public String getAccessToken(String code){
         //HttpHeaders 생성00
         HttpHeaders httpHeaders = new HttpHeaders();
@@ -53,7 +56,7 @@ public class KakaoService {
         return responseEntity.getBody();
     }
 
-    public String getUserEmail(String accessToken) {
+    public String getUserEmail(String accessToken) throws BaseException {
         //Httpheader 생성
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.add("Authorization", "Bearer " + accessToken);
@@ -82,7 +85,9 @@ public class KakaoService {
 
         Double id = (Double)(data.get("id"));
         String email = (String) ((Map<?, ?>)(data.get("kakao_account"))).get("email");
-
+        if(userRepository.findByEmailCount(email) >= 1) {
+            throw new BaseException(POST_USERS_EXISTS_EMAIL);
+        }
         return email;
     }
 
