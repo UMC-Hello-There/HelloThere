@@ -31,13 +31,13 @@ public class User extends BaseTimeEntity {
     @Column(nullable = true) // 소셜로그인의 경우 null. 일반로그인일 경우 null이면 예외 호출
     private String password;
 
-    @Column(nullable = false)
+    @Column(name ="nick_name",nullable = false)
     private String nickName; // 유저의 닉네임
 
     @Column(nullable = false)
     private boolean gender; // 유저의 성별
 
-    @Column(nullable = false, columnDefinition = "boolean default false")
+    @Column(name="is_manager", nullable = false, columnDefinition = "boolean default false")
     private boolean isManager; // 관리자 여부 체크
 
     @Column(nullable = true)
