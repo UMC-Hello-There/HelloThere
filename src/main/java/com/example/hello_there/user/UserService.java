@@ -1,5 +1,7 @@
 package com.example.hello_there.user;
 
+import com.example.hello_there.apratment.Apartment;
+import com.example.hello_there.apratment.ApartmentRepository;
 import com.example.hello_there.board.Board;
 import com.example.hello_there.board.BoardRepository;
 import com.example.hello_there.board.photo.dto.GetS3Res;
@@ -46,7 +48,7 @@ public class UserService {
     private final JwtProvider jwtProvider;
     private final UtilService utilService;
     private final ProfileService profileService;
-    // private final BCryptPasswordEncoder bCryptPasswordEncoder; // spring security login 사용 시 필요
+    private final ApartmentRepository apartmentRepository;
     private final RedisTemplate redisTemplate;
 
     /**
@@ -69,14 +71,10 @@ public class UserService {
         catch (Exception ignored) { // 암호화가 실패하였을 경우 에러 발생
             throw new BaseException(PASSWORD_ENCRYPTION_ERROR);
         }
-        try {
-            User user = new User();
-            user.createUser(postUserReq.getEmail(), pwd, postUserReq.getNickName(), postUserReq.isGender(), postUserReq.getBirth());
-            userRepository.save(user);
-            return new PostUserRes(user.getId(), user.getNickName());
-        } catch (Exception exception) { // DB에 이상이 있는 경우 에러 메시지를 보낸다.
-            throw new BaseException(DATABASE_ERROR);
-        }
+        User user = new User();
+        user.createUser(postUserReq.getEmail(), pwd, postUserReq.getNickName(), postUserReq.getSignupPurpose(), null);
+        userRepository.save(user);
+        return new PostUserRes(user.getId(), user.getNickName());
     }
 
     /**
@@ -114,35 +112,25 @@ public class UserService {
     /**
      * 모든 회원 조회
      */
-    public List<GetUserRes> getMembers() throws BaseException {
-        try{
-            List<User> users = userRepository.findUsers(); // User를 List로 받아 GetUserRes로 바꿔줌
-            List<GetUserRes> getUserRes = users.stream()
-                    .map(user -> new GetUserRes(user.getId(), user.getEmail(), user.getNickName(), user.isGender(),
-                            Optional.ofNullable(user.getBirth()).map(LocalDate::toString).orElse(null),
-                            user.isManager(), user.getStatus()))
-                    .collect(Collectors.toList());
-            return getUserRes;
-        } catch (Exception exception) {
-            throw new BaseException(DATABASE_ERROR);
-        }
+    public List<GetUserRes> getMembers(){
+        List<User> users = userRepository.findUsers(); // User를 List로 받아 GetUserRes로 바꿔줌
+        List<GetUserRes> getUserRes = users.stream()
+                .map(user -> new GetUserRes(user.getId(), user.getEmail(), user.getNickName(), user.getSignupPurpose(),
+                        user.getApartment().getCity() + user.getApartment().getDistrict() + user.getApartment().getApartmentName(),user.getStatus()))
+                .collect(Collectors.toList());
+        return getUserRes;
     }
 
     /**
      * 특정 닉네임 조회
      */
-    public List<GetUserRes> getUsersByNickname(String nickname) throws BaseException {
-        try{
-            List<User> users = userRepository.findUserByNickName(nickname);
-            List<GetUserRes> getUserRes = users.stream()
-                    .map(user -> new GetUserRes(user.getId(), user.getEmail(), user.getNickName(), user.isGender(),
-                            Optional.ofNullable(user.getBirth()).map(LocalDate::toString).orElse(null),
-                            user.isManager(), user.getStatus()))
-                    .collect(Collectors.toList());
-            return getUserRes;
-        } catch (Exception exception) {
-            throw new BaseException(DATABASE_ERROR);
-        }
+    public List<GetUserRes> getUsersByNickname(String nickname) {
+        List<User> users = userRepository.findUserByNickName(nickname);
+        List<GetUserRes> getUserRes = users.stream()
+                .map(user -> new GetUserRes(user.getId(), user.getEmail(), user.getNickName(), user.getSignupPurpose(),
+                        user.getApartment().getCity() + user.getApartment().getDistrict() + user.getApartment().getApartmentName(),user.getStatus()))
+                .collect(Collectors.toList());
+        return getUserRes;
     }
 
     /**
@@ -151,7 +139,7 @@ public class UserService {
     @Transactional
     public void modifyUserNickName(PatchUserReq patchUserReq) {
         User user = userRepository.getReferenceById(patchUserReq.getUserId());
-        user.updateNickName(patchUserReq.getNickName());
+        user.setNickName(patchUserReq.getNickName());
     }
 
     @Transactional

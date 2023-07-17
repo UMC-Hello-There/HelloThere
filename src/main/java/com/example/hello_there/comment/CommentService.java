@@ -12,7 +12,14 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
+import org.springframework.web.bind.annotation.PostMapping;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import static com.example.hello_there.exception.BaseResponseStatus.*;
 
 @Service
@@ -60,11 +67,24 @@ public class CommentService {
     /**
      * 게시글에 달린 댓글 전체 조회
      **/
-    public Page<GetCommentRes> findComments(Long boardId, Pageable pageable) throws BaseException {
-        utilService.findByBoardIdWithValidation(boardId);
-        return commentRepository
-                .findCommentsByBoardIdForPage(boardId, pageable)
-                .map(GetCommentRes::new);
+    public List<GetCommentRes> findComments(Long boardId) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM-dd HH:mm");
+        return commentRepository.findCommentsByBoardIdForList(boardId)
+                .stream()
+                .map(comment -> {
+                    Long parentId = comment.getParent() != null ? comment.getParent().getCommentId() : null;
+                    return new GetCommentRes(
+                            comment.getCommentId(),
+                            parentId,
+                            comment.getGroupId(),
+                            comment.getContent(),
+                            comment.getUser().getNickName(),
+                            comment.getLikeCount(),
+                            comment.getCreateDate().format(formatter),
+                            comment.getModifiedDate().format(formatter)
+                    );
+                })
+                .collect(Collectors.toList());
     }
 
     /**

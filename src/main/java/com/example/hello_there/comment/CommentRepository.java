@@ -24,7 +24,7 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
             " WHERE c.board.boardId = :boardId" +
             " ORDER BY c.groupId asc, c.createDate asc",
             countQuery = "SELECT count(c.commentId) FROM Comment c")
-    Page<Comment> findCommentsByBoardIdForPage(@Param("boardId") Long boardId, Pageable pageable);
+    List<Comment> findCommentsByBoardIdForList(@Param("boardId") Long boardId);
 
     //회원과 댓글 fetch join
     @Query("SELECT c FROM Comment c" +
