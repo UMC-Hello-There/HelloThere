@@ -5,7 +5,6 @@ import com.example.hello_there.exception.BaseResponse;
 import com.example.hello_there.exception.BaseResponseStatus;
 import com.example.hello_there.user.User;
 import com.example.hello_there.user.UserRepository;
-import com.example.hello_there.user.UserService;
 import com.example.hello_there.user.UserStatus;
 import com.example.hello_there.user.dto.PostUserReq;
 import com.google.gson.Gson;

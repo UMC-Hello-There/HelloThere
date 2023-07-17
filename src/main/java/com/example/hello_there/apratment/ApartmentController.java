@@ -33,7 +33,6 @@ public class ApartmentController {
             postApartmentReqList.addAll(apartmentService.getApartmentInfoDongjak());
 
             // 서울시 관악구 아파트
-
             postApartmentReqList.addAll(apartmentService.getApartmentInfoGwanak());
 
             // 서울시 송파구 아파트

@@ -2,6 +2,7 @@ package com.example.hello_there.comment;
 
 import com.example.hello_there.board.Board;
 import com.example.hello_there.board.BoardRepository;
+import com.example.hello_there.board.BoardType;
 import com.example.hello_there.comment.dto.*;
 import com.example.hello_there.exception.BaseException;
 import com.example.hello_there.user.User;
@@ -12,7 +13,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.PostMapping;
+
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -20,6 +21,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
 import static com.example.hello_there.exception.BaseResponseStatus.*;
 
 @Service

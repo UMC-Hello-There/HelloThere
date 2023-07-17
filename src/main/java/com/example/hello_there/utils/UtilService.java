@@ -11,6 +11,7 @@ import com.example.hello_there.chat_room.ChatRoomRepository;
 import com.example.hello_there.comment.Comment;
 import com.example.hello_there.comment.CommentRepository;
 import com.example.hello_there.exception.BaseException;
+import com.example.hello_there.exception.BaseResponseStatus;
 import com.example.hello_there.login.jwt.Token;
 import com.example.hello_there.login.jwt.TokenRepository;
 import com.example.hello_there.user.User;
@@ -48,11 +49,6 @@ public class UtilService {
     public User findByEmailWithValidation(String email) throws BaseException {
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new BaseException(POST_USERS_NONE_EXISTS_EMAIL));
-    }
-
-    public Apartment findApartmentWithValidation(String city, String distrct, String apartmentName) throws BaseException {
-        return apartmentRepository.findApartment(city, distrct, apartmentName)
-                .orElseThrow(() -> new BaseException(POST_USERS_NONE_EXISTS_APARTMENT));
     }
 
     public Apartment findApartmentWithValidation(String city, String distrct, String apartmentName) throws BaseException {

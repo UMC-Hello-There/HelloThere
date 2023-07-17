@@ -4,6 +4,8 @@ import com.example.hello_there.comment.dto.*;
 import com.example.hello_there.exception.BaseException;
 import com.example.hello_there.exception.BaseResponse;
 import com.example.hello_there.login.jwt.JwtService;
+import com.example.hello_there.user.UserRepository;
+import com.example.hello_there.utils.UtilService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -18,6 +20,9 @@ import java.util.List;
 public class CommentController {
 
     private final CommentService commentService;
+    private final CommentRepository commentRepository;
+    private final UserRepository userRepository;
+    private final UtilService utilService;
     private final JwtService jwtService;
 
     /** 댓글 생성 **/
