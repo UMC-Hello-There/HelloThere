@@ -32,7 +32,8 @@ public class ApartmentController {
             // 서울시 동작구 아파트
             postApartmentReqList.addAll(apartmentService.getApartmentInfoDongjak());
 
-            // 서울시 양천구 아파트
+            // 서울시 관악구 아파트
+
             postApartmentReqList.addAll(apartmentService.getApartmentInfoGwanak());
 
             // 서울시 송파구 아파트
@@ -41,7 +42,7 @@ public class ApartmentController {
             for(PostApartmentReq postApartmentReq : postApartmentReqList) {
                 apartmentService.createApartment(postApartmentReq); // 아파트 자동 등록
             }
-            return new BaseResponse<>("인천시 부평구, 서울시 동작구, 서울시 양천구, 서울시 송파구 아파트를 DB에 등록합니다.");
+            return new BaseResponse<>("인천시 부평구, 서울시 동작구, 서울시 관악구, 서울시 송파구 아파트를 DB에 등록합니다.");
         } catch (IllegalCharsetNameException | UnsupportedCharsetException e) {
             throw new RuntimeException(e);
         } catch (UnsupportedEncodingException e) {

@@ -1,5 +1,6 @@
 package com.example.hello_there.login.google;
 
+import com.example.hello_there.exception.BaseException;
 import com.example.hello_there.exception.BaseResponse;
 import com.example.hello_there.login.dto.AssertionDTO;
 import com.example.hello_there.login.dto.JwtResponseDTO;
@@ -57,6 +58,8 @@ public class GoogleController {
 
                 return new BaseResponse<>(tokenInfo);
             }
+        } catch (BaseException exception) {
+            return new BaseResponse<>(exception.getStatus());
         } catch (Exception e) {
             log.error(e.getMessage());
             return null;

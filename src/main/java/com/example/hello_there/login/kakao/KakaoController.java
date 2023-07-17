@@ -46,34 +46,38 @@ public class KakaoController {
 //        Gson gsonObj = new Gson();
 //        Map<?, ?> data = gsonObj.fromJson(accessToken, Map.class);
 //        String atoken = (String) data.get("access_token");
-        String userEmail = kaKaoLoginService.getUserEmail(accessToken);
-        Optional<User> findUser = userRepository.findByEmail(userEmail);
-        if (!findUser.isPresent()) { // 회원가입인 경우
-            User kakaoUser = kaKaoLoginService.getUserInfo(accessToken);
-            userRepository.save(kakaoUser);
-            JwtResponseDTO.TokenInfo tokenInfo = jwtProvider.generateToken(kakaoUser.getId());
-            Token token = new Token();
-            token.updateAccessToken(tokenInfo.getAccessToken());
-            token.updateRefreshToken(tokenInfo.getRefreshToken());
-            token.updateUser(kakaoUser);
-            tokenRepository.save(token);
-            if(kakaoUser.getEmail() == "" | kakaoUser.getNickName() == "") {
-                String message = "사용자 정보 제공에 동의하지 않아 기본 값으로 로그인 되었습니다. 마이페이지에서 본인의 정보를 알맞게 수정 후 이용해주세요.";
-                AssertionDTO assertionDTO = new AssertionDTO(tokenInfo, message);
-                return new BaseResponse<>(assertionDTO); // 이걸 예외처리하면 너무 복잡해질 거 같아, 그냥 기본값으로 세팅하고 로그인 처리하였다.
+        try {
+            String userEmail = kaKaoLoginService.getUserEmail(accessToken);
+            Optional<User> findUser = userRepository.findByEmail(userEmail);
+            if (!findUser.isPresent()) { // 회원가입인 경우
+                User kakaoUser = kaKaoLoginService.getUserInfo(accessToken);
+                userRepository.save(kakaoUser);
+                JwtResponseDTO.TokenInfo tokenInfo = jwtProvider.generateToken(kakaoUser.getId());
+                Token token = new Token();
+                token.updateAccessToken(tokenInfo.getAccessToken());
+                token.updateRefreshToken(tokenInfo.getRefreshToken());
+                token.updateUser(kakaoUser);
+                tokenRepository.save(token);
+                if(kakaoUser.getEmail() == "" | kakaoUser.getNickName() == "") {
+                    String message = "사용자 정보 제공에 동의하지 않아 기본 값으로 로그인 되었습니다. 마이페이지에서 본인의 정보를 알맞게 수정 후 이용해주세요.";
+                    AssertionDTO assertionDTO = new AssertionDTO(tokenInfo, message);
+                    return new BaseResponse<>(assertionDTO); // 이걸 예외처리하면 너무 복잡해질 거 같아, 그냥 기본값으로 세팅하고 로그인 처리하였다.
+                }
+                return new BaseResponse<>(tokenInfo);
             }
-            return new BaseResponse<>(tokenInfo);
-        }
-        else { // 기존 회원이 로그인하는 경우
-            User user = findUser.get();
-            JwtResponseDTO.TokenInfo tokenInfo = jwtProvider.generateToken(user.getId());
-            Token token = Token.builder()
-                    .accessToken(tokenInfo.getAccessToken())
-                    .refreshToken(tokenInfo.getRefreshToken())
-                    .user(user)
-                    .build();
-            tokenRepository.save(token);
-            return new BaseResponse<>(tokenInfo);
+            else { // 기존 회원이 로그인하는 경우
+                User user = findUser.get();
+                JwtResponseDTO.TokenInfo tokenInfo = jwtProvider.generateToken(user.getId());
+                Token token = Token.builder()
+                        .accessToken(tokenInfo.getAccessToken())
+                        .refreshToken(tokenInfo.getRefreshToken())
+                        .user(user)
+                        .build();
+                tokenRepository.save(token);
+                return new BaseResponse<>(tokenInfo);
+            }
+        } catch (BaseException exception) {
+            return new BaseResponse<>(exception.getStatus());
         }
     }
 

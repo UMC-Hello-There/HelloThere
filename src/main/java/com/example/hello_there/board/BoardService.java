@@ -1,5 +1,11 @@
 package com.example.hello_there.board;
 
+import com.example.hello_there.comment.Comment;
+import com.example.hello_there.comment.CommentRepository;
+import com.example.hello_there.board.dto.DeleteBoardReq;
+import com.example.hello_there.board.dto.GetBoardRes;
+import com.example.hello_there.board.dto.PatchBoardReq;
+import com.example.hello_there.board.dto.PostBoardReq;
 import com.example.hello_there.board.dto.*;
 import com.example.hello_there.board.photo.PostPhoto;
 import com.example.hello_there.board.photo.PostPhotoRepository;
@@ -13,7 +19,6 @@ import com.example.hello_there.exception.BaseException;
 import com.example.hello_there.exception.BaseResponse;
 import com.example.hello_there.user.User;
 import com.example.hello_there.user.UserRepository;
-import com.example.hello_there.user.dto.GetUserRes;
 import com.example.hello_there.utils.S3Service;
 import com.example.hello_there.utils.UtilService;
 import lombok.RequiredArgsConstructor;
@@ -29,11 +34,9 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.reactive.function.client.WebClient;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.example.hello_there.exception.BaseResponseStatus.*;
