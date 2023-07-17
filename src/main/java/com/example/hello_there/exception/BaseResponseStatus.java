@@ -89,12 +89,15 @@ public enum BaseResponseStatus {
     INTRODUCE_ERROR(false, 6002, "한줄 소개는 0~30자이어야 합니다."),
     DISAGREE_TO_PROVIDE(false, 6003, "정보 제공에 동의해주세요."),
     ALREADY_LOGIN(false, 6004, "이미 로그인된 유저입니다."),
+    ALREADY_REGISTERED_USER(false, 6005, "이미 가입된 유저입니다."),
 
     /**
      *   7000 : 댓글 관련 오류
      */
     NONE_EXIST_COMMENT(false, 7000, "요청하신 댓글은 존재하지 않습니다."),
     NONE_EXIST_PARENT_COMMENT(false,7001,"부모댓글이 존재하지 않습니다."),
+    INVALID_UPDATE_REQUEST(false,7002,"댓글 작성자 이외엔 수정할 수 없습니다."),
+    INVALID_DELETE_REQUEST(false,7003,"댓글 작성자 이외엔 삭제할 수 없습니다."),
     /**
      *   8000 : 토큰 관련 오류
      */

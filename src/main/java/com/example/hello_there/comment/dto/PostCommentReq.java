@@ -3,18 +3,15 @@ package com.example.hello_there.comment.dto;
 import com.example.hello_there.board.Board;
 import com.example.hello_there.comment.Comment;
 import com.example.hello_there.user.User;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import org.springframework.lang.Nullable;
+import lombok.*;
+import org.springframework.validation.annotation.Validated;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor
+@Validated
 public class PostCommentReq {
     private Long parentId;
 
