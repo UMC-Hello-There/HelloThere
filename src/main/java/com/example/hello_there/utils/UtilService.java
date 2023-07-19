@@ -68,10 +68,10 @@ public class UtilService {
                 .orElseThrow(() -> new BaseException(POST_USERS_NONE_EXISTS_EMAIL));
     }
 
-    public House findApartmentWithValidation(String city, String distrct, String apartmentName) throws BaseException {
-        House apartment = houseRepository.findProperty(city, distrct, apartmentName).orElse(null);
-        if(apartment == null) throw new BaseException(BaseResponseStatus.POST_USERS_NONE_EXISTS_APARTMENT);
-        return apartment;
+    public House findHouseWithValidation(String city, String distrct, String houseName) throws BaseException {
+        House house = houseRepository.findProperty(city, distrct, houseName).orElse(null);
+        if(house == null) throw new BaseException(BaseResponseStatus.POST_USERS_NONE_EXISTS_HOUSE);
+        return house;
     }
 
     public Board findByBoardIdWithValidation(Long boardId) throws BaseException {

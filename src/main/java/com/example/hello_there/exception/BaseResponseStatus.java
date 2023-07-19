@@ -28,7 +28,7 @@ public enum BaseResponseStatus {
     POST_USERS_INVALID_EMAIL(false, 2016, "이메일 형식을 확인해주세요."),
     POST_USERS_EXISTS_EMAIL(false,2017,"중복된 이메일입니다."),
     POST_USERS_NONE_EXISTS_EMAIL(false,2018,"등록되지 않은 이메일입니다."),
-    POST_USERS_NONE_EXISTS_APARTMENT(false,2018,"등록되지 않은 아파트입니다."),
+    POST_USERS_NONE_EXISTS_HOUSE(false,2018,"등록되지 않은 하우스입니다."),
     POST_USERS_NONE_EXISTS_NICKNAME(false, 2018, "등록되지 않은 이메일입니다."),
     LOG_OUT_USER(false,2019,"이미 로그아웃된 유저입니다."),
 

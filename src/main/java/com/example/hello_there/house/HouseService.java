@@ -73,7 +73,7 @@ public class HouseService {
 
     @Transactional
     public String modifyHouse(PatchHouseReq patchHouseReq, Long userId) throws BaseException {
-        House house = utilService.findApartmentWithValidation(patchHouseReq.getCity(),
+        House house = utilService.findHouseWithValidation(patchHouseReq.getCity(),
                 patchHouseReq.getDistrict(), patchHouseReq.getName());
         User user = utilService.findByUserIdWithValidation(userId);
         user.setHouse(house);
