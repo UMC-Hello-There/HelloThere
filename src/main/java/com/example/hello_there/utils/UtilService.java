@@ -1,11 +1,15 @@
 package com.example.hello_there.utils;
 
+import com.example.hello_there.apratment.Apartment;
+import com.example.hello_there.apratment.ApartmentRepository;
 import com.example.hello_there.board.Board;
 import com.example.hello_there.board.BoardRepository;
-import com.example.hello_there.board.comment.Comment;
-import com.example.hello_there.board.comment.CommentRepository;
+import com.example.hello_there.comment.Comment;
+import com.example.hello_there.comment.CommentRepository;
 import com.example.hello_there.chat_room.ChatRoom;
 import com.example.hello_there.chat_room.ChatRoomRepository;
+import com.example.hello_there.comment.Comment;
+import com.example.hello_there.comment.CommentRepository;
 import com.example.hello_there.exception.BaseException;
 import com.example.hello_there.exception.BaseResponseStatus;
 import com.example.hello_there.login.jwt.Token;
@@ -18,6 +22,8 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
+
+import static com.example.hello_there.exception.BaseResponseStatus.*;
 
 @Service
 @RequiredArgsConstructor
@@ -33,41 +39,42 @@ public class UtilService {
     private final CommentRepository commentRepository;
     private final TokenRepository tokenRepository;
     private final ChatRoomRepository chatRoomRepository;
+    private final ApartmentRepository apartmentRepository;
 
     public User findByUserIdWithValidation(Long userId) throws BaseException {
-        User user = userRepository.findUserById(userId).orElse(null);
-        if(user == null) throw new BaseException(BaseResponseStatus.NONE_EXIST_USER);
-        return user;
+        return userRepository.findUserById(userId)
+                .orElseThrow(() -> new BaseException(NONE_EXIST_USER));
     }
 
     public User findByEmailWithValidation(String email) throws BaseException {
-        User user = userRepository.findByEmail(email).orElse(null);
-        if(user == null) throw new BaseException(BaseResponseStatus.POST_USERS_NONE_EXISTS_EMAIL);
-        return user;
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new BaseException(POST_USERS_NONE_EXISTS_EMAIL));
+    }
+
+    public Apartment findApartmentWithValidation(String city, String distrct, String apartmentName) throws BaseException {
+        Apartment apartment = apartmentRepository.findApartment(city, distrct, apartmentName).orElse(null);
+        if(apartment == null) throw new BaseException(BaseResponseStatus.POST_USERS_NONE_EXISTS_APARTMENT);
+        return apartment;
     }
 
     public Board findByBoardIdWithValidation(Long boardId) throws BaseException {
-        Board board = boardRepository.findBoardById(boardId).orElse(null);
-        if(board == null) throw new BaseException(BaseResponseStatus.NONE_EXIST_BOARD);
-        return board;
+        return boardRepository.findBoardById(boardId)
+                .orElseThrow(() -> new BaseException(NONE_EXIST_BOARD));
     }
 
     public Comment findByCommentIdWithValidation(Long commentId) throws BaseException {
-        Comment comment = commentRepository.findCommentById(commentId).orElse(null);
-        if(comment == null) throw new BaseException(BaseResponseStatus.NONE_EXIST_COMMENT);
-        return comment;
+        return commentRepository.findById(commentId)
+                .orElseThrow(()-> new BaseException(NONE_EXIST_COMMENT));
     }
 
     public Token findTokenByUserIdWithValidation(Long userId) throws BaseException {
-        Token token = tokenRepository.findTokenByUserId(userId).orElse(null);
-        if(token == null) throw new BaseException(BaseResponseStatus.INVALID_USER_JWT);
-        return token;
+        return tokenRepository.findTokenByUserId(userId)
+                .orElseThrow(() -> new BaseException(INVALID_USER_JWT));
     }
 
     public ChatRoom findChatRoomByChatRoomIdWithValidation(String chatRoomId) throws BaseException {
-        ChatRoom chatRoom = chatRoomRepository.findChatRoomById(chatRoomId).orElse(null);
-        if(chatRoom == null) throw new BaseException(BaseResponseStatus.NONE_EXIST_ROOM);
-        return chatRoom;
+        return chatRoomRepository.findChatRoomById(chatRoomId)
+                .orElseThrow(() -> new BaseException(NONE_EXIST_ROOM));
     }
 
     public static String  convertLocalDateTimeToLocalDate(LocalDateTime localDateTime) {

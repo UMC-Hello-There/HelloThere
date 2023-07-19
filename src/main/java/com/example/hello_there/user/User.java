@@ -1,14 +1,12 @@
 package com.example.hello_there.user;
 
+import com.example.hello_there.apratment.Apartment;
 import com.example.hello_there.board.Board;
 import com.example.hello_there.user_chatroom.UserChatRoom;
 import com.example.hello_there.login.jwt.Token;
 import com.example.hello_there.user.profile.Profile;
 import com.example.hello_there.utils.BaseTimeEntity;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
 import java.time.LocalDate;
@@ -18,6 +16,7 @@ import java.util.List;
 @Entity
 @Builder
 @Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 public class User extends BaseTimeEntity {
@@ -42,6 +41,7 @@ public class User extends BaseTimeEntity {
 
     @Column(nullable = true)
     private LocalDate birth; // 유저의 생년월일을 yyyy-mm-dd 형식으로 표현
+    private String signupPurpose; // 가입 목적
 
     @Column(nullable = false) // status는 멤버 회원가입 시에 자동으로 ACTIVE로 설정됨.
     @Enumerated(EnumType.STRING)
@@ -53,6 +53,10 @@ public class User extends BaseTimeEntity {
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private Profile profile; // 프로필 사진과 일대일 매핑
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "apartment_id")
+    private Apartment apartment; // 아파트와 일대다 매핑
+
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Board> boards = new ArrayList<>();
 
@@ -62,34 +66,13 @@ public class User extends BaseTimeEntity {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Board> comments = new ArrayList<>();
-    public User createUser(String email, String password, String nickName, boolean gender, LocalDate birth){
+    public User createUser(String email, String password, String nickName, String signupPurpose, Apartment apartment) {
         this.email = email;
         this.password = password;
         this.nickName= nickName;
-        this.gender = gender;
-        if(birth != null) {
-            this.birth = birth;
-        }
+        this.signupPurpose = signupPurpose;
         this.status = UserStatus.ACTIVE;
+        this.apartment = apartment;
         return this;
-    }
-
-    public void updateNickName(String nickName){
-        this.nickName = nickName;
-    }
-    public void updateEmail(String email){
-        this.email = email;
-    }
-
-    public void updateBirth(LocalDate birth){
-        this.birth = birth;
-    }
-
-    public void updateGender(boolean gender){
-        this.gender = gender;
-    }
-
-    public void updateStatus(UserStatus status){
-        this.status = status;
     }
 }

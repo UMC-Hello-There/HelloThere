@@ -13,6 +13,5 @@ public class PostUserReq {
     private String email;
     private String password;
     private String nickName;
-    private boolean gender;
-    private LocalDate birth;
+    private String signupPurpose;
 }

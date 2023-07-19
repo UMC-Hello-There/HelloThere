@@ -1,8 +1,12 @@
 package com.example.hello_there.login.google;
 
+import com.example.hello_there.exception.BaseException;
+import com.example.hello_there.exception.BaseResponseStatus;
 import com.example.hello_there.user.User;
+import com.example.hello_there.user.UserRepository;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -19,13 +23,18 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.HashMap;
 
+import static com.example.hello_there.exception.BaseResponseStatus.*;
+
 @Service
+@RequiredArgsConstructor
 public class GoogleService {
 //    @Value("${spring.security.oauth2.client.registration.google.client-id}")
 //    private String Google_Client_Id;
 //
 //    @Value("${spring.security.oauth2.client.registration.google.client-secret}")
 //    private String Google_Secret_Password;
+
+    private final UserRepository userRepository;
     public String getAccessToken(String code){
         //HttpHeaders 생성00
         HttpHeaders httpHeaders = new HttpHeaders();
@@ -52,7 +61,7 @@ public class GoogleService {
         return responseEntity.getBody();
     }
 
-    public String getUserEmail(String accessToken) {
+    public String getUserEmail(String accessToken) throws BaseException {
         //요청하는 클라이언트마다 가진 정보가 다를 수 있기에 HashMap타입으로 선언
         HashMap<String, Object> googleUserInfo = new HashMap<>();
         String reqURL = "https://www.googleapis.com/oauth2/v3/userinfo?access_token=" + accessToken;
@@ -76,7 +85,9 @@ public class GoogleService {
                 }
                 JsonElement element = JsonParser.parseString(result);
                 String email = element.getAsJsonObject().get("email").getAsString();
-
+                if(userRepository.findByEmailCount(email) >= 1) {
+                    throw new BaseException(POST_USERS_EXISTS_EMAIL);
+                }
                 return email;
             }
         } catch (IOException e) {
