@@ -55,7 +55,7 @@ public class User extends BaseTimeEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "house_id")
-    private House house; // 아파트와 일대다 매핑
+    private House house; // 하우스와 일대다 매핑
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Board> boards = new ArrayList<>();
