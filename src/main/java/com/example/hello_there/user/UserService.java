@@ -1,11 +1,10 @@
 package com.example.hello_there.user;
 
-import com.example.hello_there.apratment.Apartment;
-import com.example.hello_there.apratment.ApartmentRepository;
 import com.example.hello_there.board.Board;
 import com.example.hello_there.board.BoardRepository;
 import com.example.hello_there.board.photo.dto.GetS3Res;
 import com.example.hello_there.exception.BaseException;
+import com.example.hello_there.house.HouseRepository;
 import com.example.hello_there.login.dto.JwtResponseDTO;
 import com.example.hello_there.login.jwt.JwtProvider;
 import com.example.hello_there.login.jwt.Token;
@@ -27,9 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -48,7 +45,7 @@ public class UserService {
     private final JwtProvider jwtProvider;
     private final UtilService utilService;
     private final ProfileService profileService;
-    private final ApartmentRepository apartmentRepository;
+    private final HouseRepository houseRepository;
     private final RedisTemplate redisTemplate;
 
     /**
@@ -116,7 +113,7 @@ public class UserService {
         List<User> users = userRepository.findUsers(); // User를 List로 받아 GetUserRes로 바꿔줌
         List<GetUserRes> getUserRes = users.stream()
                 .map(user -> new GetUserRes(user.getId(), user.getEmail(), user.getNickName(), user.getSignupPurpose(),
-                        user.getApartment().getCity() + user.getApartment().getDistrict() + user.getApartment().getApartmentName(),user.getStatus()))
+                        user.getHouse().getCity() + user.getHouse().getDistrict() + user.getHouse().getName(),user.getStatus()))
                 .collect(Collectors.toList());
         return getUserRes;
     }
@@ -128,7 +125,7 @@ public class UserService {
         List<User> users = userRepository.findUserByNickName(nickname);
         List<GetUserRes> getUserRes = users.stream()
                 .map(user -> new GetUserRes(user.getId(), user.getEmail(), user.getNickName(), user.getSignupPurpose(),
-                        user.getApartment().getCity() + user.getApartment().getDistrict() + user.getApartment().getApartmentName(),user.getStatus()))
+                        user.getHouse().getCity() + user.getHouse().getDistrict() + user.getHouse().getName(),user.getStatus()))
                 .collect(Collectors.toList());
         return getUserRes;
     }

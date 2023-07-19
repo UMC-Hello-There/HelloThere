@@ -1,24 +1,37 @@
 package com.example.hello_there.utils;
 
-import com.example.hello_there.apratment.Apartment;
-import com.example.hello_there.apratment.ApartmentRepository;
 import com.example.hello_there.board.Board;
 import com.example.hello_there.board.BoardRepository;
 import com.example.hello_there.comment.Comment;
 import com.example.hello_there.comment.CommentRepository;
 import com.example.hello_there.chat_room.ChatRoom;
 import com.example.hello_there.chat_room.ChatRoomRepository;
-import com.example.hello_there.comment.Comment;
-import com.example.hello_there.comment.CommentRepository;
 import com.example.hello_there.exception.BaseException;
 import com.example.hello_there.exception.BaseResponseStatus;
+import com.example.hello_there.house.HouseRepository;
+import com.example.hello_there.house.vo.GeoPoint;
 import com.example.hello_there.login.jwt.Token;
 import com.example.hello_there.login.jwt.TokenRepository;
+import com.example.hello_there.house.House;
 import com.example.hello_there.user.User;
 import com.example.hello_there.user.UserRepository;
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import lombok.RequiredArgsConstructor;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpHeaders;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.util.EntityUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
@@ -34,12 +47,16 @@ public class UtilService {
     public static final int DAY = 30;
     public static final int MONTH = 12;
 
+
+    @Value("${kakaoApi.key}")
+    private String kakaoApiKey;
+
     private final UserRepository userRepository;
     private final BoardRepository boardRepository;
     private final CommentRepository commentRepository;
     private final TokenRepository tokenRepository;
     private final ChatRoomRepository chatRoomRepository;
-    private final ApartmentRepository apartmentRepository;
+    private final HouseRepository houseRepository;
 
     public User findByUserIdWithValidation(Long userId) throws BaseException {
         return userRepository.findUserById(userId)
@@ -51,8 +68,8 @@ public class UtilService {
                 .orElseThrow(() -> new BaseException(POST_USERS_NONE_EXISTS_EMAIL));
     }
 
-    public Apartment findApartmentWithValidation(String city, String distrct, String apartmentName) throws BaseException {
-        Apartment apartment = apartmentRepository.findApartment(city, distrct, apartmentName).orElse(null);
+    public House findApartmentWithValidation(String city, String distrct, String apartmentName) throws BaseException {
+        House apartment = houseRepository.findProperty(city, distrct, apartmentName).orElse(null);
         if(apartment == null) throw new BaseException(BaseResponseStatus.POST_USERS_NONE_EXISTS_APARTMENT);
         return apartment;
     }
@@ -106,5 +123,45 @@ public class UtilService {
         }
         diffTime = diffTime / MONTH;
         return diffTime + "년 전";
+    }
+
+    /*
+     * [GeoPoint] 주소 텍스트를 입력 받아 GPS 좌표 값 반환
+     */
+    public GeoPoint getGpsCoords(String address) throws IOException {
+        String REST_API_KEY = kakaoApiKey;
+        String query = address;
+        String xValue = "";
+        String yValue = "";
+
+
+        String apiUrl = "https://dapi.kakao.com/v2/local/search/address.json";
+        String encodedQuery = URLEncoder.encode(query, StandardCharsets.UTF_8);
+
+        HttpClient httpClient = HttpClientBuilder.create().build();
+        HttpGet httpGet = new HttpGet(apiUrl + "?query=" + encodedQuery);
+        httpGet.setHeader(HttpHeaders.AUTHORIZATION, "KakaoAK " + REST_API_KEY);
+
+        HttpResponse response = httpClient.execute(httpGet);
+        HttpEntity entity = response.getEntity();
+        String responseBody = EntityUtils.toString(entity);
+
+        if (responseBody != null) {
+            JsonObject jsonObject = new Gson().fromJson(responseBody, JsonObject.class);
+            JsonArray documents = jsonObject.getAsJsonArray("documents");
+
+            if (documents.size() > 0) {
+                JsonObject document = documents.get(0).getAsJsonObject();   //도로명 주소  기준
+                xValue = document.get("x").getAsString();
+                yValue = document.get("y").getAsString();
+
+            } else {
+                System.out.println("No documents found in the response.");
+                return null;
+            }
+
+            return GeoPoint.fromString(xValue, yValue);
+        }
+        return null;
     }
 }

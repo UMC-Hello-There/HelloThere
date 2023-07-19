@@ -1,4 +1,4 @@
-package com.example.hello_there.apratment.dto;
+package com.example.hello_there.house.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -9,8 +9,8 @@ import lombok.Setter;
 @Setter // 해당 클래스에 대한 설정자 생성
 @AllArgsConstructor
 @NoArgsConstructor
-public class PatchApartmentReq {
+public class PatchHouseReq {
     private String city;
     private String district;
-    private String apartmentName;
+    private String name;
 }
