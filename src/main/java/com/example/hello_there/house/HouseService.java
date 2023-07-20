@@ -39,6 +39,7 @@ public class HouseService {
         return houseList;
     }
 
+    //House 등록 서비스
     public House createHouse(PostHouseReq postHouseReq) {
 
             if (postHouseReq.getCity().isEmpty() || postHouseReq.getDistrict().isEmpty()
