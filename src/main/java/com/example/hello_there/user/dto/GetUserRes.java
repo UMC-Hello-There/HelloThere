@@ -1,6 +1,7 @@
 package com.example.hello_there.user.dto;
 
 import com.example.hello_there.user.User;
+
 import com.example.hello_there.user.UserStatus;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

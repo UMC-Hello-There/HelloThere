@@ -91,12 +91,14 @@ public class HouseService {
 
                     if (city.equals("인천광역시") && district.equals("부평구")) {
                         entireStreetAddress = house.containsKey("소재지도로명주소") ? (String) house.get("소재지도로명주소") : "";
-                        entireNumberAddress = house.containsKey("소재지지번주소") ? (String) house.get("소재지도로명주소") : "";
+                        entireNumberAddress = house.containsKey("소재지지번주소") ? (String) house.get("소재지지번주소") : "";
                     } else if (city.equals("서울특별시") && district.equals("동작구")) {
                         streetAddress = house.containsKey("도로명주소") ? (String) house.get("도로명주소") : "";
                         numberAddress = (house.containsKey("행정동") ? house.get("행정동") : "") + " " + (house.containsKey("번지") ? house.get("번지") : "");
                     } else if (city.equals("서울특별시") && district.equals("관악구")) {
                         entireStreetAddress = house.containsKey("새주소") ? (String) house.get("새주소") : "";
+                        numberAddress = (house.containsKey("행정동명") ? (String) house.get("행정동명") : "")
+                                + " " + (house.containsKey("지번") ? (String) house.get("지번") : "");
                     } else if (city.equals("서울특별시") && district.equals("송파구")) {
                         entireStreetAddress = house.containsKey("도로명주소(송파구)") ? (String) house.get("도로명주소(송파구)") : "";
                         entireNumberAddress = house.containsKey("지번주소") ? (String) house.get("지번주소") : "";
