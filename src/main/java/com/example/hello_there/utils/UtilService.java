@@ -1,15 +1,13 @@
 package com.example.hello_there.utils;
 
-import com.example.hello_there.apratment.Apartment;
-import com.example.hello_there.apratment.ApartmentRepository;
+import com.example.hello_there.house.House;
+import com.example.hello_there.house.HouseRepository;
 import com.example.hello_there.board.Board;
 import com.example.hello_there.board.BoardRepository;
 import com.example.hello_there.comment.Comment;
 import com.example.hello_there.comment.CommentRepository;
 import com.example.hello_there.chat_room.ChatRoom;
 import com.example.hello_there.chat_room.ChatRoomRepository;
-import com.example.hello_there.comment.Comment;
-import com.example.hello_there.comment.CommentRepository;
 import com.example.hello_there.exception.BaseException;
 import com.example.hello_there.exception.BaseResponseStatus;
 import com.example.hello_there.login.jwt.Token;
@@ -39,7 +37,7 @@ public class UtilService {
     private final CommentRepository commentRepository;
     private final TokenRepository tokenRepository;
     private final ChatRoomRepository chatRoomRepository;
-    private final ApartmentRepository apartmentRepository;
+    private final HouseRepository houseRepository;
 
     public User findByUserIdWithValidation(Long userId) throws BaseException {
         return userRepository.findUserById(userId)
@@ -51,10 +49,10 @@ public class UtilService {
                 .orElseThrow(() -> new BaseException(POST_USERS_NONE_EXISTS_EMAIL));
     }
 
-    public Apartment findApartmentWithValidation(String city, String distrct, String apartmentName) throws BaseException {
-        Apartment apartment = apartmentRepository.findApartment(city, distrct, apartmentName).orElse(null);
-        if(apartment == null) throw new BaseException(BaseResponseStatus.POST_USERS_NONE_EXISTS_APARTMENT);
-        return apartment;
+    public House findHouseWithValidation(String city, String distrct, String apartmentName) throws BaseException {
+        House house = houseRepository.findApartment(city, distrct, apartmentName).orElse(null);
+        if(house == null) throw new BaseException(BaseResponseStatus.POST_USERS_NONE_EXISTS_HOUSE);
+        return house;
     }
 
     public Board findByBoardIdWithValidation(Long boardId) throws BaseException {

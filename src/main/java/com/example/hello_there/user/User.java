@@ -1,6 +1,6 @@
 package com.example.hello_there.user;
 
-import com.example.hello_there.apratment.Apartment;
+import com.example.hello_there.house.House;
 import com.example.hello_there.board.Board;
 import com.example.hello_there.user_chatroom.UserChatRoom;
 import com.example.hello_there.login.jwt.Token;
@@ -9,7 +9,6 @@ import com.example.hello_there.utils.BaseTimeEntity;
 import lombok.*;
 
 import javax.persistence.*;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -48,7 +47,7 @@ public class User extends BaseTimeEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "apartment_id")
-    private Apartment apartment; // 아파트와 일대다 매핑
+    private House house; // 아파트와 일대다 매핑
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Board> boards = new ArrayList<>();
@@ -59,13 +58,13 @@ public class User extends BaseTimeEntity {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Board> comments = new ArrayList<>();
-    public User createUser(String email, String password, String nickName, String signupPurpose, Apartment apartment) {
+    public User createUser(String email, String password, String nickName, String signupPurpose, House house) {
         this.email = email;
         this.password = password;
         this.nickName= nickName;
         this.signupPurpose = signupPurpose;
         this.status = UserStatus.ACTIVE;
-        this.apartment = apartment;
+        this.house = house;
         return this;
     }
 }
