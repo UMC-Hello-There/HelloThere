@@ -30,34 +30,9 @@ public class GoogleController {
 
     @ResponseBody
     @GetMapping("/oauth/google")
-    public BaseResponse<?> GoogleCallback(@RequestParam("accessToken") String accessToken) {
+    public BaseResponse<?> googleCallback(@RequestParam String accessToken) { // 테스트 환경에서 사용해야 할 코드
         try {
-            Gson gsonObj = new Gson();
-            String userEmail = googleService.getUserEmail(accessToken);
-            String userName = googleService.getUserName(accessToken);
-            User findUser = userRepository.findByEmail(userEmail).orElse(null);
-            if (findUser == null) { // 회원 가입
-                User googleUser = new User();
-                googleUser.createUser(userEmail, null, userName, "", null);
-                userRepository.save(googleUser);
-                JwtResponseDTO.TokenInfo tokenInfo = jwtProvider.generateToken(googleUser.getId());
-                Token token = new Token();
-                token.updateAccessToken(tokenInfo.getAccessToken());
-                token.updateRefreshToken(tokenInfo.getRefreshToken());
-                token.updateUser(googleUser);
-                tokenRepository.save(token);
-                String message = "마이페이지에서 본인의 정보를 알맞게 수정 후 이용해주세요.";
-                AssertionDTO assertionDTO = new AssertionDTO(tokenInfo, message);
-                return new BaseResponse<>(assertionDTO);
-            } else {
-                JwtResponseDTO.TokenInfo tokenInfo = jwtProvider.generateToken(findUser.getId());
-                Token token = new Token();
-                token.updateRefreshToken(tokenInfo.getRefreshToken());
-                token.updateUser(findUser);
-                tokenRepository.save(token);
-
-                return new BaseResponse<>(tokenInfo);
-            }
+            return googleService.googleCallBack(accessToken);
         } catch (BaseException exception) {
             return new BaseResponse<>(exception.getStatus());
         } catch (Exception e) {
