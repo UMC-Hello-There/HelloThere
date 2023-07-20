@@ -18,36 +18,9 @@ import java.util.List;
 @RequiredArgsConstructor
 @RequestMapping("/apartment")
 public class ApartmentController {
+
     private final ApartmentService apartmentService;
-    private final UtilService utilService;
     private final JwtService jwtService;
-
-    /** 아파트 자동등록 **/
-    @PostMapping("/auto-register")
-    public BaseResponse<String> registerApartment() {
-        try {
-            // 인천시 부평구 아파트
-            List<PostApartmentReq> postApartmentReqList = apartmentService.getApartmentInfoBupyeong();
-
-            // 서울시 동작구 아파트
-            postApartmentReqList.addAll(apartmentService.getApartmentInfoDongjak());
-
-            // 서울시 관악구 아파트
-            postApartmentReqList.addAll(apartmentService.getApartmentInfoGwanak());
-
-            // 서울시 송파구 아파트
-            postApartmentReqList.addAll(apartmentService.getApartmentInfoSongpa());
-
-            for(PostApartmentReq postApartmentReq : postApartmentReqList) {
-                apartmentService.createApartment(postApartmentReq); // 아파트 자동 등록
-            }
-            return new BaseResponse<>("인천시 부평구, 서울시 동작구, 서울시 관악구, 서울시 송파구 아파트를 DB에 등록합니다.");
-        } catch (IllegalCharsetNameException | UnsupportedCharsetException e) {
-            throw new RuntimeException(e);
-        } catch (UnsupportedEncodingException e) {
-            throw new RuntimeException(e);
-        }
-    }
 
     /**
      * 유저의 아파트 정보 설정하기

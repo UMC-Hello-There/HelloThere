@@ -49,6 +49,9 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-websocket'
 	implementation 'org.springframework:spring-websocket'
 
+	// mapper 클래스 의존성
+	implementation 'org.modelmapper:modelmapper:2.4.4'
+
 	compileOnly 'org.projectlombok:lombok'
 	runtimeOnly 'com.mysql:mysql-connector-j'
 	annotationProcessor 'org.projectlombok:lombok'

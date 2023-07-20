@@ -16,6 +16,7 @@ import com.example.hello_there.utils.S3Service;
 import com.example.hello_there.utils.Secret;
 import com.example.hello_there.utils.UtilService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

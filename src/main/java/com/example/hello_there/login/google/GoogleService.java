@@ -1,16 +1,28 @@
 package com.example.hello_there.login.google;
 
 import com.example.hello_there.exception.BaseException;
-import com.example.hello_there.exception.BaseResponseStatus;
+import com.example.hello_there.exception.BaseResponse;
+import com.example.hello_there.login.dto.AssertionDTO;
+import com.example.hello_there.login.dto.JwtResponseDTO;
+import com.example.hello_there.login.google.dto.GetGoogleUserRes;
+import com.example.hello_there.login.jwt.JwtProvider;
+import com.example.hello_there.login.jwt.Token;
+import com.example.hello_there.login.jwt.TokenRepository;
 import com.example.hello_there.user.User;
 import com.example.hello_there.user.UserRepository;
+import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -22,19 +34,58 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.HashMap;
+import java.util.Map;
 
 import static com.example.hello_there.exception.BaseResponseStatus.*;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class GoogleService {
-//    @Value("${spring.security.oauth2.client.registration.google.client-id}")
-//    private String Google_Client_Id;
-//
-//    @Value("${spring.security.oauth2.client.registration.google.client-secret}")
-//    private String Google_Secret_Password;
+    @Value("${spring.security.oauth2.client.registration.google.client-id}")
+    private String Google_Client_Id;
+
+    @Value("${spring.security.oauth2.client.registration.google.client-secret}")
+    private String Google_Client_Secret;
 
     private final UserRepository userRepository;
+    private final TokenRepository tokenRepository;
+    private final JwtProvider jwtProvider;
+
+    public BaseResponse<?> googleCallBack(String accessToken) throws BaseException {
+//        String accessToken = getAccessToken(code);
+//        Gson gsonObj = new Gson();
+//        Map<?, ?> data = gsonObj.fromJson(accessToken, Map.class);
+//        String accToken = (String) data.get("access_token");
+        GetGoogleUserRes getGoogleUserRes = getUserInfo(accessToken);
+        String email = getGoogleUserRes.getEmail();
+        String nickName = getGoogleUserRes.getNickName();
+        User findUser = userRepository.findByEmail(email).orElse(null);
+
+        if (findUser == null) { // 회원 가입
+            User googleUser = new User();
+            googleUser.createUser(email, null, nickName, "", null);
+            userRepository.save(googleUser);
+            JwtResponseDTO.TokenInfo tokenInfo = jwtProvider.generateToken(googleUser.getId());
+            Token token = Token.builder()
+                    .accessToken(tokenInfo.getAccessToken())
+                    .refreshToken(tokenInfo.getRefreshToken())
+                    .user(googleUser)
+                    .build();
+            tokenRepository.save(token);
+            String message = "마이페이지에서 본인의 정보를 알맞게 수정 후 이용해주세요.";
+            AssertionDTO assertionDTO = new AssertionDTO(tokenInfo, message);
+            return new BaseResponse<>(assertionDTO);
+        } else { // 기존 회원 로그인
+            JwtResponseDTO.TokenInfo tokenInfo = jwtProvider.generateToken(findUser.getId());
+            Token token = Token.builder()
+                    .refreshToken(tokenInfo.getRefreshToken())
+                    .user(findUser)
+                    .build();
+            tokenRepository.save(token);
+            return new BaseResponse<>(tokenInfo);
+        }
+    }
     public String getAccessToken(String code){
         //HttpHeaders 생성00
         HttpHeaders httpHeaders = new HttpHeaders();
@@ -42,9 +93,9 @@ public class GoogleService {
 
         MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
         body.add("grant_type", "authorization_code");
-        body.add("client_id", "309410689177-bjmcjj568j8hrgo539p7fvm411d9op4c.apps.googleusercontent.com");
-        body.add("client_secret", "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");
-        body.add("redirect_uri" , "http://localhost:8080/oauth/google");
+        body.add("client_id", Google_Client_Id);
+        body.add("client_secret", Google_Client_Secret);
+        body.add("redirect_uri" , "http://localhost:8080/oauth/google"); // 프로덕션 환경에 교체
         body.add("code", code);
 
         HttpEntity<MultiValueMap<String, String>> requestEntity = new HttpEntity<>(body, httpHeaders);
@@ -61,7 +112,7 @@ public class GoogleService {
         return responseEntity.getBody();
     }
 
-    public String getUserEmail(String accessToken) throws BaseException {
+    public GetGoogleUserRes getUserInfo(String accessToken) throws BaseException {
         //요청하는 클라이언트마다 가진 정보가 다를 수 있기에 HashMap타입으로 선언
         HashMap<String, Object> googleUserInfo = new HashMap<>();
         String reqURL = "https://www.googleapis.com/oauth2/v3/userinfo?access_token=" + accessToken;
@@ -88,40 +139,8 @@ public class GoogleService {
                 if(userRepository.findByEmailCount(email) >= 1) {
                     throw new BaseException(POST_USERS_EXISTS_EMAIL);
                 }
-                return email;
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    public String getUserName(String accessToken) {
-        //요청하는 클라이언트마다 가진 정보가 다를 수 있기에 HashMap타입으로 선언
-        HashMap<String, Object> googleUserInfo = new HashMap<>();
-        String reqURL = "https://www.googleapis.com/oauth2/v3/userinfo?access_token=" + accessToken;
-        try {
-            URL url = new URL(reqURL);
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-
-            //요청에 필요한 Header에 포함될 내용
-            conn.setRequestProperty("Authorization", "Bearer " + accessToken);
-
-            int responseCode = conn.getResponseCode();
-            System.out.println("responseCode : " + responseCode);
-            if (responseCode == 200) {
-                BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-
-                String line = "";
-                String result = "";
-
-                while ((line = br.readLine()) != null) {
-                    result += line;
-                }
-                JsonElement element = JsonParser.parseString(result);
                 String name = element.getAsJsonObject().get("name").getAsString();
-
-                return name;
+                return new GetGoogleUserRes(email, name);
             }
         } catch (IOException e) {
             e.printStackTrace();

@@ -6,12 +6,14 @@ import com.example.hello_there.comment.dto.GetCommentByBoardRes;
 import com.example.hello_there.comment.dto.GetCommentRes;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.springframework.data.domain.Page;
 
 import java.util.List;
 
 @Getter
 @AllArgsConstructor
+@NoArgsConstructor
 public class GetBoardDetailRes {
     private Long boardId;
     private BoardType boardType;
