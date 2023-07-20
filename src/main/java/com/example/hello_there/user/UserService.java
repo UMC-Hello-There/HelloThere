@@ -1,12 +1,10 @@
 package com.example.hello_there.user;
 
-import com.example.hello_there.apratment.Apartment;
-import com.example.hello_there.apratment.ApartmentRepository;
+import com.example.hello_there.house.HouseRepository;
 import com.example.hello_there.board.Board;
 import com.example.hello_there.board.BoardRepository;
 import com.example.hello_there.board.photo.dto.GetS3Res;
 import com.example.hello_there.exception.BaseException;
-import com.example.hello_there.exception.BaseResponse;
 import com.example.hello_there.login.dto.JwtResponseDTO;
 import com.example.hello_there.login.jwt.JwtProvider;
 import com.example.hello_there.login.jwt.JwtService;
@@ -21,7 +19,6 @@ import com.example.hello_there.utils.S3Service;
 import com.example.hello_there.utils.Secret;
 import com.example.hello_there.utils.UtilService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
@@ -30,9 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -52,7 +47,6 @@ public class UserService {
     private final UtilService utilService;
     private final ProfileService profileService;
     private final JwtService jwtService;
-    private final ApartmentRepository apartmentRepository;
     private final RedisTemplate redisTemplate;
 
     /**
