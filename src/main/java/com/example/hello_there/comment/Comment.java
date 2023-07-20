@@ -1,10 +1,10 @@
 package com.example.hello_there.comment;
 
 import com.example.hello_there.board.Board;
-import com.example.hello_there.board.BoardType;
 import com.example.hello_there.user.User;
 import com.example.hello_there.utils.BaseTimeEntity;
 import lombok.*;
+import org.hibernate.annotations.ColumnDefault;
 import org.springframework.lang.Nullable;
 
 import javax.persistence.*;
@@ -39,8 +39,12 @@ public class Comment extends BaseTimeEntity {
     //댓글과 대댓글의 그룹 ID
     private Long groupId;
 
+    @ColumnDefault("false")
+    private boolean isDeleted;
 
-    private Integer likeCount = 0;
+
+    @OneToMany(mappedBy = "comment", cascade = CascadeType.ALL)
+    private List<LikeComment> likeComments = new ArrayList<>();
 
     @Builder
     public Comment(Board board, User user,String content, Comment parent,Long groupId) {
@@ -53,16 +57,6 @@ public class Comment extends BaseTimeEntity {
 
     //**비즈니스 로직**//
 
-    //좋아요 생성시 +1
-    public Integer addLike(){
-        return ++likeCount;
-    }
-
-    //좋아요 취소시 -1
-    public Integer cancelLike(){
-        return --likeCount;
-    }
-
     public void addGroupId(Long groupId) {
         this.groupId = groupId;
     }
@@ -74,5 +68,6 @@ public class Comment extends BaseTimeEntity {
     public void updateComment(String content) {
         this.content = content;
     }
-}
 
+    public void changeIsDeleted(){ this.isDeleted = true;}
+}

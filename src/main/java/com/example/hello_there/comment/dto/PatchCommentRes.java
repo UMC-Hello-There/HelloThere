@@ -13,7 +13,7 @@ public class PatchCommentRes {
     private Long groupId;      // 댓글 그룹
     private String content;    // 댓글 내용
     private String nickName;   // 회원 닉네임
-    private Integer likeCount; // 전체 좋아요 수
+    private Integer likeCount;
     private String modifiedDate;
 
     public PatchCommentRes(Comment comment){
@@ -24,7 +24,7 @@ public class PatchCommentRes {
         this.groupId = comment.getGroupId();
         this.content = comment.getContent();
         this.nickName = comment.getUser().getNickName();
-        this.likeCount = comment.getLikeCount();
+        this.likeCount = comment.getLikeComments().size();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
         this.modifiedDate = comment.getModifiedDate().format(formatter);
     }
