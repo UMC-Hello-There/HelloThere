@@ -18,6 +18,7 @@ public class PostCommentRes {
     private final Long groupId;      // 댓글 그룹
     private final String content;    // 댓글 내용
     private final String nickName;   // 회원 닉네임
+    private GetS3Res getS3Res;
     private final Integer likeCount;
     private final String createdDate;
 
@@ -29,6 +30,11 @@ public class PostCommentRes {
         this.groupId = comment.getGroupId();
         this.content = comment.getContent();
         this.nickName = comment.getUser().getNickName();
+        this.getS3Res = comment.getUser().getProfile()
+                == null ? null
+                : new GetS3Res(
+                comment.getUser().getProfile().getProfileUrl(),
+                comment.getUser().getProfile().getProfileFileName());
         this.likeCount = comment.getLikeComments().size();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
         this.createdDate = comment.getCreateDate().format(formatter);
