@@ -7,8 +7,6 @@ import com.example.hello_there.login.jwt.JwtService;
 import com.example.hello_there.user.UserRepository;
 import com.example.hello_there.utils.UtilService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -40,9 +38,11 @@ public class CommentController {
     }
 
     /** 댓글 전체 조회 **/
-    @GetMapping
-    public List<GetCommentRes> getCommentsByBoardId(@PathVariable Long boardId) {
-        return commentService.findComments(boardId); // 단독으로 호츨될 일은 없다고 가정
+    @GetMapping("/{userId}")
+    public List<GetCommentRes> getCommentsByBoardId(
+            @PathVariable Long boardId,
+            @PathVariable Long userId) {
+        return commentService.findComments(boardId,userId); // 단독으로 호츨될 일은 없다고 가정
     }
 
     /** 댓글 수정 **/
@@ -62,13 +62,27 @@ public class CommentController {
 
     /** 댓글 삭제 **/
     @DeleteMapping("/{commentId}")
-    public BaseResponse<DeleteCommentRes> deleteComment(
+    public BaseResponse<Long> deleteComment(
             @PathVariable Long boardId,
             @PathVariable Long commentId
     ){
         try{
             Long userId = jwtService.getUserIdx();
             return new BaseResponse<>(commentService.deleteComment(userId, boardId,commentId));
+        }catch (BaseException exception){
+            return new BaseResponse<>(exception.getStatus());
+        }
+    }
+
+    /** 댓글 좋아요 생성/취소**/
+    @PostMapping("/{commentId}")
+    public BaseResponse<Long> switchLikeComment(
+            @PathVariable Long boardId,
+            @PathVariable Long commentId
+    ){
+        try{
+            Long userId = jwtService.getUserIdx();
+            return new BaseResponse<>(commentService.switchLikeComment(userId,boardId,commentId));
         }catch (BaseException exception){
             return new BaseResponse<>(exception.getStatus());
         }
