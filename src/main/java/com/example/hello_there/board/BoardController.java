@@ -62,8 +62,8 @@ public class BoardController {
     @DeleteMapping("/delete/{board-id}")
     public BaseResponse<String> deleteBoard(@PathVariable(name = "board-id") Long boardId){
         try{
-            Long memberId = jwtService.getUserIdx();
-            DeleteBoardReq deleteBoardReq = new DeleteBoardReq(memberId, boardId);
+            Long userId = jwtService.getUserIdx();
+            DeleteBoardReq deleteBoardReq = new DeleteBoardReq(userId, boardId);
             return new BaseResponse<>(boardService.deleteBoard(deleteBoardReq));
         } catch(BaseException exception){
             return new BaseResponse<>(exception.getStatus());

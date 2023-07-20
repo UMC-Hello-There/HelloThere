@@ -1,13 +1,14 @@
 package com.example.hello_there.user;
 
-import com.example.hello_there.apratment.Apartment;
-import com.example.hello_there.apratment.ApartmentRepository;
+import com.example.hello_there.house.HouseRepository;
 import com.example.hello_there.board.Board;
 import com.example.hello_there.board.BoardRepository;
 import com.example.hello_there.board.photo.dto.GetS3Res;
 import com.example.hello_there.exception.BaseException;
+import com.example.hello_there.exception.BaseResponse;
 import com.example.hello_there.login.dto.JwtResponseDTO;
 import com.example.hello_there.login.jwt.JwtProvider;
+import com.example.hello_there.login.jwt.JwtService;
 import com.example.hello_there.login.jwt.Token;
 import com.example.hello_there.login.jwt.TokenRepository;
 import com.example.hello_there.user.dto.*;
@@ -19,6 +20,7 @@ import com.example.hello_there.utils.S3Service;
 import com.example.hello_there.utils.Secret;
 import com.example.hello_there.utils.UtilService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
@@ -27,9 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -48,7 +48,7 @@ public class UserService {
     private final JwtProvider jwtProvider;
     private final UtilService utilService;
     private final ProfileService profileService;
-    private final ApartmentRepository apartmentRepository;
+    private final JwtService jwtService;
     private final RedisTemplate redisTemplate;
 
     /**
@@ -74,7 +74,7 @@ public class UserService {
         User user = new User();
         user.createUser(postUserReq.getEmail(), pwd, postUserReq.getNickName(), postUserReq.getSignupPurpose(), null);
         userRepository.save(user);
-        return new PostUserRes(user.getId(), user.getNickName());
+        return new PostUserRes(user);
     }
 
     /**
@@ -83,28 +83,27 @@ public class UserService {
     public PostLoginRes login(PostLoginReq postLoginReq) throws BaseException {
         User user = utilService.findByEmailWithValidation(postLoginReq.getEmail());
         Token existToken = tokenRepository.findTokenByUserId(user.getId()).orElse(null);
-        if(existToken != null) { // 이미 토큰 Repository에 토큰이 존재하는 경우
+        if (existToken != null) {
             throw new BaseException(ALREADY_LOGIN);
         }
-        String password; // DB에 저장된 암호화된 비밀번호를 복호화한 값을 저장하기 위한 변수
-        try{
-            password = new AES128(Secret.USER_INFO_PASSWORD_KEY).decrypt(user.getPassword()); // 복호화
+        String password;
+
+        try {
+            password = new AES128(Secret.USER_INFO_PASSWORD_KEY).decrypt(user.getPassword());
         } catch (Exception ignored) {
             throw new BaseException(PASSWORD_DECRYPTION_ERROR);
         }
-        if(postLoginReq.getPassword().equals(password)){
+
+        if (postLoginReq.getPassword().equals(password)) {
             JwtResponseDTO.TokenInfo tokenInfo = jwtProvider.generateToken(user.getId());
-            String accessToken = tokenInfo.getAccessToken();
-            String refreshToken = tokenInfo.getRefreshToken();
             Token token = Token.builder()
-                    .accessToken(accessToken)
-                    .refreshToken(refreshToken)
+                    .accessToken(tokenInfo.getAccessToken())
+                    .refreshToken(tokenInfo.getRefreshToken())
                     .user(user)
-                    .build();;
+                    .build();
             tokenRepository.save(token);
-            return new PostLoginRes(user.getId(), accessToken, refreshToken);
-        }
-        else{
+            return new PostLoginRes(user, token);
+        } else {
             throw new BaseException(FAILED_TO_LOGIN);
         }
     }
@@ -112,34 +111,34 @@ public class UserService {
     /**
      * 모든 회원 조회
      */
-    public List<GetUserRes> getMembers(){
-        List<User> users = userRepository.findUsers(); // User를 List로 받아 GetUserRes로 바꿔줌
-        List<GetUserRes> getUserRes = users.stream()
-                .map(user -> new GetUserRes(user.getId(), user.getEmail(), user.getNickName(), user.getSignupPurpose(),
-                        user.getApartment().getCity() + user.getApartment().getDistrict() + user.getApartment().getApartmentName(),user.getStatus()))
+    public List<GetUserRes> getMembers() {
+        List<User> users = userRepository.findUsers();
+        return users.stream()
+                .map(GetUserRes::new) // 여기서 생성자를 활용하여 User 객체를 GetUserRes로 매핑
                 .collect(Collectors.toList());
-        return getUserRes;
     }
 
     /**
      * 특정 닉네임 조회
      */
-    public List<GetUserRes> getUsersByNickname(String nickname) {
+    public List<GetUserRes> getUsersByNickname(String nickname) throws BaseException{
         List<User> users = userRepository.findUserByNickName(nickname);
-        List<GetUserRes> getUserRes = users.stream()
-                .map(user -> new GetUserRes(user.getId(), user.getEmail(), user.getNickName(), user.getSignupPurpose(),
-                        user.getApartment().getCity() + user.getApartment().getDistrict() + user.getApartment().getApartmentName(),user.getStatus()))
+        if(users.isEmpty()) {
+            throw new BaseException(NONE_EXIST_NICKNAME);
+        }
+        return users.stream()
+                .map(GetUserRes::new) // 여기서 생성자를 활용하여 User 객체를 GetUserRes로 매핑
                 .collect(Collectors.toList());
-        return getUserRes;
     }
 
     /**
      * 닉네임 변경
      */
     @Transactional
-    public void modifyUserNickName(PatchUserReq patchUserReq) {
-        User user = userRepository.getReferenceById(patchUserReq.getUserId());
-        user.setNickName(patchUserReq.getNickName());
+    public String modifyUserNickName(Long userId, String nickName) throws BaseException {
+        User user = utilService.findByUserIdWithValidation(userId);
+        user.setNickName(nickName);
+        return "회원정보가 수정되었습니다.";
     }
 
     @Transactional
@@ -147,9 +146,14 @@ public class UserService {
         User user = utilService.findByUserIdWithValidation(userId);
         List<Board> boards = boardRepository.findBoardByUserId(user.getId());
         if(!boards.isEmpty()){
-            throw new BaseException(CANNOT_DELETE);
+            throw new BaseException(CANNOT_DELETE); // 게시글을 먼저 삭제해야만 유저 삭제 가능
         }
         tokenRepository.deleteTokenByUserId(user.getId());
+        Profile profile = profileRepository.findProfileById(userId).orElse(null);
+        if(profile != null) {
+            profileService.deleteProfile(profile);
+            profileRepository.deleteProfileById(userId);
+        }
         userRepository.deleteUser(user.getEmail());
         String result = "요청하신 회원에 대한 삭제가 완료되었습니다.";
         return result;
@@ -187,18 +191,31 @@ public class UserService {
     }
 
     @Transactional
-    public String logout(User logoutUser) throws BaseException{
+    public String logout(Long userId) throws BaseException{
         try {
-            Token token = utilService.findTokenByUserIdWithValidation(logoutUser.getId());
-            String accessToken = token.getAccessToken();
-            //엑세스 토큰 남은 유효시간
-            Long expiration = jwtProvider.getExpiration(accessToken);
-            //Redis Cache에 저장
-            redisTemplate.opsForValue().set(accessToken, "logout", expiration, TimeUnit.MILLISECONDS);
-            //리프레쉬 토큰 삭제
-            tokenRepository.deleteTokenByUserId(logoutUser.getId());
-            String result = "로그아웃 되었습니다.";
-            return result;
+            if (userId == 0L) { // 로그아웃 요청은 access token이 만료되더라도 재발급할 필요가 없음.
+                User user = tokenRepository.findUserByAccessToken(jwtService.getJwt()).orElse(null);
+                if (user != null) {
+                    Token token = tokenRepository.findTokenByUserId(user.getId()).orElse(null);
+                    tokenRepository.deleteTokenByAccessToken(token.getAccessToken());
+                    return "로그아웃 되었습니다.";
+                }
+                else {
+                    throw new BaseException(INVALID_JWT);
+                }
+            }
+            else { // 토큰이 만료되지 않은 경우
+                User logoutUser = utilService.findByUserIdWithValidation(userId);
+                Token token = utilService.findTokenByUserIdWithValidation(logoutUser.getId());
+                String accessToken = token.getAccessToken();
+                //엑세스 토큰 남은 유효시간
+                Long expiration = jwtProvider.getExpiration(accessToken);
+                //Redis Cache에 저장
+                redisTemplate.opsForValue().set(accessToken, "logout", expiration, TimeUnit.MILLISECONDS);
+                //리프레쉬 토큰 삭제
+                tokenRepository.deleteTokenByUserId(logoutUser.getId());
+                return "로그아웃 되었습니다.";
+            }
         } catch (Exception e) {
             throw new BaseException(FAILED_TO_LOGOUT);
         }
