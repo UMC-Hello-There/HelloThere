@@ -134,7 +134,6 @@ public class UtilService {
         String xValue = "";
         String yValue = "";
 
-
         String apiUrl = "https://dapi.kakao.com/v2/local/search/address.json";
         String encodedQuery = URLEncoder.encode(query, StandardCharsets.UTF_8);
 
