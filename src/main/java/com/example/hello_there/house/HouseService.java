@@ -11,6 +11,7 @@ import com.example.hello_there.utils.UtilService;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -22,6 +23,7 @@ import java.lang.reflect.Type;
 import java.net.URLDecoder;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -38,19 +40,25 @@ public class HouseService {
     }
 
     public House createHouse(PostHouseReq postHouseReq) {
-        if (postHouseReq.getCity().isEmpty() || postHouseReq.getDistrict().isEmpty()
-                || postHouseReq.getStreetAddress().isEmpty() || postHouseReq.getNumberAddress().isEmpty()
-                || postHouseReq.getHouseName().isEmpty()) {
-            return null; // null 필드가 있는 아파트는 등록하지 않는다.(데이터의 유효성과 NPE 발생 예방을 위함)
-        }
 
-        House house = House.builder()
-                .city(postHouseReq.getCity())
-                .district(postHouseReq.getDistrict())
-                .streetAddress(postHouseReq.getStreetAddress())
-                .numberAddress(postHouseReq.getNumberAddress())
-                .houseName(postHouseReq.getHouseName())
-                .build();
+            if (postHouseReq.getCity().isEmpty() || postHouseReq.getDistrict().isEmpty()
+                    || postHouseReq.getStreetAddress().isEmpty() || postHouseReq.getNumberAddress().isEmpty()
+                    || postHouseReq.getHouseName().isEmpty()
+                    || Optional.ofNullable(postHouseReq.getLocation()).isEmpty()
+                    || ObjectUtils.defaultIfNull(postHouseReq.getLocation().getLat(),0.0).equals(0.0)
+                    || ObjectUtils.defaultIfNull(postHouseReq.getLocation().getLng(),0.0).equals(0.0)) {
+                return null; // null 필드가 있는 아파트는 등록하지 않는다.(데이터의 유효성과 NPE 발생 예방을 위함)
+            }
+
+            House house = House.builder()
+                    .city(postHouseReq.getCity())
+                    .district(postHouseReq.getDistrict())
+                    .streetAddress(postHouseReq.getStreetAddress())
+                    .numberAddress(postHouseReq.getNumberAddress())
+                    .houseName(postHouseReq.getHouseName())
+                    .location(GeoPoint.toPoint(postHouseReq.getLocation()))
+                    .build();
+
         houseRepository.save(house);
         return house;
     }
