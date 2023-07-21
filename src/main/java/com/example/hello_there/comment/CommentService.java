@@ -97,17 +97,15 @@ public class CommentService {
         // 댓글 검증
         Comment updateRequestComment = utilService.findByCommentIdWithValidation(commentId);
 
-        // 조회한 댓글의 회원 ID
+        // 댓글 원작자 회원 ID
         Long originUserId = updateRequestComment.getUser().getId();
 
         // 수정 요청한 댓글이 자신의 댓글이 맞는지 검증
-        if (requestUserId.equals(originUserId)) {
-            // 작성자의 요청
-            updateRequestComment.updateComment(patchCommentReq.getContent());
-        } else {
-            // 작성자가 아닌 요청으로 예외발생
-            throw new BaseException(INVALID_UPDATE_REQUEST);
-        }
+        isOriginalWriter(requestUserId,originUserId);
+
+        // 댓글 수정
+        updateRequestComment.updateComment(patchCommentReq.getContent());
+
         return new PatchCommentRes(updateRequestComment);
     }
 
@@ -163,7 +161,7 @@ public class CommentService {
     // 댓글 원작자 검증
     private void isOriginalWriter(Long requestUserId, Long originUserId) throws BaseException {
         if (!requestUserId.equals(originUserId))
-            throw new BaseException(INVALID_DELETE_REQUEST);
+            throw new BaseException(INVALID_UPDATE_DELETE_REQUEST);
     }
 
     // 부모 댓글 삭제
@@ -172,6 +170,8 @@ public class CommentService {
         if (existsChildComment(deleteRequestComment)) {
             deleteRequestComment.updateComment("작성자에 의해 삭제된 댓글입니다.");
             deleteRequestComment.changeIsDeleted();
+            //부모 댓글에 눌린 좋아요 모두 삭제
+            likeCommentRepository.deleteByCommentId(deleteRequestComment.getCommentId());
             return;
         }
         // 자식 댓글이 없으면 DB 에서 바로 삭제
@@ -183,17 +183,12 @@ public class CommentService {
         // 자식 댓글은 DB 에서 바로 삭제
         commentRepository.deleteById(commentId);
         // 남아있는 자식댓글이 없고 부모 댓글이 삭제상태인 경우 부모 댓글 DB 에서 삭제
-        if (notExistsChildComment(parentComment) && parentComment.isDeleted())
+        if (!existsChildComment(parentComment) && parentComment.isDeleted())
             commentRepository.deleteById(parentComment.getCommentId());
     }
 
     // 자식 댓글이 남아있는지 검증
     private Boolean existsChildComment(Comment deleteRequestComment) {
         return commentRepository.existsByParentCommentId(deleteRequestComment.getCommentId());
-    }
-
-    // 자식 댓글이 없는지 검증
-    private Boolean notExistsChildComment(Comment parentComment) {
-        return !commentRepository.existsByParentCommentId(parentComment.getCommentId());
     }
 }

@@ -14,8 +14,11 @@ import java.util.List;
 public interface LikeCommentRepository extends JpaRepository<LikeComment, Long> {
     Boolean existsByUserAndComment(User user, Comment comment);
 
-    @Modifying
     Long deleteByUserAndComment(User user, Comment comment);
+
+    @Modifying
+    @Query("delete from LikeComment lc where lc.comment.commentId = :commentId")
+    void deleteByCommentId(@Param("commentId") Long commentId);
 
     @Query("select lc.comment.commentId from LikeComment lc where lc.user.id = :userId and lc.comment.board.boardId = :boardId")
     List<Long> findByUserIdAndBoardId(@Param("userId") Long userId, @Param("boardId") Long boardId);
