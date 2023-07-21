@@ -23,6 +23,7 @@ public class GetBoardDetailRes {
     private GetS3Res profile; // 작성자 프로필 이미지
     private String title;
     private String content;
+    private Long view;
     private List<GetS3Res> getS3Res;
     private List<GetCommentRes> getCommentRes;
 }

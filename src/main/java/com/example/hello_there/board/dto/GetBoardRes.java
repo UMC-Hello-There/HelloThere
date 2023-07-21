@@ -19,4 +19,5 @@ public class GetBoardRes {
     private String nickName;
     private String title;
     private String content;
+    private Long view;
 }

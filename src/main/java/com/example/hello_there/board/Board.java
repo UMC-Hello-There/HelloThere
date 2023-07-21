@@ -31,6 +31,9 @@ public class Board extends BaseTimeEntity {
     @Enumerated(EnumType.STRING)
     private BoardType boardType;
 
+    @Column(columnDefinition = "bigint default 0")
+    private Long view; // 조회수
+
     // 멤버와 관계 매핑
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")

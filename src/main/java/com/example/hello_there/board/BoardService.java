@@ -62,6 +62,7 @@ public class BoardService {
             Board board = Board.builder()
                     .title(postBoardReq.getTitle())
                     .content(postBoardReq.getContent())
+                    .view(0L)
                     .boardType(postBoardReq.getBoardType())
                     .photoList(new ArrayList<>())
                     .user(user)
@@ -79,7 +80,9 @@ public class BoardService {
         }
     }
 
+    @Transactional
     public GetBoardDetailRes getBoardByBoardId(Long userId, Long boardId) throws BaseException {
+        this.boardRepository.incrementViewsCountById(boardId);
         Board board = utilService.findByBoardIdWithValidation(boardId);
         List<PostPhoto> postPhotos = postPhotoRepository.findAllByBoardId(boardId).orElse(Collections.emptyList());
 
@@ -109,7 +112,7 @@ public class BoardService {
         GetBoardDetailRes getBoardDetailRes = new GetBoardDetailRes(board.getBoardId(),
                 board.getBoardType(), convertLocalDateTimeToLocalDate(board.getCreateDate()),
                 convertLocalDateTimeToTime(board.getCreateDate()), board.getUser().getNickName(),
-                profile, board.getTitle(), board.getContent(), getS3Res, response);
+                profile, board.getTitle(), board.getContent(), board.getView(), getS3Res, response);
 
         return getBoardDetailRes;
     }
@@ -122,7 +125,7 @@ public class BoardService {
                     .map(board -> new GetBoardRes(board.getBoardId(), board.getBoardType(),
                             convertLocalDateTimeToLocalDate(board.getCreateDate()),
                             convertLocalDateTimeToTime(board.getCreateDate()),
-                            board.getUser().getNickName(), board.getTitle(), board.getContent()))
+                            board.getUser().getNickName(), board.getTitle(), board.getContent(), board.getView()))
                     .collect(Collectors.toList());
             return getBoardRes;
         } catch (Exception exception) {
@@ -138,7 +141,7 @@ public class BoardService {
                     .map(board -> new GetBoardRes(board.getBoardId(), board.getBoardType(),
                             convertLocalDateTimeToLocalDate(board.getCreateDate()),
                             convertLocalDateTimeToTime(board.getCreateDate()),
-                            board.getUser().getNickName(), board.getTitle(), board.getContent()))
+                            board.getUser().getNickName(), board.getTitle(), board.getContent(), board.getView()))
                     .collect(Collectors.toList());
             return getBoardRes;
         } catch (Exception exception) {
