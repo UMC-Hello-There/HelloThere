@@ -79,21 +79,26 @@ public class BoardService {
         }
     }
 
-    public GetBoardDetailRes getBoardByBoardId(Long boardId) throws BaseException {
+    public GetBoardDetailRes getBoardByBoardId(Long userId, Long boardId) throws BaseException {
         Board board = utilService.findByBoardIdWithValidation(boardId);
         List<PostPhoto> postPhotos = postPhotoRepository.findAllByBoardId(boardId).orElse(Collections.emptyList());
 
         List<GetS3Res> getS3Res = postPhotos.stream()
                 .map(photo -> new GetS3Res(photo.getImgUrl(), photo.getFileName()))
                 .collect(Collectors.toList());
-
+        GetS3Res profile = new GetS3Res(null, null);
+        if(board.getUser().getProfile() != null) {
+            profile = new GetS3Res(board.getUser().getProfile().getProfileUrl(),
+                    board.getUser().getProfile().getProfileFileName());
+        }
         RestTemplate restTemplate = new RestTemplate();
         ResponseEntity<List<GetCommentRes>> responseEntity = restTemplate.exchange(
-                "http://localhost:8080/boards/{boardId}/comments",  // 호출할 API의 URL
+                "http://localhost:8080/boards/{boardId}/comments/{userId}",  // 호출할 API의 URL
                 HttpMethod.GET,  // 요청 방법 (GET, POST 등)
                 null,  // 요청에 대한 데이터 (필요에 따라 설정)
                 new ParameterizedTypeReference<List<GetCommentRes>>() {},
-                boardId  // URL 경로 변수에 대한 값 (필요에 따라 설정)
+                boardId,  // URL 경로 변수에 대한 값 (필요에 따라 설정)
+                userId
         );
         List<GetCommentRes> response = new ArrayList<>();
         if (responseEntity.getStatusCode() == HttpStatus.OK) {
@@ -104,7 +109,7 @@ public class BoardService {
         GetBoardDetailRes getBoardDetailRes = new GetBoardDetailRes(board.getBoardId(),
                 board.getBoardType(), convertLocalDateTimeToLocalDate(board.getCreateDate()),
                 convertLocalDateTimeToTime(board.getCreateDate()), board.getUser().getNickName(),
-                board.getTitle(), board.getContent(), getS3Res, response);
+                profile, board.getTitle(), board.getContent(), getS3Res, response);
 
         return getBoardDetailRes;
     }

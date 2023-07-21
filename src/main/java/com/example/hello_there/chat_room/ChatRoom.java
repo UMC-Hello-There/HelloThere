@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
+@Setter
 @Getter
 @Builder
 @AllArgsConstructor
@@ -39,20 +40,8 @@ public class ChatRoom extends BaseTimeEntity {
     @OneToMany(mappedBy = "chatRoom", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Message> messageList = new ArrayList<>();
 
-    public void updateRoomName(String roomName){
-        this.roomName = roomName;
-    }
     public void updateUserCount(int userCount){
         this.userCount = userCount;
-    }
-    public void updateMaxUserCount(int maxUserCount){
-        this.maxUserCount = maxUserCount;
-    }
-    public void updateSecretChk(boolean secretChk){
-        this.secretChk = secretChk;
-    }
-    public void updateRoomPassword(String roomPassword){
-        this.roomPassword = roomPassword;
     }
 }
 
