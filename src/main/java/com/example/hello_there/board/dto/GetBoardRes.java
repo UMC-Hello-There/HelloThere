@@ -20,4 +20,5 @@ public class GetBoardRes {
     private String title;
     private String content;
     private Long view;
+    private Long CommentCount; // 댓글 수
 }

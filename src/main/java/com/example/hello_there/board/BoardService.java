@@ -112,7 +112,7 @@ public class BoardService {
         GetBoardDetailRes getBoardDetailRes = new GetBoardDetailRes(board.getBoardId(),
                 board.getBoardType(), convertLocalDateTimeToLocalDate(board.getCreateDate()),
                 convertLocalDateTimeToTime(board.getCreateDate()), board.getUser().getNickName(),
-                profile, board.getTitle(), board.getContent(), board.getView(), getS3Res, response);
+                profile, board.getTitle(), board.getContent(), board.getView(), commentRepository.countByBoardBoardId(boardId), getS3Res, response);
 
         return getBoardDetailRes;
     }
@@ -127,7 +127,7 @@ public class BoardService {
                     .map(board -> new GetBoardRes(board.getBoardId(), board.getBoardType(),
                             convertLocalDateTimeToLocalDate(board.getCreateDate()),
                             convertLocalDateTimeToTime(board.getCreateDate()),
-                            board.getUser().getNickName(), board.getTitle(), board.getContent(), board.getView()))
+                            board.getUser().getNickName(), board.getTitle(), board.getContent(), board.getView(), commentRepository.countByBoardBoardId(board.getBoardId())))
                     .collect(Collectors.toList());
 
             return getBoardRes;
@@ -145,7 +145,7 @@ public class BoardService {
                     .map(board -> new GetBoardRes(board.getBoardId(), board.getBoardType(),
                             convertLocalDateTimeToLocalDate(board.getCreateDate()),
                             convertLocalDateTimeToTime(board.getCreateDate()),
-                            board.getUser().getNickName(), board.getTitle(), board.getContent(), board.getView()))
+                            board.getUser().getNickName(), board.getTitle(), board.getContent(), board.getView(), commentRepository.countByBoardBoardId(board.getBoardId())))
                     .collect(Collectors.toList());
             return getBoardRes;
         } catch (Exception exception) {
