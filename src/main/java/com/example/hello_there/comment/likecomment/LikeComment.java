@@ -1,5 +1,6 @@
-package com.example.hello_there.comment;
+package com.example.hello_there.comment.likecomment;
 
+import com.example.hello_there.comment.Comment;
 import com.example.hello_there.user.User;
 import lombok.AccessLevel;
 import lombok.Builder;
