@@ -3,6 +3,8 @@ package com.example.hello_there.comment;
 import com.example.hello_there.board.Board;
 import com.example.hello_there.board.BoardRepository;
 import com.example.hello_there.comment.dto.*;
+import com.example.hello_there.comment.likecomment.LikeComment;
+import com.example.hello_there.comment.likecomment.LikeCommentRepository;
 import com.example.hello_there.exception.BaseException;
 import com.example.hello_there.user.User;
 import com.example.hello_there.user.UserRepository;

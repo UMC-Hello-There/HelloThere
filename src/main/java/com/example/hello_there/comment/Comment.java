@@ -1,6 +1,7 @@
 package com.example.hello_there.comment;
 
 import com.example.hello_there.board.Board;
+import com.example.hello_there.comment.likecomment.LikeComment;
 import com.example.hello_there.user.User;
 import com.example.hello_there.utils.BaseTimeEntity;
 import lombok.*;
