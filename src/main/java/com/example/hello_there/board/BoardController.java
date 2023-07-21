@@ -39,7 +39,8 @@ public class BoardController {
     @GetMapping("/board/{boardId}")
     public BaseResponse<GetBoardDetailRes> getBoardByBoardId(@PathVariable Long boardId) {
         try{
-            return new BaseResponse<>(boardService.getBoardByBoardId(boardId));
+            Long userId = jwtService.getUserIdx();
+            return new BaseResponse<>(boardService.getBoardByBoardId(userId, boardId));
         } catch(BaseException exception){
             return new BaseResponse<>(exception.getStatus());
         }
