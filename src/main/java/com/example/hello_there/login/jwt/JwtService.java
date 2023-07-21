@@ -4,7 +4,6 @@ import com.example.hello_there.exception.BaseException;
 import com.example.hello_there.exception.BaseResponse;
 import com.example.hello_there.user.User;
 import com.example.hello_there.user.UserRepository;
-import com.example.hello_there.utils.Secret;
 import com.example.hello_there.utils.UtilService;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
