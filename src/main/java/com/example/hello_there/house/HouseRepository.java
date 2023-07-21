@@ -24,5 +24,5 @@ public interface HouseRepository extends JpaRepository<House, Long> {
                             +" HAVING distance < :radius"
             ,nativeQuery = true
     )
-    List<House> findByRadius(Double lat, Double lng, Double radius);
+    List<House> findByRadius(@Param("lat") Double lat, @Param("lng") Double lng, @Param("radius") Double radius);
 }
