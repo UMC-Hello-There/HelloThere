@@ -10,6 +10,9 @@ import java.util.List;
 import java.util.Optional;
 
 public interface BoardRepository extends JpaRepository<Board, Long> {
+
+    List<Board> findAllByBoardTypeOrderByBoardIdDesc(BoardType boardType);
+
     @Query("select b from Board b where b.boardId = :boardId")
     Optional<Board> findBoardById(@Param("boardId") Long boardId);
 

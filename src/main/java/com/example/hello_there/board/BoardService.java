@@ -117,21 +117,25 @@ public class BoardService {
         return getBoardDetailRes;
     }
 
+
+    /** 게시글 카테고리별 전체 조회 **/
     @Transactional
-    public List<GetBoardRes> getBoards() throws BaseException{
-        try{
-            List<Board> boards = boardRepository.findBoards();
+    public List<GetBoardRes> getBoardsByCategory(BoardType category) throws BaseException {
+        try {
+            List<Board> boards = boardRepository.findAllByBoardTypeOrderByBoardIdDesc(category);
             List<GetBoardRes> getBoardRes = boards.stream()
                     .map(board -> new GetBoardRes(board.getBoardId(), board.getBoardType(),
                             convertLocalDateTimeToLocalDate(board.getCreateDate()),
                             convertLocalDateTimeToTime(board.getCreateDate()),
                             board.getUser().getNickName(), board.getTitle(), board.getContent(), board.getView()))
                     .collect(Collectors.toList());
+
             return getBoardRes;
         } catch (Exception exception) {
             throw new BaseException(DATABASE_ERROR);
         }
     }
+
 
     @Transactional
     public List<GetBoardRes> getBoardById(Long userId) throws BaseException{

@@ -35,7 +35,18 @@ public class BoardController {
         }
     }
 
-    /** 게시글을 boardId로 조회하기 **/
+    /** 게시글을 category로 조회하기(최신순) **/
+    @GetMapping("/{category}")
+    public BaseResponse<List<GetBoardRes>> getCommentsByBoardId(@PathVariable BoardType category) {
+        try{
+            return new BaseResponse<>(boardService.getBoardsByCategory(category));
+        }catch (BaseException exception){
+            return new BaseResponse<>(exception.getStatus());
+        }
+    }
+
+
+     /** 게시글을 boardId로 조회하기 **/
     @GetMapping("/board/{boardId}")
     public BaseResponse<GetBoardDetailRes> getBoardByBoardId(@PathVariable Long boardId) {
         try{
@@ -48,11 +59,9 @@ public class BoardController {
 
     /** 게시글을 멤버Id로 조회하기 **/
     @GetMapping("/board")
-    public BaseResponse<List<GetBoardRes>> getBoardByUserId(@RequestParam(required = false) Long userId) {
+    public BaseResponse<List<GetBoardRes>> getBoardByUserId() {
         try{
-            if(userId == null) {
-                return new BaseResponse<>(boardService.getBoards());
-            }
+            Long userId = jwtService.getUserIdx();
             return new BaseResponse<>(boardService.getBoardById(userId));
         } catch(BaseException exception){
             return new BaseResponse<>(exception.getStatus());
