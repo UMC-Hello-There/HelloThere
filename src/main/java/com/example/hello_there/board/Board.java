@@ -1,5 +1,6 @@
 package com.example.hello_there.board;
 
+import com.example.hello_there.board.like.LikeBoard;
 import com.example.hello_there.board.photo.PostPhoto;
 import com.example.hello_there.user.User;
 import com.example.hello_there.utils.BaseTimeEntity;
@@ -42,6 +43,10 @@ public class Board extends BaseTimeEntity {
     // 게시 사진과 관계매핑
     @OneToMany(mappedBy = "board", cascade = {CascadeType.ALL}, orphanRemoval = true)
     private List<PostPhoto> photoList = new ArrayList<>();
+
+    // 게시글 좋아요와 관계매핑
+    @OneToMany(mappedBy = "board", cascade = CascadeType.ALL)
+    private List<LikeBoard> likeBoards = new ArrayList<>();
 
     public void updateBoard(BoardType boardType, String title, String content){
         this.boardType = boardType;
