@@ -92,4 +92,19 @@ public class BoardController {
             return new BaseResponse<>(exception.getStatus());
         }
     }
+
+    /** 게시글 좋아요 및 좋아요 취소 **/
+    @PostMapping("/{boardId}/like")
+    public BaseResponse<String> likeOrUnlikeBoard(@PathVariable Long boardId){
+        try{
+            Long userId=jwtService.getUserIdx();
+            return new BaseResponse<>(boardService.likeOrUnlikeBoard(userId, boardId));
+        }
+        catch (BaseException exception) {
+            return new BaseResponse<>(exception.getStatus());
+        }
+    }
+
+
+
 }

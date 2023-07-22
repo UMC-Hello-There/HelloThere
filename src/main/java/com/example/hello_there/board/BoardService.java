@@ -1,6 +1,8 @@
 package com.example.hello_there.board;
 
 import com.example.hello_there.board.dto.*;
+import com.example.hello_there.board.like.LikeBoard;
+import com.example.hello_there.board.like.LikeBoardRepository;
 import com.example.hello_there.board.photo.PostPhoto;
 import com.example.hello_there.board.photo.PostPhotoRepository;
 import com.example.hello_there.board.photo.PostPhotoService;
@@ -41,6 +43,7 @@ public class BoardService {
     private final S3Service s3Service;
     private final PostPhotoService postPhotoService;
     private final CommentRepository commentRepository;
+    private final LikeBoardRepository likeBoardRepository;
 
     @Transactional
     public void save(Board board) {
@@ -200,5 +203,28 @@ public class BoardService {
             throw new BaseException(exception.getStatus());
         }
     }
+
+    @Transactional
+    public String likeOrUnlikeBoard(Long userId, Long boardId) throws BaseException {
+        try {
+            Board board = utilService.findByBoardIdWithValidation(boardId);
+            User user = utilService.findByUserIdWithValidation(userId);
+
+            Long likeId = likeBoardRepository.findByBoard_BoardIdAndUserId(boardId, userId).get().getId();
+            if (likeId != null) {
+                // 이미 좋아요가 눌러져 있는 상태-> 좋아요 취소
+                this.likeBoardRepository.deleteById(likeId);
+                return "게시글의 좋아요를 취소했습니다.";
+            } else {
+                // 이미 좋아요가 눌러져 있지 않은 상태 -> 좋아요
+                this.likeBoardRepository.save(new LikeBoard(user, board));
+                return "게시글에 좋아요를 눌렀습니다.";
+            }
+        } catch (BaseException exception) {
+            throw new BaseException(exception.getStatus());
+        }
+    }
+
+
 }
 
