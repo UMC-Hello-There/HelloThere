@@ -28,6 +28,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.example.hello_there.exception.BaseResponseStatus.*;
@@ -107,7 +108,8 @@ public class BoardService {
         GetBoardDetailRes getBoardDetailRes = new GetBoardDetailRes(board.getBoardId(),
                 board.getBoardType(), convertLocalDateTimeToLocalDate(board.getCreateDate()),
                 convertLocalDateTimeToTime(board.getCreateDate()), board.getUser().getNickName(),
-                profile, board.getTitle(), board.getContent(), board.getView(), commentRepository.countByBoardBoardId(boardId), getS3Res, response);
+                profile, board.getTitle(), board.getContent(), board.getView(),
+                commentRepository.countByBoardBoardId(boardId), likeBoardRepository.countByBoardBoardId(board.getBoardId()), getS3Res, response);
 
         return getBoardDetailRes;
     }
@@ -122,7 +124,8 @@ public class BoardService {
                     .map(board -> new GetBoardRes(board.getBoardId(), board.getBoardType(),
                             convertLocalDateTimeToLocalDate(board.getCreateDate()),
                             convertLocalDateTimeToTime(board.getCreateDate()),
-                            board.getUser().getNickName(), board.getTitle(), board.getContent(), board.getView(), commentRepository.countByBoardBoardId(board.getBoardId())))
+                            board.getUser().getNickName(), board.getTitle(), board.getContent(), board.getView(),
+                            commentRepository.countByBoardBoardId(board.getBoardId()), likeBoardRepository.countByBoardBoardId(board.getBoardId())))
                     .collect(Collectors.toList());
 
             return getBoardRes;
@@ -140,7 +143,8 @@ public class BoardService {
                     .map(board -> new GetBoardRes(board.getBoardId(), board.getBoardType(),
                             convertLocalDateTimeToLocalDate(board.getCreateDate()),
                             convertLocalDateTimeToTime(board.getCreateDate()),
-                            board.getUser().getNickName(), board.getTitle(), board.getContent(), board.getView(), commentRepository.countByBoardBoardId(board.getBoardId())))
+                            board.getUser().getNickName(), board.getTitle(), board.getContent(), board.getView(),
+                            commentRepository.countByBoardBoardId(board.getBoardId()), likeBoardRepository.countByBoardBoardId(board.getBoardId())))
                     .collect(Collectors.toList());
             return getBoardRes;
         } catch (Exception exception) {
@@ -210,10 +214,11 @@ public class BoardService {
             Board board = utilService.findByBoardIdWithValidation(boardId);
             User user = utilService.findByUserIdWithValidation(userId);
 
-            Long likeId = likeBoardRepository.findByBoard_BoardIdAndUserId(boardId, userId).get().getId();
-            if (likeId != null) {
-                // 이미 좋아요가 눌러져 있는 상태-> 좋아요 취소
-                this.likeBoardRepository.deleteById(likeId);
+            Optional<LikeBoard> likeBoardOptional = likeBoardRepository.findByBoard_BoardIdAndUserId(boardId, userId);
+            if (likeBoardOptional.isPresent()) {
+                // 이미 좋아요가 눌러져 있는 상태 -> 좋아요 취소
+                LikeBoard likeBoard = likeBoardOptional.get();
+                this.likeBoardRepository.deleteById(likeBoard.getId());
                 return "게시글의 좋아요를 취소했습니다.";
             } else {
                 // 이미 좋아요가 눌러져 있지 않은 상태 -> 좋아요
