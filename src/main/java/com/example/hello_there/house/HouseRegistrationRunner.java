@@ -35,9 +35,7 @@ public class HouseRegistrationRunner implements ApplicationRunner {
     @Override
     public void run(ApplicationArguments args) {
         try {
-            // 인천시 부평구 아파트
             List<PostHouseReq> postHouseReqList = new ArrayList<>();
-
             // 인천광역시 부평구 정보
             postHouseReqList.addAll(houseService.getHouseInfoByRegion("인천광역시", "부평구", bupyeongUrl));
             // 서울특별시 동작구 정보
