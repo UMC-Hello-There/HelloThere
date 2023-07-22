@@ -10,6 +10,9 @@ import java.util.List;
 import java.util.Optional;
 
 public interface BoardRepository extends JpaRepository<Board, Long> {
+
+    List<Board> findAllByBoardTypeOrderByBoardIdDesc(BoardType boardType);
+
     @Query("select b from Board b where b.boardId = :boardId")
     Optional<Board> findBoardById(@Param("boardId") Long boardId);
 
@@ -24,6 +27,10 @@ public interface BoardRepository extends JpaRepository<Board, Long> {
 
     @Query("select b from Board b")
     List<Board> findBoards();
+
+    @Modifying
+    @Query("UPDATE Board b SET b.view = b.view + 1 WHERE b.boardId = :boardId")
+    void incrementViewsCountById(@Param("boardId") Long boardId);
 
     @Modifying
     @Query("delete from Board b where b.boardId = :boardId")

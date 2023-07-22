@@ -19,4 +19,6 @@ public class GetBoardRes {
     private String nickName;
     private String title;
     private String content;
+    private Long view;
+    private Long CommentCount; // 댓글 수
 }

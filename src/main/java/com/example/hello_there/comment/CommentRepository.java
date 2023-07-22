@@ -31,6 +31,9 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
     @Query("SELECT c FROM Comment c WHERE c.board.boardId = :boardId")
     List<Comment> findCommentsByBoardId(@Param("boardId") Long boardId);
 
+    // 특정 게시글의 댓글수 카운트
+    Long countByBoardBoardId(Long boardId);
+
     @Modifying
     @Query("delete from Comment c where c.board.boardId = :boardId")
     void deleteCommentsByBoardId(@Param("boardId") Long boardId);
