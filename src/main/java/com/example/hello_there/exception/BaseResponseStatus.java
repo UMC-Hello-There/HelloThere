@@ -80,7 +80,7 @@ public enum BaseResponseStatus {
     BOARD_NOT_FOUND(false, 5004, "요청하신 제목의 게시글은 존재하지 않습니다."),
     SAME_TITLE_ERROR(false, 5005, "동일한 게시글이 2개 이상 존재해 수정을 진행할 수 없습니다."),
     CANNOT_DELETE(false, 5006, "작성된 게시글이 존재하여 멤버를 삭제하는데 실패하였습니다."),
-    MEMBER_WITHOUT_PERMISSION(false, 5007, "본인의 게시글에 대해서만 수정 및 삭제가 가능합니다."),
+    USER_WITHOUT_PERMISSION(false, 5007, "본인의 게시글에 대해서만 수정 및 삭제가 가능합니다."),
 
     /**
      *   6000 : 회원등록 관련 오류

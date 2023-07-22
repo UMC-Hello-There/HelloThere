@@ -1,5 +1,6 @@
 package com.example.hello_there.user.dto;
 
+import com.example.hello_there.board.photo.dto.GetS3Res;
 import com.example.hello_there.user.User;
 
 import com.example.hello_there.user.UserStatus;
@@ -12,24 +13,25 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class GetUserRes {
     private Long userId;
+    private GetS3Res getS3Res; // 유저 프로필 사진
     private String email;
     private String nickName;
     private String signupPurpose;
     private String address;
     private UserStatus status;
 
-    public GetUserRes(User user){
+    public GetUserRes(User user) {
         this.userId = user.getId();
+        this.getS3Res = (user.getProfile() != null)
+                ? new GetS3Res(user.getProfile().getProfileUrl(), user.getProfile().getProfileFileName())
+                : null;
         this.email = user.getEmail();
         this.nickName = user.getNickName();
         this.signupPurpose = user.getSignupPurpose();
-        if (user.getHouse() != null) {
-            this.address = user.getHouse().getCity() + " " +
-                    user.getHouse().getDistrict() + " " +
-                    user.getHouse().getHouseName();
-        } else {
-            this.address = "";
-        }
+        this.address = (user.getHouse() != null)
+                ? String.format("%s %s %s", user.getHouse().getCity(), user.getHouse().getDistrict(),
+                user.getHouse().getHouseName())
+                : "";
         this.status = user.getStatus();
     }
 }

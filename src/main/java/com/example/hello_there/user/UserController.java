@@ -20,6 +20,7 @@ import static com.example.hello_there.utils.ValidationRegex.*;
 
 @RequiredArgsConstructor
 @RestController
+@RequestMapping("/user")
 public class UserController {
 
     private final UserService userService;
@@ -29,7 +30,7 @@ public class UserController {
     /**
      * 회원 가입
      */
-    @PostMapping("/create")
+    @PostMapping("")
     public BaseResponse<PostUserRes> createUser(@RequestBody PostUserReq postUserReq){
         if(!isRegexEmail(postUserReq.getEmail())) return new BaseResponse<>(POST_USERS_INVALID_EMAIL);
         try {
@@ -69,7 +70,7 @@ public class UserController {
      * 회원 조회
      * nickname이 파라미터에 없을 경우 모두 조회
      */
-    @GetMapping("read")
+    @GetMapping("")
     public BaseResponse<List<GetUserRes>> getUsers(@RequestParam(required = false) String nickName) {
         if (nickName == null) { // query string인 nickname이 없을 경우 전체 유저정보를 반환
             return new BaseResponse<>(userService.getMembers());
@@ -86,7 +87,7 @@ public class UserController {
     /**
      * 멤버 닉네임 변경
      */
-    @PatchMapping("/update")
+    @PatchMapping("")
     public BaseResponse<String> modifyUserName(@RequestParam String nickName) {
         try {
             Long userId = jwtService.getUserIdx();
@@ -99,7 +100,7 @@ public class UserController {
     /**
      * 멤버 프로필 변경
      */
-    @PatchMapping("/update-profile")
+    @PatchMapping("/profile")
     public BaseResponse<String> modifyMemberProfile(@RequestPart(value = "image", required = false) MultipartFile multipartFile) {
         try {
             Long memberId = jwtService.getUserIdx();
@@ -112,7 +113,7 @@ public class UserController {
     /**
      * 멤버 삭제
      */
-    @DeleteMapping("/delete")
+    @DeleteMapping("")
     public BaseResponse<String> deleteUser(){
         try{
             Long userId = jwtService.getUserIdx();
