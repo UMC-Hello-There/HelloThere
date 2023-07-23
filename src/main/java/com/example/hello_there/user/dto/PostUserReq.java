@@ -10,8 +10,8 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 public class PostUserReq {
+    private String nickName;
     private String email;
     private String password;
-    private String nickName;
-    private String signupPurpose;
+    private String passwordChk; // 비밀번호 확인
 }

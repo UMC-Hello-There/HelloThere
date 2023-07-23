@@ -1,16 +1,16 @@
 package com.example.hello_there.login.jwt;
 
 import com.example.hello_there.exception.BaseException;
-import com.example.hello_there.exception.BaseResponse;
 import com.example.hello_there.user.User;
 import com.example.hello_there.user.UserRepository;
+import com.example.hello_there.user.UserService;
+import com.example.hello_there.user.UserStatus;
 import com.example.hello_there.utils.Secret;
 import com.example.hello_there.utils.UtilService;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.request.RequestContextHolder;
@@ -63,7 +63,12 @@ public class JwtService {
                     .build()
                     .parseClaimsJws(accessToken);
             // 3. userId 추출
-            return claims.getBody().get("userId", Long.class);
+            Long userId = claims.getBody().get("userId", Long.class);
+            User user = utilService.findByUserIdWithValidation(userId);
+            if(user.getStatus() == UserStatus.INACTIVE) {
+                throw new BaseException(UNABLE_TO_USE);
+            }
+            return userId;
         } catch (ExpiredJwtException e) {
             // access token이 만료된 경우
             User user = tokenRepository.findUserByAccessToken(accessToken).orElse(null);

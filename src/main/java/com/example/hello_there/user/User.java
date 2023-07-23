@@ -18,10 +18,13 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class User extends BaseTimeEntity {
+public class  User extends BaseTimeEntity {
     @Column
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id; // 멤버의 식별자
+
+    @Column(nullable = false)
+    private String nickName; // 유저의 닉네임
 
     @Column(nullable = false)
     private String email; // 이메일로 로그인
@@ -30,10 +33,7 @@ public class User extends BaseTimeEntity {
     private String password;
 
     @Column(nullable = false)
-    private String nickName; // 유저의 닉네임
-
-    @Column(nullable = false)
-    private String signupPurpose; // 가입 목적
+    private String cumulativeReport; // 누적 신고(게시글/댓글/채팅) ex) 011003 -> 게시글 1, 댓글 10, 채팅 3
 
     @Column(nullable = false) // status는 멤버 회원가입 시에 자동으로 ACTIVE로 설정됨.
     @Enumerated(EnumType.STRING)
@@ -58,11 +58,11 @@ public class User extends BaseTimeEntity {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Board> comments = new ArrayList<>();
-    public User createUser(String email, String password, String nickName, String signupPurpose, House house) {
+    public User createUser(String nickName, String email, String password, House house) {
+        this.nickName= nickName;
         this.email = email;
         this.password = password;
-        this.nickName= nickName;
-        this.signupPurpose = signupPurpose;
+        this.cumulativeReport = "000000";
         this.status = UserStatus.ACTIVE;
         this.house = house;
         return this;

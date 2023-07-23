@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.sound.midi.Patch;
 import java.util.List;
 
 import static com.example.hello_there.exception.BaseResponseStatus.*;
@@ -32,7 +33,6 @@ public class UserController {
      */
     @PostMapping("")
     public BaseResponse<PostUserRes> createUser(@RequestBody PostUserReq postUserReq){
-        if(!isRegexEmail(postUserReq.getEmail())) return new BaseResponse<>(POST_USERS_INVALID_EMAIL);
         try {
             return new BaseResponse<>(userService.createUser(postUserReq));
         } catch (BaseException exception) {
@@ -46,7 +46,6 @@ public class UserController {
     @PostMapping("/log-in")
     public BaseResponse<PostLoginRes> loginMember(@RequestBody PostLoginReq postLoginReq){
         try{
-            if(!isRegexEmail(postLoginReq.getEmail())) return new BaseResponse<>(POST_USERS_INVALID_EMAIL);
             return new BaseResponse<>(userService.login(postLoginReq));
         } catch (BaseException exception) {
             return new BaseResponse<>(exception.getStatus());
@@ -67,7 +66,7 @@ public class UserController {
     }
 
     /**
-     * 회원 조회
+     * 유저 조회
      * nickname이 파라미터에 없을 경우 모두 조회
      */
     @GetMapping("")
@@ -85,7 +84,7 @@ public class UserController {
     }
 
     /**
-     * 멤버 닉네임 변경
+     * 유저 닉네임 변경
      */
     @PatchMapping("")
     public BaseResponse<String> modifyUserName(@RequestParam String nickName) {
@@ -98,20 +97,33 @@ public class UserController {
     }
 
     /**
-     * 멤버 프로필 변경
+     * 유저 프로필 변경
      */
     @PatchMapping("/profile")
-    public BaseResponse<String> modifyMemberProfile(@RequestPart(value = "image", required = false) MultipartFile multipartFile) {
+    public BaseResponse<String> modifyProfile(@RequestPart(value = "image", required = false) MultipartFile multipartFile) {
         try {
-            Long memberId = jwtService.getUserIdx();
-            return new BaseResponse<>(userService.modifyProfile(memberId, multipartFile));
+            Long userId = jwtService.getUserIdx();
+            return new BaseResponse<>(userService.modifyProfile(userId, multipartFile));
         } catch (BaseException exception) {
             return new BaseResponse<>(exception.getStatus());
         }
     }
 
     /**
-     * 멤버 삭제
+     * 유저 비밀번호 변경
+     */
+    @PatchMapping("/password")
+    public BaseResponse<String> modifyPassword(@RequestBody PatchPasswordReq patchPasswordReq) {
+        try {
+            Long userId = jwtService.getUserIdx();
+            return new BaseResponse<>(userService.modifyPassword(userId, patchPasswordReq));
+        } catch (BaseException exception) {
+            return new BaseResponse<>(exception.getStatus());
+        }
+    }
+
+    /**
+     * 유저 탈퇴
      */
     @DeleteMapping("")
     public BaseResponse<String> deleteUser(){
