@@ -9,22 +9,14 @@ import com.example.hello_there.board.photo.PostPhotoService;
 import com.example.hello_there.board.photo.dto.GetS3Res;
 import com.example.hello_there.comment.Comment;
 import com.example.hello_there.comment.CommentRepository;
-import com.example.hello_there.comment.dto.GetCommentByBoardRes;
 import com.example.hello_there.comment.dto.GetCommentRes;
 import com.example.hello_there.exception.BaseException;
 import com.example.hello_there.report.Report;
 import com.example.hello_there.report.ReportRepository;
 import com.example.hello_there.report.ReportService;
 import com.example.hello_there.user.User;
-import com.example.hello_there.user.UserService;
-import com.example.hello_there.user.UserStatus;
-import com.example.hello_there.report.Report;
-import com.example.hello_there.report.ReportRepository;
-import com.example.hello_there.report.ReportService;
-import com.example.hello_there.user.User;
 import com.example.hello_there.user.UserRepository;
 
-import com.example.hello_there.user.UserService;
 import com.example.hello_there.user.UserStatus;
 import com.example.hello_there.utils.S3Service;
 import com.example.hello_there.utils.UtilService;
@@ -38,7 +30,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.reactive.function.client.WebClient;
 
 
 import java.time.LocalDateTime;

@@ -116,5 +116,4 @@ public class BoardController {
             return new BaseResponse<>(exception.getStatus());
         }
     }
-
 }
