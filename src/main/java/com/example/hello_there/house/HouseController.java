@@ -26,7 +26,6 @@ public class HouseController {
      */
     @PatchMapping("/update")
     public BaseResponse<String> setHouseInfo(@RequestBody PatchHouseReq patchHouseReq) {
-        // PostMan에서 Headers에 Authorization필드를 추가하고, 로그인할 때 받은 jwt 토큰을 입력해야 실행이 됩니다.
         try {
             Long userId = jwtService.getUserIdx();
             return new BaseResponse<>(houseService.setHouseInfo(patchHouseReq, userId));

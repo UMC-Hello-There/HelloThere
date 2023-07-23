@@ -25,9 +25,9 @@ public class GetUserRes {
         this.getS3Res = (user.getProfile() != null)
                 ? new GetS3Res(user.getProfile().getProfileUrl(), user.getProfile().getProfileFileName())
                 : null;
-        this.email = user.getEmail();
         this.nickName = user.getNickName();
-        this.signupPurpose = user.getSignupPurpose();
+        this.email = user.getEmail();
+
         this.address = (user.getHouse() != null)
                 ? String.format("%s %s %s", user.getHouse().getCity(), user.getHouse().getDistrict(),
                 user.getHouse().getHouseName())

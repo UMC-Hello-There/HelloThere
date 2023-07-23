@@ -43,7 +43,7 @@ public class MessageController {
 
     // localhost:8080/pub/messageDto/enterUser와 같은 URI로 WebSocket 메시지를 전송하면,
     // 해당 요청이 서버에 도달하고, enterUser 메서드가 실행된다. 이는 클라이언트가 채팅방에 입장할 때 트리거되는 메서드이다.
-    @MessageMapping("/messageDto/enterUser")
+    @MessageMapping("/messageDto/enter-user")
     public BaseResponse<String> enterUser(@Payload MessageDto messageDto, SimpMessageHeaderAccessor headerAccessor) {
         try {
             // 채팅방 유저+1
@@ -66,7 +66,7 @@ public class MessageController {
 
     // 메시지를 보낼 때는 /sub/chat/room/{roomId}를 대상으로 메시지를 전송
     // 클라이언트가 localhost:8080/pub/chat/sendMessage와 같은 URI로 WebSocket 메시지를 전송
-    @MessageMapping("/chat/sendMessage")
+    @MessageMapping("/chat/send-message")
     public void sendMessage(@Payload MessageDto messageDto) {
         template.convertAndSend("/sub/chat/room/" + messageDto.getRoomId(), messageDto);
 
