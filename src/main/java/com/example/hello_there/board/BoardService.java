@@ -17,14 +17,18 @@ import com.example.hello_there.report.ReportService;
 import com.example.hello_there.user.User;
 import com.example.hello_there.user.UserService;
 import com.example.hello_there.user.UserStatus;
+import com.example.hello_there.report.Report;
+import com.example.hello_there.report.ReportRepository;
+import com.example.hello_there.report.ReportService;
 import com.example.hello_there.user.User;
 import com.example.hello_there.user.UserRepository;
 
+import com.example.hello_there.user.UserService;
+import com.example.hello_there.user.UserStatus;
 import com.example.hello_there.utils.S3Service;
 import com.example.hello_there.utils.UtilService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.ParameterizedTypeReference;
-
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -40,6 +44,8 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
+
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -192,7 +198,7 @@ public class BoardService {
             // 게시글을 삭제하는 명령
             boardRepository.deleteBoard(boardId);
             return "요청하신 게시글에 대한 삭제가 완료되었습니다.";
-        else {
+        } else {
             throw new BaseException(USER_WITHOUT_PERMISSION);
         }
     }
@@ -221,10 +227,28 @@ public class BoardService {
             } else {
                 throw new BaseException(USER_WITHOUT_PERMISSION);
             }
-            else {
-                throw new BaseException(USER_WITHOUT_PERMISSION);
+        } catch (BaseException exception) {
+            throw new BaseException(exception.getStatus());
+        }
+    }
+
+    public String likeOrUnlikeBoard(Long userId, Long boardId) throws BaseException {
+        try {
+            Board board = utilService.findByBoardIdWithValidation(boardId);
+            User user = utilService.findByUserIdWithValidation(userId);
+
+            Optional<LikeBoard> likeBoardOptional = likeBoardRepository.findByBoard_BoardIdAndUserId(boardId, userId);
+            if (likeBoardOptional.isPresent()) {
+                // 이미 좋아요가 눌러져 있는 상태 -> 좋아요 취소
+                LikeBoard likeBoard = likeBoardOptional.get();
+                this.likeBoardRepository.deleteById(likeBoard.getId());
+                return "게시글의 좋아요를 취소했습니다.";
+            } else {
+                // 이미 좋아요가 눌러져 있지 않은 상태 -> 좋아요
+                this.likeBoardRepository.save(new LikeBoard(user, board));
+                return "게시글에 좋아요를 눌렀습니다.";
             }
-        } catch(BaseException exception) {
+        } catch (BaseException exception) {
             throw new BaseException(exception.getStatus());
         }
     }
@@ -283,26 +307,4 @@ public class BoardService {
 
         return "게시글 작성자에 대한 신고 처리가 완료되었습니다.";
     }
-
-    public String likeOrUnlikeBoard(Long userId, Long boardId) throws BaseException {
-        try {
-            Board board = utilService.findByBoardIdWithValidation(boardId);
-            User user = utilService.findByUserIdWithValidation(userId);
-
-            Optional<LikeBoard> likeBoardOptional = likeBoardRepository.findByBoard_BoardIdAndUserId(boardId, userId);
-            if (likeBoardOptional.isPresent()) {
-                // 이미 좋아요가 눌러져 있는 상태 -> 좋아요 취소
-                LikeBoard likeBoard = likeBoardOptional.get();
-                this.likeBoardRepository.deleteById(likeBoard.getId());
-                return "게시글의 좋아요를 취소했습니다.";
-            } else {
-                // 이미 좋아요가 눌러져 있지 않은 상태 -> 좋아요
-                this.likeBoardRepository.save(new LikeBoard(user, board));
-                return "게시글에 좋아요를 눌렀습니다.";
-            }
-        } catch (BaseException exception) {
-            throw new BaseException(exception.getStatus());
-        }
-    }
-}
 
