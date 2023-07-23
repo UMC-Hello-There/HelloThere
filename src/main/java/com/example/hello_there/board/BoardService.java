@@ -1,18 +1,29 @@
 package com.example.hello_there.board;
 
 import com.example.hello_there.board.dto.*;
+import com.example.hello_there.board.like.LikeBoard;
+import com.example.hello_there.board.like.LikeBoardRepository;
 import com.example.hello_there.board.photo.PostPhoto;
 import com.example.hello_there.board.photo.PostPhotoRepository;
 import com.example.hello_there.board.photo.PostPhotoService;
 import com.example.hello_there.board.photo.dto.GetS3Res;
 import com.example.hello_there.comment.Comment;
 import com.example.hello_there.comment.CommentRepository;
+import com.example.hello_there.comment.dto.GetCommentByBoardRes;
 import com.example.hello_there.comment.dto.GetCommentRes;
 import com.example.hello_there.exception.BaseException;
 import com.example.hello_there.report.Report;
 import com.example.hello_there.report.ReportRepository;
 import com.example.hello_there.report.ReportService;
 import com.example.hello_there.user.User;
+import com.example.hello_there.user.UserService;
+import com.example.hello_there.user.UserStatus;
+import com.example.hello_there.report.Report;
+import com.example.hello_there.report.ReportRepository;
+import com.example.hello_there.report.ReportService;
+import com.example.hello_there.user.User;
+import com.example.hello_there.user.UserRepository;
+
 import com.example.hello_there.user.UserService;
 import com.example.hello_there.user.UserStatus;
 import com.example.hello_there.utils.S3Service;
@@ -27,12 +38,15 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.reactive.function.client.WebClient;
+
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -51,6 +65,7 @@ public class BoardService {
     private final S3Service s3Service;
     private final PostPhotoService postPhotoService;
     private final CommentRepository commentRepository;
+    private final LikeBoardRepository likeBoardRepository;
 
     @Transactional
     public void save(Board board) {
@@ -118,7 +133,8 @@ public class BoardService {
         GetBoardDetailRes getBoardDetailRes = new GetBoardDetailRes(board.getBoardId(),
                 board.getBoardType(), convertLocalDateTimeToLocalDate(board.getCreateDate()),
                 convertLocalDateTimeToTime(board.getCreateDate()), board.getUser().getNickName(),
-                profile, board.getTitle(), board.getContent(), board.getView(), commentRepository.countByBoardBoardId(boardId), getS3Res, response);
+                profile, board.getTitle(), board.getContent(), board.getView(),
+                commentRepository.countByBoardBoardId(boardId), likeBoardRepository.countByBoardBoardId(board.getBoardId()), getS3Res, response);
 
         return getBoardDetailRes;
     }
@@ -135,7 +151,8 @@ public class BoardService {
                     .map(board -> new GetBoardRes(board.getBoardId(), board.getBoardType(),
                             convertLocalDateTimeToLocalDate(board.getCreateDate()),
                             convertLocalDateTimeToTime(board.getCreateDate()),
-                            board.getUser().getNickName(), board.getTitle(), board.getContent(), board.getView(), commentRepository.countByBoardBoardId(board.getBoardId())))
+                            board.getUser().getNickName(), board.getTitle(), board.getContent(), board.getView(),
+                            commentRepository.countByBoardBoardId(board.getBoardId()), likeBoardRepository.countByBoardBoardId(board.getBoardId())))
                     .collect(Collectors.toList());
 
             return getBoardRes;
@@ -153,7 +170,8 @@ public class BoardService {
                     .map(board -> new GetBoardRes(board.getBoardId(), board.getBoardType(),
                             convertLocalDateTimeToLocalDate(board.getCreateDate()),
                             convertLocalDateTimeToTime(board.getCreateDate()),
-                            board.getUser().getNickName(), board.getTitle(), board.getContent(), board.getView(), commentRepository.countByBoardBoardId(board.getBoardId())))
+                            board.getUser().getNickName(), board.getTitle(), board.getContent(), board.getView(),
+                            commentRepository.countByBoardBoardId(board.getBoardId()), likeBoardRepository.countByBoardBoardId(board.getBoardId())))
                     .collect(Collectors.toList());
             return getBoardRes;
         } catch (Exception exception) {
@@ -206,9 +224,31 @@ public class BoardService {
                     List<GetS3Res> getS3ResList = s3Service.uploadFile(multipartFiles);
                     postPhotoService.saveAllPostPhotoByBoard(getS3ResList, board);
                 }
+
                 return "boardId " + board.getBoardId() + "의 게시글을 수정했습니다.";
             } else {
                 throw new BaseException(USER_WITHOUT_PERMISSION);
+            }
+        } catch (BaseException exception) {
+            throw new BaseException(exception.getStatus());
+        }
+    }
+
+    public String likeOrUnlikeBoard(Long userId, Long boardId) throws BaseException {
+        try {
+            Board board = utilService.findByBoardIdWithValidation(boardId);
+            User user = utilService.findByUserIdWithValidation(userId);
+
+            Optional<LikeBoard> likeBoardOptional = likeBoardRepository.findByBoard_BoardIdAndUserId(boardId, userId);
+            if (likeBoardOptional.isPresent()) {
+                // 이미 좋아요가 눌러져 있는 상태 -> 좋아요 취소
+                LikeBoard likeBoard = likeBoardOptional.get();
+                this.likeBoardRepository.deleteById(likeBoard.getId());
+                return "게시글의 좋아요를 취소했습니다.";
+            } else {
+                // 이미 좋아요가 눌러져 있지 않은 상태 -> 좋아요
+                this.likeBoardRepository.save(new LikeBoard(user, board));
+                return "게시글에 좋아요를 눌렀습니다.";
             }
         } catch (BaseException exception) {
             throw new BaseException(exception.getStatus());

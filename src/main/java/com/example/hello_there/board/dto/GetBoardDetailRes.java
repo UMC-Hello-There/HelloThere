@@ -25,6 +25,7 @@ public class GetBoardDetailRes {
     private String content;
     private Long view;
     private Long CommentCount; // 댓글 수
+    private Long LikeCount; // 좋아요 수
     private List<GetS3Res> getS3Res;
     private List<GetCommentRes> getCommentRes;
 }
