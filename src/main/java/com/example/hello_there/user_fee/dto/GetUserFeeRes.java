@@ -17,13 +17,13 @@ public class GetUserFeeRes {
     private double cost;
     private boolean paymentCheck;
 
-    public static GetUserFeeRes mapEntityToResponse(Optional<UserFee> userFee){
+    public static GetUserFeeRes mapEntityToResponse(UserFee userFee){
         return new GetUserFeeRes(
-                userFee.get().getUserId(),
-                userFee.get().getFeeYear(),
-                userFee.get().getFeeMonth(),
-                userFee.get().getCost(),
-                userFee.get().isPaymentCheck()
+                userFee.getUserId(),
+                userFee.getFeeYear(),
+                userFee.getFeeMonth(),
+                userFee.getCost(),
+                userFee.isPaymentCheck()
         );
     }
 }

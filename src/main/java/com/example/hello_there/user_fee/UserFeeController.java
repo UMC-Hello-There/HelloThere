@@ -25,7 +25,7 @@ public class UserFeeController {
     /** 이달의 관리비 조회(홈 화면) **/
     @GetMapping("")
     public BaseResponse<GetUserFeeRes> getUserFeeCurrent(@RequestParam("houseId") Long houseId, @RequestParam("feeYear") int feeYear, @RequestParam("feeMonth") int feeMonth) {
-        Optional<UserFee> userFeeCurrent = userFeeService.getUserFeeCurrent(houseId, feeYear, feeMonth);
+        UserFee userFeeCurrent = userFeeService.getUserFeeCurrent(houseId, feeYear, feeMonth);
         GetUserFeeRes res = GetUserFeeRes.mapEntityToResponse(userFeeCurrent);
         return new BaseResponse<>(res);
     }
