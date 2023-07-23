@@ -20,8 +20,12 @@ public class GetBoardDetailRes {
     private String createDate; // ex) 2023-07-04
     private String createTime; // ex) 3분 전
     private String nickName;
+    private GetS3Res profile; // 작성자 프로필 이미지
     private String title;
     private String content;
+    private Long view;
+    private Long CommentCount; // 댓글 수
+    private Long LikeCount; // 좋아요 수
     private List<GetS3Res> getS3Res;
     private List<GetCommentRes> getCommentRes;
 }

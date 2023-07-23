@@ -15,6 +15,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
+@RequestMapping("/board")
 public class BoardController {
     // 생성자 주입 방법을 통해 의존성 주입
     private final BoardService boardService;
@@ -23,7 +24,7 @@ public class BoardController {
     private final UtilService utilService;
 
     /** 게시글 생성하기 **/
-    @PostMapping("/board")
+    @PostMapping
     public BaseResponse<String> createBoard(@RequestPart(value = "image", required = false) List<MultipartFile> multipartFiles,
                                             @Validated @RequestPart(value = "postBoardReq") PostBoardReq postBoardReq) {
         try {
@@ -35,23 +36,33 @@ public class BoardController {
         }
     }
 
-    /** 게시글을 boardId로 조회하기 **/
-    @GetMapping("/board/{boardId}")
+    /** 게시글을 category로 조회하기(최신순) **/
+    @GetMapping("/{category}")
+    public BaseResponse<List<GetBoardRes>> getCommentsByBoardId(@PathVariable BoardType category) {
+        try{
+            return new BaseResponse<>(boardService.getBoardsByCategory(category));
+        }catch (BaseException exception){
+            return new BaseResponse<>(exception.getStatus());
+        }
+    }
+
+
+     /** 게시글을 boardId로 조회하기 **/
+    @GetMapping("/one/{boardId}")
     public BaseResponse<GetBoardDetailRes> getBoardByBoardId(@PathVariable Long boardId) {
         try{
-            return new BaseResponse<>(boardService.getBoardByBoardId(boardId));
+            Long userId = jwtService.getUserIdx();
+            return new BaseResponse<>(boardService.getBoardByBoardId(userId, boardId));
         } catch(BaseException exception){
             return new BaseResponse<>(exception.getStatus());
         }
     }
 
     /** 게시글을 멤버Id로 조회하기 **/
-    @GetMapping("/board")
-    public BaseResponse<List<GetBoardRes>> getBoardByUserId(@RequestParam(required = false) Long userId) {
+    @GetMapping
+    public BaseResponse<List<GetBoardRes>> getBoardByUserId() {
         try{
-            if(userId == null) {
-                return new BaseResponse<>(boardService.getBoards());
-            }
+            Long userId = jwtService.getUserIdx();
             return new BaseResponse<>(boardService.getBoardById(userId));
         } catch(BaseException exception){
             return new BaseResponse<>(exception.getStatus());
@@ -59,19 +70,18 @@ public class BoardController {
     }
 
     /** 게시글을 Id로 삭제하기 **/
-    @DeleteMapping("/delete/{board-id}")
+    @DeleteMapping("/{board-id}")
     public BaseResponse<String> deleteBoard(@PathVariable(name = "board-id") Long boardId){
         try{
             Long userId = jwtService.getUserIdx();
-            DeleteBoardReq deleteBoardReq = new DeleteBoardReq(userId, boardId);
-            return new BaseResponse<>(boardService.deleteBoard(deleteBoardReq));
+            return new BaseResponse<>(boardService.deleteBoard(userId, boardId));
         } catch(BaseException exception){
             return new BaseResponse<>(exception.getStatus());
         }
     }
 
     /** 게시글 수정하기 **/
-    @PatchMapping("/modify")
+    @PatchMapping
     public BaseResponse<String> modifyBoard(@RequestPart(value = "image", required = false) List<MultipartFile> multipartFiles,
                                             @Validated @RequestPart(value = "patchBoardReq") PatchBoardReq patchBoardReq) {
         try {
@@ -82,4 +92,19 @@ public class BoardController {
             return new BaseResponse<>(exception.getStatus());
         }
     }
+
+    /** 게시글 좋아요 및 좋아요 취소 **/
+    @PostMapping("/{boardId}/like")
+    public BaseResponse<String> likeOrUnlikeBoard(@PathVariable Long boardId){
+        try{
+            Long userId=jwtService.getUserIdx();
+            return new BaseResponse<>(boardService.likeOrUnlikeBoard(userId, boardId));
+        }
+        catch (BaseException exception) {
+            return new BaseResponse<>(exception.getStatus());
+        }
+    }
+
+
+
 }

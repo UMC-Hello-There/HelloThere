@@ -80,7 +80,7 @@ public enum BaseResponseStatus {
     BOARD_NOT_FOUND(false, 5004, "요청하신 제목의 게시글은 존재하지 않습니다."),
     SAME_TITLE_ERROR(false, 5005, "동일한 게시글이 2개 이상 존재해 수정을 진행할 수 없습니다."),
     CANNOT_DELETE(false, 5006, "작성된 게시글이 존재하여 멤버를 삭제하는데 실패하였습니다."),
-    MEMBER_WITHOUT_PERMISSION(false, 5007, "본인의 게시글에 대해서만 수정 및 삭제가 가능합니다."),
+    USER_WITHOUT_PERMISSION(false, 5007, "본인의 게시글에 대해서만 수정 및 삭제가 가능합니다."),
 
     /**
      *   6000 : 회원등록 관련 오류
@@ -97,8 +97,7 @@ public enum BaseResponseStatus {
      */
     NONE_EXIST_COMMENT(false, 7000, "요청하신 댓글은 존재하지 않습니다."),
     NONE_EXIST_PARENT_COMMENT(false,7001,"부모댓글이 존재하지 않습니다."),
-    INVALID_UPDATE_REQUEST(false,7002,"댓글 작성자 이외엔 수정할 수 없습니다."),
-    INVALID_DELETE_REQUEST(false,7003,"댓글 작성자 이외엔 삭제할 수 없습니다."),
+    INVALID_UPDATE_DELETE_REQUEST(false,7002,"댓글 작성자 이외엔 수정/삭제할 수 없습니다."),
     /**
      *   8000 : 토큰 관련 오류
      */
