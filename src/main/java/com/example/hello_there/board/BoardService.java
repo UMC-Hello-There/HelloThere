@@ -15,6 +15,8 @@ import com.example.hello_there.report.Report;
 import com.example.hello_there.report.ReportRepository;
 import com.example.hello_there.report.ReportService;
 import com.example.hello_there.user.User;
+import com.example.hello_there.user.UserRepository;
+import com.example.hello_there.user.User;
 import com.example.hello_there.user.UserStatus;
 import com.example.hello_there.utils.S3Service;
 import com.example.hello_there.utils.UtilService;
