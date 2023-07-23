@@ -9,7 +9,6 @@ import com.example.hello_there.board.photo.PostPhotoService;
 import com.example.hello_there.board.photo.dto.GetS3Res;
 import com.example.hello_there.comment.Comment;
 import com.example.hello_there.comment.CommentRepository;
-import com.example.hello_there.comment.dto.GetCommentByBoardRes;
 import com.example.hello_there.comment.dto.GetCommentRes;
 import com.example.hello_there.exception.BaseException;
 import com.example.hello_there.report.Report;
@@ -38,7 +37,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.reactive.function.client.WebClient;
 
 
 import java.time.LocalDateTime;
@@ -47,6 +45,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -224,7 +223,6 @@ public class BoardService {
                     List<GetS3Res> getS3ResList = s3Service.uploadFile(multipartFiles);
                     postPhotoService.saveAllPostPhotoByBoard(getS3ResList, board);
                 }
-
                 return "boardId " + board.getBoardId() + "의 게시글을 수정했습니다.";
             } else {
                 throw new BaseException(USER_WITHOUT_PERMISSION);
@@ -309,5 +307,4 @@ public class BoardService {
 
         return "게시글 작성자에 대한 신고 처리가 완료되었습니다.";
     }
-}
 
