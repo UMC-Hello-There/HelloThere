@@ -82,6 +82,7 @@ public class BoardController {
         }
     }
 
+
     /** 게시글 작성자 신고하기 **/
     @PatchMapping("/report/{board-id}")
     public BaseResponse<String> reportWriter(@PathVariable(name = "board-id") Long boardId,
@@ -101,8 +102,17 @@ public class BoardController {
             Long userId = jwtService.getUserIdx();
             return new BaseResponse<>(boardService.deleteBoard(userId, boardId));
         } catch(BaseException exception){
+
+    /** 게시글 좋아요 및 좋아요 취소 **/
+    @PostMapping("/{boardId}/like")
+    public BaseResponse<String> likeOrUnlikeBoard(@PathVariable Long boardId){
+        try{
+            Long userId=jwtService.getUserIdx();
+            return new BaseResponse<>(boardService.likeOrUnlikeBoard(userId, boardId));
+        }
+        catch (BaseException exception) {
+
             return new BaseResponse<>(exception.getStatus());
         }
     }
-
 }

@@ -27,6 +27,7 @@ public class GetUserRes {
                 : null;
         this.nickName = user.getNickName();
         this.email = user.getEmail();
+
         this.address = (user.getHouse() != null)
                 ? String.format("%s %s %s", user.getHouse().getCity(), user.getHouse().getDistrict(),
                 user.getHouse().getHouseName())
