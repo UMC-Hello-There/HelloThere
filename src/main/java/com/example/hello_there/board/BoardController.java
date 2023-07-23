@@ -20,8 +20,6 @@ public class BoardController {
     // 생성자 주입 방법을 통해 의존성 주입
     private final BoardService boardService;
     private final JwtService jwtService;
-    private final JwtProvider jwtProvider;
-    private final UtilService utilService;
 
     /** 게시글 생성하기 **/
     @PostMapping
@@ -78,10 +76,10 @@ public class BoardController {
             return new BaseResponse<>(boardService.modifyBoard(userId, patchBoardReq, multipartFiles));
         }
         catch (BaseException exception) {
+
             return new BaseResponse<>(exception.getStatus());
         }
     }
-
 
     /** 게시글 작성자 신고하기 **/
     @PatchMapping("/report/{board-id}")
@@ -95,14 +93,6 @@ public class BoardController {
         }
     }
 
-    /** 게시글을 Id로 삭제하기 **/
-    @DeleteMapping("/{board-id}")
-    public BaseResponse<String> deleteBoard(@PathVariable(name = "board-id") Long boardId){
-        try{
-            Long userId = jwtService.getUserIdx();
-            return new BaseResponse<>(boardService.deleteBoard(userId, boardId));
-        } catch(BaseException exception){
-
     /** 게시글 좋아요 및 좋아요 취소 **/
     @PostMapping("/{boardId}/like")
     public BaseResponse<String> likeOrUnlikeBoard(@PathVariable Long boardId){
@@ -112,6 +102,17 @@ public class BoardController {
         }
         catch (BaseException exception) {
 
+            return new BaseResponse<>(exception.getStatus());
+        }
+    }
+
+    /** 게시글을 Id로 삭제하기 **/
+    @DeleteMapping("/{board-id}")
+    public BaseResponse<String> deleteBoard(@PathVariable(name = "board-id") Long boardId){
+        try{
+            Long userId = jwtService.getUserIdx();
+            return new BaseResponse<>(boardService.deleteBoard(userId, boardId));
+        } catch(BaseException exception){
             return new BaseResponse<>(exception.getStatus());
         }
     }

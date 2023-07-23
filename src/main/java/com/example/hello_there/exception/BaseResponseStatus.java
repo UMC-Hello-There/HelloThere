@@ -88,7 +88,6 @@ public enum BaseResponseStatus {
     USER_WITHOUT_PERMISSION(false, 5007, "본인의 게시글에 대해서만 수정 및 삭제가 가능합니다."),
     UNABLE_TO_UPLOAD(false, 5008, "신고 누적으로 인한 제제로 게시글을 작성할 수 없습니다."),
 
-
     /**
      *   6000 : 회원등록 관련 오류
      */
