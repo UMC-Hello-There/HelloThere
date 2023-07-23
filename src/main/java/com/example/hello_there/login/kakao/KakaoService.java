@@ -52,7 +52,7 @@ public class KakaoService {
         Optional<User> findUser = userRepository.findByEmail(email);
         if (!findUser.isPresent()) { // 회원가입인 경우
             User kakaoUser = new User();
-            kakaoUser.createUser(email, null, nickName, "", null);
+            kakaoUser.createUser(nickName, email, null, null);
             userRepository.save(kakaoUser);
             JwtResponseDTO.TokenInfo tokenInfo = jwtProvider.generateToken(kakaoUser.getId());
             Token token = Token.builder()

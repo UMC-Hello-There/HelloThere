@@ -32,11 +32,14 @@ public enum BaseResponseStatus {
     POST_USERS_NONE_EXISTS_HOUSE(false,2018,"등록되지 않은 아파트입니다."),
     POST_USERS_NONE_EXISTS_NICKNAME(false, 2018, "등록되지 않은 이메일입니다."),
     LOG_OUT_USER(false,2019,"이미 로그아웃된 유저입니다."),
+    UNABLE_TO_USE(false, 2020, "영구 정지 상태의 유저는 서비스를 이용할 수 없습니다."),
+    ALREADY_REPORT(false, 2021, "이미 신고한 유저를 중복 신고할 수 없습니다"),
+    CANNOT_REPORT(false, 2022, "자기 자신을 신고할 수 없습니다"),
 
     // [POST] /boards
-    POST_BOARDS_EMPTY_TITLE(false, 2020, "제목은 두 글자 이상으로 작성해주세요."),
-    INVALID_INPUT(false, 2021, "유효하지 않은 입력입니다."),
-    FAIL_TO_LOAD(false, 2022, "게시글을 불러오는데 실패했어요"),
+    POST_BOARDS_EMPTY_TITLE(false, 2023, "제목은 두 글자 이상으로 작성해주세요."),
+    INVALID_INPUT(false, 2024, "유효하지 않은 입력입니다."),
+    FAIL_TO_LOAD(false, 2025, "게시글을 불러오는데 실패했어요"),
 
 
     /**
@@ -68,7 +71,9 @@ public enum BaseResponseStatus {
     DELETE_FAIL_USER(false, 4016, "멤버 삭제에 실패하였습니다."),
     PASSWORD_ENCRYPTION_ERROR(false, 4011, "비밀번호 암호화에 실패하였습니다."),
     PASSWORD_DECRYPTION_ERROR(false, 4012, "비밀번호 복호화에 실패하였습니다."),
-
+    PASSWORD_MISSMATCH(false, 4013, "비밀번호가 일치하지 않습니다."),
+    EX_PASSWORD_MISSMATCH(false, 4014, "이전 비밀번호가 잘못되었습니다."),
+    SOCIAL_LOGIN_USER(false, 4015, "소셜로그인 유저는 비밀번호를 설정하지 않습니다."),
 
     /**
      *   5000 : Board 관련 오류
@@ -81,6 +86,7 @@ public enum BaseResponseStatus {
     SAME_TITLE_ERROR(false, 5005, "동일한 게시글이 2개 이상 존재해 수정을 진행할 수 없습니다."),
     CANNOT_DELETE(false, 5006, "작성된 게시글이 존재하여 멤버를 삭제하는데 실패하였습니다."),
     USER_WITHOUT_PERMISSION(false, 5007, "본인의 게시글에 대해서만 수정 및 삭제가 가능합니다."),
+    UNABLE_TO_UPLOAD(false, 5008, "신고 누적으로 인한 제제로 게시글을 작성할 수 없습니다."),
 
     /**
      *   6000 : 회원등록 관련 오류
@@ -98,6 +104,7 @@ public enum BaseResponseStatus {
     NONE_EXIST_COMMENT(false, 7000, "요청하신 댓글은 존재하지 않습니다."),
     NONE_EXIST_PARENT_COMMENT(false,7001,"부모댓글이 존재하지 않습니다."),
     INVALID_UPDATE_DELETE_REQUEST(false,7002,"댓글 작성자 이외엔 수정/삭제할 수 없습니다."),
+    UNABLE_TO_COMMENT(false, 7003, "신고 누적으로 인한 제제로 댓글을 작성할 수 없습니다."),
     /**
      *   8000 : 토큰 관련 오류
      */
@@ -113,7 +120,8 @@ public enum BaseResponseStatus {
     ALREADY_EXIST_MEMBER(false, 9001, "이미 추가된 유저입니다."),
     FAILED_TO_ENTER(false, 9002, "채팅방 입장에 실패하였습니다."),
     NONE_EXIST_ROOM(false, 9003, "요청하신 채팅방은 존재하지 않습니다."),
-    OVER_CAPACITY(false, 9004, "채팅방에서 지정한 최대 인원 수에 도달하여 추가할 수 없습니다.");
+    OVER_CAPACITY(false, 9004, "채팅방에서 지정한 최대 인원 수에 도달하여 추가할 수 없습니다."),
+    UNABLE_TO_CHAT(false, 9005, "신고 누적으로 인한 제제로 채팅방을 이용하실 수 없습니다.");
 
     private final boolean isSuccess;
     private final int code;

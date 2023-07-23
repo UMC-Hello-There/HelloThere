@@ -64,7 +64,7 @@ public class GoogleService {
 
         if (findUser == null) { // 회원 가입
             User googleUser = new User();
-            googleUser.createUser(email, null, nickName, "", null);
+            googleUser.createUser(nickName, email, null, null);
             userRepository.save(googleUser);
             JwtResponseDTO.TokenInfo tokenInfo = jwtProvider.generateToken(googleUser.getId());
             Token token = Token.builder()
