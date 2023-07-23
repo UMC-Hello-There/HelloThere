@@ -36,6 +36,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static com.example.hello_there.exception.BaseResponseStatus.*;
@@ -212,7 +213,6 @@ public class BoardService {
                     List<GetS3Res> getS3ResList = s3Service.uploadFile(multipartFiles);
                     postPhotoService.saveAllPostPhotoByBoard(getS3ResList, board);
                 }
-
                 return "boardId " + board.getBoardId() + "의 게시글을 수정했습니다.";
             } else {
                 throw new BaseException(USER_WITHOUT_PERMISSION);
