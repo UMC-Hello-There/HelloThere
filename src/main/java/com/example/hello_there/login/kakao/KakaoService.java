@@ -2,19 +2,14 @@ package com.example.hello_there.login.kakao;
 
 import com.example.hello_there.exception.BaseException;
 import com.example.hello_there.exception.BaseResponse;
-import com.example.hello_there.exception.BaseResponseStatus;
 import com.example.hello_there.login.dto.AssertionDTO;
 import com.example.hello_there.login.dto.JwtResponseDTO;
-import com.example.hello_there.login.google.dto.GetGoogleUserRes;
 import com.example.hello_there.login.jwt.JwtProvider;
-import com.example.hello_there.login.jwt.JwtService;
 import com.example.hello_there.login.jwt.Token;
 import com.example.hello_there.login.jwt.TokenRepository;
 import com.example.hello_there.login.kakao.dto.GetKakaoUserRes;
 import com.example.hello_there.user.User;
 import com.example.hello_there.user.UserRepository;
-import com.example.hello_there.user.UserStatus;
-import com.example.hello_there.user.dto.PostUserReq;
 import com.google.gson.Gson;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -27,13 +22,10 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.Map;
 import java.util.Optional;
 
 import static com.example.hello_there.exception.BaseResponseStatus.*;
-import static com.example.hello_there.user.UserStatus.*;
 
 @Service
 @RequiredArgsConstructor
@@ -45,6 +37,9 @@ public class KakaoService {
     private final TokenRepository tokenRepository;
     private final JwtProvider jwtProvider;
 
+    /**
+     * 카카오 콜백 메서드
+     */
     public BaseResponse<?> kakaoCallBack(String accessToken) throws BaseException {
         GetKakaoUserRes getKakaoUserRes = getUserInfo(accessToken);
         String email = getKakaoUserRes.getEmail();
@@ -81,6 +76,10 @@ public class KakaoService {
         }
     }
 
+    /**
+     * 액세스 토큰 발급받기
+     * 프론트에서 액세스 토큰을 받아주지 않는 경우 사용
+     */
     public String getAccessToken(String code){
         //HttpHeaders 생성00
         HttpHeaders httpHeaders = new HttpHeaders();
@@ -106,6 +105,9 @@ public class KakaoService {
         return responseEntity.getBody();
     }
 
+    /**
+     * 카카오 유저의 정보 가져오기
+     */
     public GetKakaoUserRes getUserInfo(String accessToken) throws BaseException{
         // HttpHeader 생성
         HttpHeaders httpHeaders = new HttpHeaders();

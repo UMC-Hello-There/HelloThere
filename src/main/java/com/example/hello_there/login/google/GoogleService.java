@@ -2,7 +2,6 @@ package com.example.hello_there.login.google;
 
 import com.example.hello_there.exception.BaseException;
 import com.example.hello_there.exception.BaseResponse;
-import com.example.hello_there.login.dto.AssertionDTO;
 import com.example.hello_there.login.dto.JwtResponseDTO;
 import com.example.hello_there.login.google.dto.GetGoogleUserRes;
 import com.example.hello_there.login.jwt.JwtProvider;
@@ -52,40 +51,40 @@ public class GoogleService {
     private final TokenRepository tokenRepository;
     private final JwtProvider jwtProvider;
 
+    /**
+     * 구글 콜백 메서드
+     */
     public BaseResponse<?> googleCallBack(String accessToken) throws BaseException {
-//        String accessToken = getAccessToken(code);
-//        Gson gsonObj = new Gson();
-//        Map<?, ?> data = gsonObj.fromJson(accessToken, Map.class);
-//        String accToken = (String) data.get("access_token");
         GetGoogleUserRes getGoogleUserRes = getUserInfo(accessToken);
         String email = getGoogleUserRes.getEmail();
         String nickName = getGoogleUserRes.getNickName();
         User findUser = userRepository.findByEmail(email).orElse(null);
-
+        Token token = new Token();
+        JwtResponseDTO.TokenInfo tokenInfo;
         if (findUser == null) { // 회원 가입
             User googleUser = new User();
             googleUser.createUser(nickName, email, null, null);
             userRepository.save(googleUser);
-            JwtResponseDTO.TokenInfo tokenInfo = jwtProvider.generateToken(googleUser.getId());
-            Token token = Token.builder()
+            tokenInfo = jwtProvider.generateToken(googleUser.getId());
+            token = Token.builder()
                     .accessToken(tokenInfo.getAccessToken())
                     .refreshToken(tokenInfo.getRefreshToken())
                     .user(googleUser)
                     .build();
-            tokenRepository.save(token);
-            String message = "마이페이지에서 본인의 정보를 알맞게 수정 후 이용해주세요.";
-            AssertionDTO assertionDTO = new AssertionDTO(tokenInfo, message);
-            return new BaseResponse<>(assertionDTO);
         } else { // 기존 회원 로그인
-            JwtResponseDTO.TokenInfo tokenInfo = jwtProvider.generateToken(findUser.getId());
-            Token token = Token.builder()
+            tokenInfo = jwtProvider.generateToken(findUser.getId());
+            token = Token.builder()
                     .refreshToken(tokenInfo.getRefreshToken())
                     .user(findUser)
                     .build();
-            tokenRepository.save(token);
-            return new BaseResponse<>(tokenInfo);
         }
+        tokenRepository.save(token);
+        return new BaseResponse<>(tokenInfo);
     }
+
+    /**
+     * 액세스 토큰 발급받기
+     */
     public String getAccessToken(String code){
         //HttpHeaders 생성00
         HttpHeaders httpHeaders = new HttpHeaders();
@@ -112,6 +111,9 @@ public class GoogleService {
         return responseEntity.getBody();
     }
 
+    /**
+     * 구글 유저의 정보 가져오기
+     */
     public GetGoogleUserRes getUserInfo(String accessToken) throws BaseException {
         //요청하는 클라이언트마다 가진 정보가 다를 수 있기에 HashMap타입으로 선언
         HashMap<String, Object> googleUserInfo = new HashMap<>();
