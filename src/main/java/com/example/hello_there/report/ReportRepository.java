@@ -14,5 +14,5 @@ public interface ReportRepository extends JpaRepository<Report, Long> {
                                      @Param("reportedId") Long reportedId,
                                      @Param("boardId") Long boardId,
                                      @Param("commentId") Long commentId,
-                                     @Param("chatRoomId") Long chatRoomId);
+                                     @Param("chatRoomId") String chatRoomId);
 }

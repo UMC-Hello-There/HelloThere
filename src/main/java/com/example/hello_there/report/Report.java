@@ -29,7 +29,7 @@ public class Report {
     private Long commentId;
 
     @Column(nullable = true)
-    private Long chatRoomId;
+    private String chatRoomId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "reporter_id")
@@ -39,13 +39,13 @@ public class Report {
     @JoinColumn(name = "reported_id")
     private User reported; // 신고를 당한 사람
 
-    public Report createReport(String reason, Long boardId, Long commentId, Long chatRoomId, User reporter, User reported) {
+    public Report createReport(String reason, Long boardId, Long commentId, String chatRoomId, User reporter, User reported) {
         Report report = new Report(); // 새로운 Report 객체 생성
         report.setReason(reason); // 신고 이유 설정
         // 게시글, 댓글, 채팅방 ID를 설정하고, null인 경우 0L로 설정
         report.setBoardId(boardId == null ? 0L : boardId);
         report.setCommentId(commentId == null ? 0L : commentId);
-        report.setChatRoomId(chatRoomId == null ? 0L : chatRoomId);
+        report.setChatRoomId(chatRoomId == null ? "" : chatRoomId);
         report.setReporter(reporter); // 신고자 설정
         report.setReported(reported); // 신고 대상 설정
 

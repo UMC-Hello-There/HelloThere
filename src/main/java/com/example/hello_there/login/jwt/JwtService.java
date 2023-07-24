@@ -46,7 +46,7 @@ public class JwtService {
     }
 
     /**
-     *   JWT에서 userId 추출
+     * JWT에서 userId 추출
      */
     public Long getUserIdx() throws BaseException {
         // 1. JWT 추출
@@ -98,7 +98,7 @@ public class JwtService {
     }
 
     /**
-     * 로그아웃 전용 memberId 추출 메서드
+     * 로그아웃 전용 userId 추출 메서드
      */
     // 로그아웃을 시도할 때는 accsee token과 refresh 토큰이 만료되었어도
     // 형식만 유효하다면 토큰 재발급 없이 로그아웃 할 수 있어야 함.
