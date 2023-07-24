@@ -25,7 +25,6 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
-
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -155,7 +154,6 @@ public class UserService {
         // HttpHeader 생성
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.add("Authorization", "Bearer " + accessToken);
-
         // HttpHeader를 포함한 요청 객체 생성
         HttpEntity<String> requestEntity = new HttpEntity<>(httpHeaders);
 
@@ -264,10 +262,15 @@ public class UserService {
             if (!patchPasswordReq.getExPassword().equals(password)) {
                 throw new BaseException(EX_PASSWORD_MISSMATCH);
             }
+            // 이전 비밀번호와 새 비밀번호가 일치하는 경우
+            if(patchPasswordReq.getNewPassword().equals(patchPasswordReq.getExPassword())) {
+                throw new BaseException(CANNOT_UPDATE_PASSWORD);
+            }
             // 새 비밀번호와 새 비밀번호 확인이 일치하지 않는 경우
             if(!patchPasswordReq.getNewPassword().equals(patchPasswordReq.getNewPasswordChk())) {
                 throw new BaseException(PASSWORD_MISSMATCH);
             }
+
             String pwd;
             try{
                 pwd = new AES128(Secret.USER_INFO_PASSWORD_KEY).encrypt(patchPasswordReq.getNewPassword()); // 암호화코드
@@ -286,7 +289,10 @@ public class UserService {
      *  유저 탈퇴
      */
     @Transactional
-    public String deleteUser(Long userId) throws BaseException{
+    public String deleteUser(Long userId, String agreement) throws BaseException{
+        if(!agreement.equals("계정 삭제에 동의합니다")) {
+            throw new BaseException(AGREEMENT_MISMATCH);
+        }
         User user = utilService.findByUserIdWithValidation(userId);
         List<Board> boards = boardRepository.findBoardByUserId(user.getId());
         if(!boards.isEmpty()){
