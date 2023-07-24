@@ -49,8 +49,8 @@ public class UtilService {
                 .orElseThrow(() -> new BaseException(POST_USERS_NONE_EXISTS_EMAIL));
     }
 
-    public House findHouseWithValidation(String city, String distrct, String apartmentName) throws BaseException {
-        House house = houseRepository.findApartment(city, distrct, apartmentName).orElse(null);
+    public House findByHouseIdWithValidation(Long houseId) throws BaseException {
+        House house = houseRepository.findHouseById(houseId).orElse(null);
         if(house == null) throw new BaseException(BaseResponseStatus.POST_USERS_NONE_EXISTS_HOUSE);
         return house;
     }

@@ -254,7 +254,7 @@ public class BoardService {
         Report report = new Report();
 
         // 한 명의 유저가 중복으로 신고할 수 없도록 예외를 호출
-        if (reportRepository.findMatchingReportsCount(reporterId, reported.getId(), boardId, 0L, 0L) >= 1) {
+        if (reportRepository.findMatchingReportsCount(reporterId, reported.getId(), boardId, 0L, "") >= 1) {
             throw new BaseException(ALREADY_REPORT);
         }
         // 자기 자신을 신고할 수 없도록 예외를 호출

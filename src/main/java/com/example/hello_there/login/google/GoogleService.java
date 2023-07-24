@@ -9,6 +9,7 @@ import com.example.hello_there.login.jwt.Token;
 import com.example.hello_there.login.jwt.TokenRepository;
 import com.example.hello_there.user.User;
 import com.example.hello_there.user.UserRepository;
+import com.example.hello_there.user.UserService;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
@@ -47,6 +48,7 @@ public class GoogleService {
     @Value("${spring.security.oauth2.client.registration.google.client-secret}")
     private String Google_Client_Secret;
 
+    private UserService userService;
     private final UserRepository userRepository;
     private final TokenRepository tokenRepository;
     private final JwtProvider jwtProvider;
@@ -56,14 +58,17 @@ public class GoogleService {
      */
     public BaseResponse<?> googleCallBack(String accessToken) throws BaseException {
         GetGoogleUserRes getGoogleUserRes = getUserInfo(accessToken);
+        if(getGoogleUserRes == null) {
+            throw new BaseException(FAIL_TO_GET_INFO);
+        }
         String email = getGoogleUserRes.getEmail();
         String nickName = getGoogleUserRes.getNickName();
         User findUser = userRepository.findByEmail(email).orElse(null);
-        Token token = new Token();
+        Token token;
         JwtResponseDTO.TokenInfo tokenInfo;
         if (findUser == null) { // 회원 가입
             User googleUser = new User();
-            googleUser.createUser(nickName, email, null, null);
+            googleUser.createUser(userService.generateUniqueNickName(nickName), email, null, null);
             userRepository.save(googleUser);
             tokenInfo = jwtProvider.generateToken(googleUser.getId());
             token = Token.builder()

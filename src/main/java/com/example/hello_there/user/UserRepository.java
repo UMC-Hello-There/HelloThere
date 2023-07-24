@@ -21,13 +21,15 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Query("select u from User u where u.email = :email")
     User findUserByEmail(@Param("email") String email);
 
-    @Query("select u from User u")
-    List<User> findUsers();
+    @Query("select u from User u where u.house.houseId =:houseId")
+    List<User> findUsersByHouseId(@Param("houseId") Long houseId);
 
     @Query("select u from User u where u.nickName = :nickName")
     List<User> findUserByNickName(@Param("nickName") String nickName);
 
     @Modifying
-    @Query("delete from User u where u.email = :email")
-    void deleteUser(@Param("email") String email);
+    @Query("delete from User u where u.id = :userId")
+    void deleteUser(@Param("userId") Long userId);
+
+    boolean existsByNickName(String nickName);
 }

@@ -1,5 +1,6 @@
 package com.example.hello_there.login.kakao;
 
+import com.amazonaws.services.ec2.model.transform.UserBucketStaxUnmarshaller;
 import com.example.hello_there.exception.BaseException;
 import com.example.hello_there.exception.BaseResponse;
 import com.example.hello_there.login.dto.AssertionDTO;
@@ -10,13 +11,11 @@ import com.example.hello_there.login.jwt.TokenRepository;
 import com.example.hello_there.login.kakao.dto.GetKakaoUserRes;
 import com.example.hello_there.user.User;
 import com.example.hello_there.user.UserRepository;
+import com.example.hello_there.user.UserService;
 import com.google.gson.Gson;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -33,6 +32,7 @@ public class KakaoService {
     @Value("${spring.security.oauth2.client.registration.kakao.client-id}")
     private String Kakao_Client_Id;
 
+    private final UserService userService;
     private final UserRepository userRepository;
     private final TokenRepository tokenRepository;
     private final JwtProvider jwtProvider;
@@ -47,7 +47,7 @@ public class KakaoService {
         Optional<User> findUser = userRepository.findByEmail(email);
         if (!findUser.isPresent()) { // 회원가입인 경우
             User kakaoUser = new User();
-            kakaoUser.createUser(nickName, email, null, null);
+            kakaoUser.createUser(userService.generateUniqueNickName(nickName), email, null, null);
             userRepository.save(kakaoUser);
             JwtResponseDTO.TokenInfo tokenInfo = jwtProvider.generateToken(kakaoUser.getId());
             Token token = Token.builder()
@@ -157,5 +157,36 @@ public class KakaoService {
             nickName = (String) ((Map<?, ?>) ((Map<?, ?>) data.get("properties"))).get("nickname");
         }
         return new GetKakaoUserRes(email, nickName);
+    }
+
+    /**
+     * 소셜로그 아웃
+     */
+    public String socialLogout(String accessToken) throws BaseException{
+        // HttpHeader 생성
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.add("Authorization", "Bearer " + accessToken);
+        // HttpHeader를 포함한 요청 객체 생성
+        HttpEntity<String> requestEntity = new HttpEntity<>(httpHeaders);
+
+        // RestTemplate를 이용하여 로그아웃 요청 보내기
+        RestTemplate restTemplate = new RestTemplate();
+        ResponseEntity<String> responseEntity = restTemplate.exchange(
+                "https://kapi.kakao.com/v1/user/unlink",
+                HttpMethod.GET,
+                requestEntity,
+                String.class
+        );
+
+        // 응답 확인
+        if (responseEntity.getStatusCode() == HttpStatus.OK) {
+            // 로그아웃 성공
+            String result = "로그아웃 되었습니다.";
+            return result;
+        }
+        else {
+            // 로그아웃 실패
+            throw new BaseException(KAKAO_ERROR);
+        }
     }
 }

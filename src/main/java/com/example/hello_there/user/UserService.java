@@ -9,6 +9,8 @@ import com.example.hello_there.login.jwt.JwtProvider;
 import com.example.hello_there.login.jwt.JwtService;
 import com.example.hello_there.login.jwt.Token;
 import com.example.hello_there.login.jwt.TokenRepository;
+import com.example.hello_there.user.delete_count.DeleteHistory;
+import com.example.hello_there.user.delete_count.DeleteHistoryRepository;
 import com.example.hello_there.user.dto.*;
 import com.example.hello_there.user.profile.Profile;
 import com.example.hello_there.user.profile.ProfileRepository;
@@ -17,14 +19,14 @@ import com.example.hello_there.utils.AES128;
 import com.example.hello_there.utils.S3Service;
 import com.example.hello_there.utils.Secret;
 import com.example.hello_there.utils.UtilService;
+import com.fasterxml.jackson.databind.ser.Serializers;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
+
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -41,6 +43,7 @@ public class UserService {
     private final BoardRepository boardRepository;
     private final ProfileRepository profileRepository;
     private final TokenRepository tokenRepository;
+    private final DeleteHistoryRepository deleteHistoryRepository;
     private final S3Service s3Service;
     private final JwtProvider jwtProvider;
     private final UtilService utilService;
@@ -63,9 +66,16 @@ public class UserService {
         if(!postUserReq.getPassword().equals(postUserReq.getPasswordChk())) {
             throw new BaseException(PASSWORD_MISSMATCH);
         }
+        if(userRepository.existsByNickName(postUserReq.getNickName())) {
+            throw new BaseException(DUPLICATED_NICKNAME);
+        }
+        Object redisUser = redisTemplate.opsForValue().get(postUserReq.getEmail());
+        if(redisUser != null) { // 이메일이 Redis에 등록되었다는 건 탈퇴한 유저임을 의미
+            throw new BaseException(DELETED_USER);
+        }
         String pwd;
         try{
-            pwd = new AES128(Secret.USER_INFO_PASSWORD_KEY).encrypt(postUserReq.getPassword()); // 암호화코드
+            pwd = new AES128(Secret.USER_INFO_PASSWORD_KEY).encrypt(postUserReq.getPassword()); // 암호화 코드
         }
         catch (Exception ignored) { // 암호화가 실패하였을 경우 에러 발생
             throw new BaseException(PASSWORD_ENCRYPTION_ERROR);
@@ -112,10 +122,23 @@ public class UserService {
     }
 
     /**
+     * 닉네임 중복 확인
+     */
+    public String nickNameChk(String nickName) throws BaseException {
+        if(nickName == null || nickName.isEmpty()) {
+            throw new BaseException(NICKNAME_CANNOT_BE_NULL);
+        }
+        if(userRepository.existsByNickName(nickName)) {
+            return "이미 사용 중인 닉네임입니다.";
+        }
+        return "사용 가능한 닉네임입니다.";
+    }
+
+    /**
      * 유저 로그아웃
      */
     @Transactional
-    public String logout(Long userId) throws BaseException{
+    public String logout(Long userId) throws BaseException {
         try {
             if (userId == 0L) { // 로그아웃 요청은 access token이 만료되더라도 재발급할 필요가 없음.
                 User user = tokenRepository.findUserByAccessToken(jwtService.getJwt()).orElse(null);
@@ -146,43 +169,12 @@ public class UserService {
 
     }
 
-
     /**
-     * 소셜로그 아웃
+     * 모든 아파트 주민 조회
      */
-    public String socialLogout(String accessToken) throws BaseException{
-        // HttpHeader 생성
-        HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.add("Authorization", "Bearer " + accessToken);
-        // HttpHeader를 포함한 요청 객체 생성
-        HttpEntity<String> requestEntity = new HttpEntity<>(httpHeaders);
-
-        // RestTemplate를 이용하여 로그아웃 요청 보내기
-        RestTemplate restTemplate = new RestTemplate();
-        ResponseEntity<String> responseEntity = restTemplate.exchange(
-                "https://kapi.kakao.com/v1/user/unlink",
-                HttpMethod.GET,
-                requestEntity,
-                String.class
-        );
-
-        // 응답 확인
-        if (responseEntity.getStatusCode() == HttpStatus.OK) {
-            // 로그아웃 성공
-            String result = "로그아웃 되었습니다.";
-            return result;
-        }
-        else {
-            // 로그아웃 실패
-            throw new BaseException(KAKAO_ERROR);
-        }
-    }
-
-    /**
-     * 모든 유저 조회
-     */
-    public List<GetUserRes> getMembers() {
-        List<User> users = userRepository.findUsers();
+    public List<GetUserRes> getMembers(Long userId) throws BaseException {
+        User user = utilService.findByUserIdWithValidation(userId);
+        List<User> users = userRepository.findUsersByHouseId(user.getHouse().getHouseId());
         return users.stream()
                 .map(GetUserRes::new) // 여기서 생성자를 활용하여 User 객체를 GetUserRes로 매핑
                 .collect(Collectors.toList());
@@ -207,6 +199,12 @@ public class UserService {
     @Transactional
     public String modifyUserNickName(Long userId, String nickName) throws BaseException {
         User user = utilService.findByUserIdWithValidation(userId);
+        if(nickName.equals(user.getNickName())) {
+            throw new BaseException(CANNOT_UPDATE_NICKNAME);
+        }
+        if(userRepository.existsByNickName(nickName)) {
+            throw new BaseException(DUPLICATED_NICKNAME);
+        }
         user.setNickName(nickName);
         return "회원정보가 수정되었습니다.";
     }
@@ -294,18 +292,48 @@ public class UserService {
             throw new BaseException(AGREEMENT_MISMATCH);
         }
         User user = utilService.findByUserIdWithValidation(userId);
-        List<Board> boards = boardRepository.findBoardByUserId(user.getId());
+        List<Board> boards = boardRepository.findBoardByUserId(userId);
         if(!boards.isEmpty()){
             throw new BaseException(CANNOT_DELETE); // 게시글을 먼저 삭제해야만 유저 삭제 가능
         }
-        tokenRepository.deleteTokenByUserId(user.getId());
+        tokenRepository.deleteTokenByUserId(userId);
         Profile profile = profileRepository.findProfileById(userId).orElse(null);
         if(profile != null) {
             profileService.deleteProfile(profile);
             profileRepository.deleteProfileById(userId);
         }
-        userRepository.deleteUser(user.getEmail());
+        String email = user.getEmail();
+        if(!deleteHistoryRepository.existsByEmail(email)) { // 최초 탈퇴의 경우, 하루 동안 재가입이 제한된다.
+            DeleteHistory deleteHistory = DeleteHistory.builder()
+                    .email(email)
+                    .hasDeletedHistory(true)
+                    .build();
+            deleteHistoryRepository.save(deleteHistory);
+            long expirationMillis = TimeUnit.DAYS.toMillis(1); // 하루(24시간)를 Redis의 TTL로 설정
+            redisTemplate.opsForValue().set(email, "DELETED_USER", expirationMillis, TimeUnit.MILLISECONDS);
+        }
+        else { // 두 번 이상 탈퇴한 경우, 30일간 재가입이 제한된다.
+            long expirationMillis = TimeUnit.DAYS.toMillis(30); // 한달(30일)을 Redis의 TTL로 설정
+            redisTemplate.opsForValue().set(email, "DELETED_USER", expirationMillis, TimeUnit.MILLISECONDS);
+        }
+        userRepository.deleteUser(userId);
         String result = "요청하신 회원에 대한 삭제가 완료되었습니다.";
         return result;
+    }
+
+    /**
+     * 소셜로그인 유저의 고유 닉네임을 보장하는 메서드
+     */
+    @Transactional
+    public String generateUniqueNickName(String baseNickName) {
+        String uniqueNickName = baseNickName;
+        int suffix = 1;
+        // 중복된 닉네임을 찾을 때까지 반복
+        while (userRepository.existsByNickName(uniqueNickName)) {
+            // 유일한 닉네임을 생성하기 위해 auto increment 값을 붙임 ex) 현섭 -> 현섭1 -> 현섭2
+            uniqueNickName = baseNickName + suffix;
+            suffix++;
+        }
+        return uniqueNickName;
     }
 }
