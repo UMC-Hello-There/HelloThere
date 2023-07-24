@@ -1,5 +1,7 @@
 package com.example.hello_there.report;
 
+import com.example.hello_there.exception.BaseException;
+import com.example.hello_there.exception.BaseResponseStatus;
 import com.example.hello_there.user.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -18,17 +20,34 @@ public class ReportService {
     /**
      * Redis 블랙 리스트 등록 여부 확인
      */
-    public boolean checkBlackUser(Long userId) {
-        // Redis에 있는 유저는 제재 상태이다.
-        Object redisUser = redisTemplate.opsForValue().get(userId.toString());
-        if (redisUser != null) { // Redis에 저장된 유저면 블랙유저
-            return true;
+    public void checkBlackUser(String prefix, Long userId) throws BaseException{
+        //prefix 로 comment, board, chat 신고를 구분해서 조회
+        String value = (String) redisTemplate.opsForValue().get(prefix.concat(userId.toString()));
+        if(value != null){
+            throw new BaseException(BaseResponseStatus.valueOf(value));
         }
-        return false;
     }
 
-    public void setReportExpiration(User reported, LocalDateTime expiration, String value) {
-        redisTemplate.opsForValue().set(reported.getId().toString(), value,
+    //prefix 로 comment, board, chat 신고를 구분해서 key-value 저장
+    public void setReportExpiration(String prefix, User reported, LocalDateTime expiration, String value) {
+        redisTemplate.opsForValue().set(prefix.concat(reported.getId().toString()), value,
                 LocalDateTime.now().until(expiration, ChronoUnit.MILLIS), TimeUnit.MILLISECONDS);
+    }
+
+    public void updateReport(ReportCount count,User reported) {
+        int cumulativeReportInt = Integer.parseInt(reported.getCumulativeReport()); // int형 정수로 변환
+        int updatedCumulativeReportInt = cumulativeReportInt + count.getCount();
+        String updateCumulativeReport = String.valueOf(updatedCumulativeReportInt); // 다시 String으로 형변환
+        reported.setCumulativeReport(updateCumulativeReport); // 유저의 누적 신고횟수 업데이트
+    }
+
+    public int findCumulativeReportCount(User reported, int digit) {
+        if(reported.getCumulativeReport().length() == digit) {
+            return Integer.parseInt(reported.getCumulativeReport().substring(0, 1));
+        }
+        else if(reported.getCumulativeReport().length() == digit +1){
+            return Integer.parseInt(reported.getCumulativeReport().substring(0, 2));
+        }
+        return 0;
     }
 }

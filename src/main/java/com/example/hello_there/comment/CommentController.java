@@ -87,4 +87,18 @@ public class CommentController {
             return new BaseResponse<>(exception.getStatus());
         }
     }
+
+    /** 댓글 작성자 신고 **/
+    @PostMapping("/report/{commentId}")
+    public BaseResponse<String> reportComment(
+            @PathVariable Long commentId,
+            @PathVariable Long boardId,
+            @RequestParam String reason){
+        try {
+            Long reporterId = jwtService.getUserIdx();
+            return new BaseResponse<>(commentService.reportComment(reporterId, boardId, commentId, reason));
+        } catch (BaseException exception) {
+            return new BaseResponse<>(exception.getStatus());
+        }
+    }
 }

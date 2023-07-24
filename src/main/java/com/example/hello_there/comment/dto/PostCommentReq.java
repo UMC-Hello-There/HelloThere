@@ -13,6 +13,7 @@ import javax.validation.constraints.Size;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Validated
 public class PostCommentReq {
+    // TODO parentId 를 PathVariable 로 굳이 받아야하나
     private Long parentId;
 
     @NotBlank(message = "댓글을 입력하세요.")

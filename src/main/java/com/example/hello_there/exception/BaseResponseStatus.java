@@ -88,7 +88,11 @@ public enum BaseResponseStatus {
     SAME_TITLE_ERROR(false, 5005, "동일한 게시글이 2개 이상 존재해 수정을 진행할 수 없습니다."),
     CANNOT_DELETE(false, 5006, "작성된 게시글이 존재하여 멤버를 삭제하는데 실패하였습니다."),
     USER_WITHOUT_PERMISSION(false, 5007, "본인의 게시글에 대해서만 수정 및 삭제가 가능합니다."),
-    UNABLE_TO_UPLOAD(false, 5008, "신고 누적으로 인한 제제로 게시글을 작성할 수 없습니다."),
+    UNABLE_TO_UPLOAD_THREE(false, 5008, "신고 4회 누적으로 인해 3일간 게시글을 작성할 수 없습니다."),
+    UNABLE_TO_UPLOAD_FIVE(false, 5009, "신고 8회 누적으로 인해 5일간 게시글을 작성할 수 없습니다."),
+    UNABLE_TO_UPLOAD_SEVEN(false, 5010, "신고 12회 누적으로 인해 7일간 게시글을 작성할 수 없습니다."),
+    UNABLE_TO_UPLOAD_FOURTEEN(false, 5011, "신고 16회 누적으로 인해 14일간 게시글을 작성할 수 없습니다."),
+    UNABLE_TO_UPLOAD_MONTH(false, 5012, "신고 20회 누적으로 인해 한 달간 게시글을 작성할 수 없습니다."),
 
     /**
      *   6000 : 회원등록 관련 오류
@@ -106,7 +110,11 @@ public enum BaseResponseStatus {
     NONE_EXIST_COMMENT(false, 7000, "요청하신 댓글은 존재하지 않습니다."),
     NONE_EXIST_PARENT_COMMENT(false,7001,"부모댓글이 존재하지 않습니다."),
     INVALID_UPDATE_DELETE_REQUEST(false,7002,"댓글 작성자 이외엔 수정/삭제할 수 없습니다."),
-    UNABLE_TO_COMMENT(false, 7003, "신고 누적으로 인한 제제로 댓글을 작성할 수 없습니다."),
+    UNABLE_TO_COMMENT_THREE(false, 7003, "신고 4회 누적으로 인해 3일간 댓글을 작성할 수 없습니다."),
+    UNABLE_TO_COMMENT_FIVE(false, 7004, "신고 8회 누적으로 인해 5일간 댓글을 작성할 수 없습니다."),
+    UNABLE_TO_COMMENT_SEVEN(false, 7005, "신고 12회 누적으로 인해 7일간 댓글을 작성할 수 없습니다."),
+    UNABLE_TO_COMMENT_FOURTEEN(false, 7006, "신고 16회 누적으로 인해 댓글을 게시글을 작성할 수 없습니다."),
+    UNABLE_TO_COMMENT_MONTH(false, 7007, "신고 20회 누적으로 인해 한 달간 댓글을 작성할 수 없습니다."),
     /**
      *   8000 : 토큰 관련 오류
      */

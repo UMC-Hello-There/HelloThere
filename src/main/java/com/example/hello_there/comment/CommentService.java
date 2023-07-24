@@ -6,17 +6,25 @@ import com.example.hello_there.comment.dto.*;
 import com.example.hello_there.comment.likecomment.LikeComment;
 import com.example.hello_there.comment.likecomment.LikeCommentRepository;
 import com.example.hello_there.exception.BaseException;
+import com.example.hello_there.exception.BaseResponseStatus;
+import com.example.hello_there.report.Report;
+import com.example.hello_there.report.ReportRepository;
+import com.example.hello_there.report.ReportService;
 import com.example.hello_there.user.User;
 import com.example.hello_there.user.UserRepository;
+import com.example.hello_there.user.UserStatus;
 import com.example.hello_there.utils.UtilService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.example.hello_there.exception.BaseResponseStatus.*;
+import static com.example.hello_there.report.ReportCount.ADD_REPORT_FOR_COMMENT;
 
 @Service
 @Transactional(readOnly = true)
@@ -26,6 +34,8 @@ public class CommentService {
     private final BoardRepository boardRepository;
     private final CommentRepository commentRepository;
     private final LikeCommentRepository likeCommentRepository;
+    private final ReportRepository reportRepository;
+    private final ReportService reportService;
     private final UtilService utilService;
 
 
@@ -34,6 +44,11 @@ public class CommentService {
      */
     @Transactional
     public PostCommentRes addComment(Long boardId, Long userId, PostCommentReq postCommentReq) throws BaseException {
+        // comment 에대한 black 유저 검증
+        reportService.checkBlackUser("comment", userId);
+//        if(reportService.checkBlackUser(userId))
+//            throw new BaseException(UNABLE_TO_COMMENT);
+
         User user = utilService.findByUserIdWithValidation(userId);
         Board board = utilService.findByBoardIdWithValidation(boardId);
         Comment comment = postCommentReq.toEntity(postCommentReq, board, user);
@@ -68,7 +83,7 @@ public class CommentService {
      **/
     public List<GetCommentRes> findComments(Long boardId,Long userId) {
         // 회원이 좋아요를 누른 댓글의 PK 리스트
-        List<Long> likes = likeCommentRepository.findByUserIdAndBoardId(boardId, userId);
+        List<Long> likes = likeCommentRepository.findByUserIdAndBoardId(userId, boardId);
 
         // 게시물에 달린 댓글 리스트
         List<GetCommentRes> comments = commentRepository.findCommentsByBoardIdForList(boardId)
@@ -156,6 +171,58 @@ public class CommentService {
                     .save(new LikeComment(user, comment))
                     .getId();
         }
+    }
+
+    /**
+     * 댓글 신고
+     */
+    @Transactional
+    public String reportComment(Long reporterId, Long boardId, Long commentId, String reason) throws BaseException {
+        // 게시글 검증
+        utilService.findByBoardIdWithValidation(boardId);
+        // 댓글 검증
+        Comment comment = utilService.findByCommentIdWithValidation(commentId);
+        // 신고 당한 회원
+        User reported = comment.getUser();
+        // 신고자
+        User reporter = utilService.findByUserIdWithValidation(reporterId);
+        Report report = new Report();
+
+        // 한 명의 유저가 중복으로 신고할 수 없도록 예외를 호출
+        if (reportRepository.findMatchingReportsCount(reporterId, reported.getId(), 0L, commentId, 0L) >= 1) {
+            throw new BaseException(ALREADY_REPORT);
+        }
+
+        // 자기 자신을 신고할 수 없도록 예외를 호출
+        if (reported.getId().equals(reporterId)) {
+            throw new BaseException(CANNOT_REPORT);
+        }
+
+        // 댓글 신고
+        reportRepository.save(report.createReport(reason, null, commentId, null, reporter, reported));
+
+        // 게시글 누적 신고 횟수에 따른 처리
+        reportService.updateReport(ADD_REPORT_FOR_COMMENT, reported);
+
+        int cumulativeReportCount = reportService.findCumulativeReportCount(reported,3);
+
+        LocalDateTime now = LocalDateTime.now(); // 현재 시간
+        String prefix = "comment";
+        switch (cumulativeReportCount) {
+            case 4 -> // 누적 신고 횟수 4
+                    reportService.setReportExpiration(prefix,reported, now.plus(3, ChronoUnit.DAYS), UNABLE_TO_COMMENT_THREE.name());
+            case 8 -> // 누적 신고 횟수 8
+                    reportService.setReportExpiration(prefix,reported, now.plus(5, ChronoUnit.DAYS), UNABLE_TO_COMMENT_FIVE.name());
+            case 12 -> // 누적 신고 횟수 12
+                    reportService.setReportExpiration(prefix,reported, now.plus(7, ChronoUnit.DAYS), UNABLE_TO_COMMENT_SEVEN.name());
+            case 16 -> // 누적 신고 횟수 16
+                    reportService.setReportExpiration(prefix,reported, now.plus(14, ChronoUnit.DAYS), UNABLE_TO_COMMENT_FOURTEEN.name());
+            case 20 -> // 누적 신고 횟수 20
+                    reportService.setReportExpiration(prefix,reported, now.plus(30, ChronoUnit.DAYS), UNABLE_TO_COMMENT_MONTH.name());
+            case 21 -> // 누적 신고 횟수 21
+                    reported.setStatus(UserStatus.INACTIVE); // 영구 정지
+        }
+        return "댓글 작성자에 대한 신고 처리가 완료되었습니다.";
     }
 
     // 댓글 원작자 검증
