@@ -65,16 +65,31 @@ public class UserController {
     }
 
     /**
+     * 닉네임 중복 확인
+     */
+    @GetMapping("/nickname")
+    public BaseResponse<String> nickNameChk(@RequestParam String nickName) {
+        try {
+            return new BaseResponse<>(userService.nickNameChk(nickName));
+        } catch (BaseException exception) {
+            return new BaseResponse<>(exception.getStatus());
+        }
+
+    }
+
+    /**
      * 유저 조회
-     * nickname이 파라미터에 없을 경우 모두 조회
+     * nickname이 파라미터에 없을 경우 아파트 주민을 모두 조회
      */
     @GetMapping("")
     public BaseResponse<List<GetUserRes>> getUsers(@RequestParam(required = false) String nickName) {
-        if (nickName == null) { // query string인 nickname이 없을 경우 전체 유저정보를 반환
-            return new BaseResponse<>(userService.getMembers());
-        }
-        // query string인 nickname이 있는 경우 해당 유저의 정보를 반환
         try {
+            // query string인 nickname이 없을 경우 전체 아파트 주민 정보를 반환
+            if (nickName == null) {
+                Long userId = jwtService.getUserIdx();
+                return new BaseResponse<>(userService.getMembers(userId));
+            }
+            // query string인 nickname이 있는 경우 해당 유저의 정보를 반환
             return new BaseResponse<>(userService.getUsersByNickname(nickName));
         } catch (BaseException exception) {
             return new BaseResponse<>(exception.getStatus());
@@ -89,7 +104,7 @@ public class UserController {
     public BaseResponse<String> modifyUserName(@RequestParam String nickName) {
         try {
             Long userId = jwtService.getUserIdx();
-            return new BaseResponse<>(userService.modifyUserNickName(userId, nickName));
+            return new BaseResponse<>(userService. modifyUserNickName(userId, nickName));
         } catch (BaseException exception) {
             return new BaseResponse<>(exception.getStatus());
         }

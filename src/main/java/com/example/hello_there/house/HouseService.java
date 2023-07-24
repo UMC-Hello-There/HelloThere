@@ -65,9 +65,8 @@ public class HouseService {
     }
 
     @Transactional
-    public String setHouseInfo(PatchHouseReq patchHouseReq, Long userId) throws BaseException {
-        House house = utilService.findHouseWithValidation(patchHouseReq.getCity(),
-                patchHouseReq.getDistrict(), patchHouseReq.getHouseName());
+    public String setHouseInfo(Long userId, Long houseId) throws BaseException {
+        House house = utilService.findByHouseIdWithValidation(houseId);
         User user = utilService.findByUserIdWithValidation(userId);
         user.setHouse(house);
         return "My House 등록이 완료되었습니다";

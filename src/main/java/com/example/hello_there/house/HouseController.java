@@ -24,11 +24,11 @@ public class HouseController {
     /**
      * 유저의 아파트 정보 설정하기
      */
-    @PatchMapping("/update")
-    public BaseResponse<String> setHouseInfo(@RequestBody PatchHouseReq patchHouseReq) {
+    @PatchMapping("")
+    public BaseResponse<String> setHouseInfo(@RequestParam Long houseId) {
         try {
             Long userId = jwtService.getUserIdx();
-            return new BaseResponse<>(houseService.setHouseInfo(patchHouseReq, userId));
+            return new BaseResponse<>(houseService.setHouseInfo(userId, houseId));
         } catch (BaseException exception) {
             return new BaseResponse<>(exception.getStatus());
         }

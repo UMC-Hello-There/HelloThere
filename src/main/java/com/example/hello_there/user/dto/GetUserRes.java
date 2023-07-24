@@ -14,9 +14,8 @@ import lombok.NoArgsConstructor;
 public class GetUserRes {
     private Long userId;
     private GetS3Res getS3Res; // 유저 프로필 사진
-    private String email;
     private String nickName;
-    private String signupPurpose;
+    private String email;
     private String address;
     private UserStatus status;
 
