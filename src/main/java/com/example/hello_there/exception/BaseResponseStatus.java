@@ -35,11 +35,12 @@ public enum BaseResponseStatus {
     UNABLE_TO_USE(false, 2020, "영구 정지 상태의 유저는 서비스를 이용할 수 없습니다."),
     ALREADY_REPORT(false, 2021, "이미 신고한 유저를 중복 신고할 수 없습니다"),
     CANNOT_REPORT(false, 2022, "자기 자신을 신고할 수 없습니다"),
+    AGREEMENT_MISMATCH(false, 2023, "동의 문구를 잘못 입력하셨습니다."),
 
     // [POST] /boards
-    POST_BOARDS_EMPTY_TITLE(false, 2023, "제목은 두 글자 이상으로 작성해주세요."),
-    INVALID_INPUT(false, 2024, "유효하지 않은 입력입니다."),
-    FAIL_TO_LOAD(false, 2025, "게시글을 불러오는데 실패했어요"),
+    POST_BOARDS_EMPTY_TITLE(false, 2024, "제목은 두 글자 이상으로 작성해주세요."),
+    INVALID_INPUT(false, 2025, "유효하지 않은 입력입니다."),
+    FAIL_TO_LOAD(false, 2026, "게시글을 불러오는데 실패했어요"),
 
 
     /**
@@ -74,6 +75,7 @@ public enum BaseResponseStatus {
     PASSWORD_MISSMATCH(false, 4013, "비밀번호가 일치하지 않습니다."),
     EX_PASSWORD_MISSMATCH(false, 4014, "이전 비밀번호가 잘못되었습니다."),
     SOCIAL_LOGIN_USER(false, 4015, "소셜로그인 유저는 비밀번호를 설정하지 않습니다."),
+    CANNOT_UPDATE_PASSWORD(false, 4016, "같은 비밀번호로 수정할 수 없습니다."),
 
     /**
      *   5000 : Board 관련 오류
