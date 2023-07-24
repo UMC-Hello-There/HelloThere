@@ -46,7 +46,7 @@ public class  User extends BaseTimeEntity {
     private Profile profile; // 프로필 사진과 일대일 매핑
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "apartment_id")
+    @JoinColumn(name = "house_id")
     private House house; // 아파트와 일대다 매핑
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
