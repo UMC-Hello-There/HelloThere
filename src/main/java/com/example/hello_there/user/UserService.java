@@ -155,7 +155,6 @@ public class UserService {
         // HttpHeader 생성
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.add("Authorization", "Bearer " + accessToken);
-
         // HttpHeader를 포함한 요청 객체 생성
         HttpEntity<String> requestEntity = new HttpEntity<>(httpHeaders);
 
