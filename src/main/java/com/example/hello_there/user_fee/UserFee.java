@@ -2,6 +2,7 @@ package com.example.hello_there.user_fee;
 
 import com.example.hello_there.utils.BaseTimeEntity;
 import lombok.*;
+import org.hibernate.annotations.ColumnDefault;
 
 import javax.persistence.*;
 
@@ -14,23 +15,25 @@ public class UserFee extends BaseTimeEntity {
     private Long id;
 
     //TODO 연관관계가 필요한 경우 맺을 예정
-    @Column(name="user_id")
+    @Column(nullable = false, name="user_id")
     private Long userId;
 
     //TODO 연관관계가 필요한 경우 맺을 예정
-    @Column(name="house_id")
+    @Column(nullable = false, name="house_id")
     private Long houseId;
 
-    @Column(name="fee_year")
+    @Column(nullable = false, name="fee_year")
     private int feeYear;    //관리비 월 컬럼 ex) 7
 
-    @Column(name="fee_month")
+    @Column(nullable = false, name="fee_month")
     private int feeMonth;   //관리비 년도 컬럼 ex) 2023
 
     @Column
+    @ColumnDefault("0")
     private double cost;    //관리비
 
     @Column(name="payment_check")
+    @ColumnDefault("false")
     private boolean paymentCheck;   //납부 여부
 
     @Builder
