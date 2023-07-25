@@ -42,12 +42,17 @@ public class ReportService {
     }
 
     public int findCumulativeReportCount(User reported, int digit) {
-        if(reported.getCumulativeReport().length() == digit) {
-            return Integer.parseInt(reported.getCumulativeReport().substring(0, 1));
+        String cumulativeReport = reported.getCumulativeReport();
+        int length = cumulativeReport.length();
+        /**
+         * 신고 수가 한 자리 수
+         */
+        if(length == digit){
+            return Integer.parseInt(cumulativeReport.substring(0,1));
         }
-        else if(reported.getCumulativeReport().length() == digit +1){
-            return Integer.parseInt(reported.getCumulativeReport().substring(0, 2));
-        }
-        return 0;
+        /**
+         * 신고 수가 두 자리 수
+         */
+        return Integer.parseInt(cumulativeReport.substring(length-(digit+1),length-(digit-1)));
     }
 }

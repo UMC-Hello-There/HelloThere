@@ -131,7 +131,13 @@ public enum BaseResponseStatus {
     FAILED_TO_ENTER(false, 9002, "채팅방 입장에 실패하였습니다."),
     NONE_EXIST_ROOM(false, 9003, "요청하신 채팅방은 존재하지 않습니다."),
     OVER_CAPACITY(false, 9004, "채팅방에서 지정한 최대 인원 수에 도달하여 추가할 수 없습니다."),
-    UNABLE_TO_CHAT(false, 9005, "신고 누적으로 인한 제제로 채팅방을 이용하실 수 없습니다.");
+    UNABLE_TO_CHAT(false, 9005, "신고 누적으로 인한 제제로 채팅방을 이용하실 수 없습니다."),
+    NONE_EXIST_MESSAGE(false,9006,"요청하신 메세지는 존재하지 않습니다."),
+    UNABLE_TO_MESSAGE_THREE(false, 9007, "신고 4회 누적으로 인해 3일간 메세지를 작성할 수 없습니다."),
+    UNABLE_TO_MESSAGE_FIVE(false, 9008, "신고 8회 누적으로 인해 5일간 메세지를 작성할 수 없습니다."),
+    UNABLE_TO_MESSAGE_SEVEN(false, 9009, "신고 12회 누적으로 인해 7일간 메세지를 작성할 수 없습니다."),
+    UNABLE_TO_MESSAGE_FOURTEEN(false, 9010, "신고 16회 누적으로 인해 14일간 메세지를 작성할 수 없습니다."),
+    UNABLE_TO_MESSAGE_MONTH(false, 9011, "신고 20회 누적으로 인해 한 달간 메세지를 작성할 수 없습니다.");
 
     private final boolean isSuccess;
     private final int code;

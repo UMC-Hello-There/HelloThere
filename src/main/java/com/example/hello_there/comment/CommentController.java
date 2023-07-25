@@ -91,10 +91,10 @@ public class CommentController {
 
     /** 댓글 작성자 신고 **/
     @PostMapping("/report/{commentId}")
-    public BaseResponse<String> reportComment(
+    public BaseResponse<String> reportWriter(
             @PathVariable Long commentId,
             @PathVariable Long boardId,
-            @RequestParam String reason){
+            @RequestParam(required = false) String reason){
         try {
             Long reporterId = jwtService.getUserIdx();
             return new BaseResponse<>(commentService.reportComment(reporterId, boardId, commentId, reason));
