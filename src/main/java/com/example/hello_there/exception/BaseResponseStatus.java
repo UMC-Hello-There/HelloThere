@@ -36,11 +36,12 @@ public enum BaseResponseStatus {
     ALREADY_REPORT(false, 2021, "이미 신고한 유저를 중복 신고할 수 없습니다"),
     CANNOT_REPORT(false, 2022, "자기 자신을 신고할 수 없습니다"),
     AGREEMENT_MISMATCH(false, 2023, "동의 문구를 잘못 입력하셨습니다."),
+    CANNOT_UPDATE_NICKNAME(false, 2024, "동일한 닉네임으로 변경할 수 없습니다."),
 
     // [POST] /boards
-    POST_BOARDS_EMPTY_TITLE(false, 2024, "제목은 두 글자 이상으로 작성해주세요."),
-    INVALID_INPUT(false, 2025, "유효하지 않은 입력입니다."),
-    FAIL_TO_LOAD(false, 2026, "게시글을 불러오는데 실패했어요"),
+    POST_BOARDS_EMPTY_TITLE(false, 2025, "제목은 두 글자 이상으로 작성해주세요."),
+    INVALID_INPUT(false, 2026, "유효하지 않은 입력입니다."),
+    FAIL_TO_LOAD(false, 2027, "게시글을 불러오는데 실패했어요"),
 
 
     /**
@@ -76,6 +77,7 @@ public enum BaseResponseStatus {
     EX_PASSWORD_MISSMATCH(false, 4014, "이전 비밀번호가 잘못되었습니다."),
     SOCIAL_LOGIN_USER(false, 4015, "소셜로그인 유저는 비밀번호를 설정하지 않습니다."),
     CANNOT_UPDATE_PASSWORD(false, 4016, "같은 비밀번호로 수정할 수 없습니다."),
+    FAIL_TO_GET_INFO(false, 4017, "유저 정보 가져오기에 실패하였습니다."),
 
     /**
      *   5000 : Board 관련 오류
@@ -97,12 +99,14 @@ public enum BaseResponseStatus {
     /**
      *   6000 : 회원등록 관련 오류
      */
-    NICKNAME_ERROR(false, 6000, "이미 존재하는 닉네임입니다."),
+    DUPLICATED_NICKNAME(false, 6000, "이미 존재하는 닉네임입니다."),
     KAKAO_ERROR(false, 6001, "카카오 로그아웃에 실패했습니다."),
     INTRODUCE_ERROR(false, 6002, "한줄 소개는 0~30자이어야 합니다."),
     DISAGREE_TO_PROVIDE(false, 6003, "정보 제공에 동의해주세요."),
     ALREADY_LOGIN(false, 6004, "이미 로그인된 유저입니다."),
     ALREADY_REGISTERED_USER(false, 6005, "이미 가입된 유저입니다."),
+    NICKNAME_CANNOT_BE_NULL(false, 6006, "닉네임을 입력해주세요"),
+    DELETED_USER(false, 6007, "탈퇴한 유저는 일정 시간동안 재가입이 제한됩니다."),
 
     /**
      *   7000 : 댓글 관련 오류

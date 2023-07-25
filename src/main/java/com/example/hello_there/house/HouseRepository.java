@@ -8,8 +8,11 @@ import java.util.List;
 import java.util.Optional;
 
 public interface HouseRepository extends JpaRepository<House, Long> {
-    @Query("select a from houses a where a.city = :city and a.district =:district and a.houseName =:apartmentName")
-    Optional<House> findApartment(@Param("city") String city, @Param("district") String district, @Param("apartmentName") String apartmentName);
+    @Query("select a from houses a where a.city = :city and a.district =:district and a.houseName =:houseName")
+    Optional<House> findHouse(@Param("city") String city, @Param("district") String district, @Param("houseName") String houseName);
+
+    @Query("select a from houses a where a.houseId = :houseId")
+    Optional<House> findHouseById(@Param("houseId") Long houseId);
 
     @Query("select a from houses a where a.city = :city and a.district =:district and a.houseName =:name")
     Optional<House> findProperty(@Param("city") String city, @Param("district") String district, @Param("name") String name);
