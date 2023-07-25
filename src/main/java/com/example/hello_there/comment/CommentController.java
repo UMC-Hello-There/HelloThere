@@ -27,10 +27,11 @@ public class CommentController {
     @PostMapping
     public BaseResponse<PostCommentRes> addComment(
             @RequestBody @Valid PostCommentReq postCommentReq,
+            @RequestParam(required = false) Long parentId,
             @PathVariable Long boardId) {
         try{
             Long userId = jwtService.getUserIdx();
-            return new BaseResponse<>(commentService.addComment(boardId, userId, postCommentReq));
+            return new BaseResponse<>(commentService.addComment(boardId, userId, parentId, postCommentReq));
         }
         catch(BaseException exception) {
             return new BaseResponse<>(exception.getStatus());

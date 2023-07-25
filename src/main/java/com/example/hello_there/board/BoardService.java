@@ -1,6 +1,9 @@
 package com.example.hello_there.board;
 
-import com.example.hello_there.board.dto.*;
+import com.example.hello_there.board.dto.GetBoardDetailRes;
+import com.example.hello_there.board.dto.GetBoardRes;
+import com.example.hello_there.board.dto.PatchBoardReq;
+import com.example.hello_there.board.dto.PostBoardReq;
 import com.example.hello_there.board.like.LikeBoard;
 import com.example.hello_there.board.like.LikeBoardRepository;
 import com.example.hello_there.board.photo.PostPhoto;
@@ -12,11 +15,8 @@ import com.example.hello_there.comment.CommentRepository;
 import com.example.hello_there.comment.dto.GetCommentRes;
 import com.example.hello_there.exception.BaseException;
 import com.example.hello_there.report.Report;
-import com.example.hello_there.report.ReportCount;
 import com.example.hello_there.report.ReportRepository;
 import com.example.hello_there.report.ReportService;
-import com.example.hello_there.user.User;
-import com.example.hello_there.user.UserRepository;
 import com.example.hello_there.user.User;
 import com.example.hello_there.user.UserStatus;
 import com.example.hello_there.utils.S3Service;
@@ -32,19 +32,18 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
-
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static com.example.hello_there.exception.BaseResponseStatus.*;
-import static com.example.hello_there.report.ReportCount.*;
-import static com.example.hello_there.utils.UtilService.*;
+import static com.example.hello_there.report.ReportCount.ADD_REPORT_FOR_BOARD;
+import static com.example.hello_there.utils.UtilService.convertLocalDateTimeToLocalDate;
+import static com.example.hello_there.utils.UtilService.convertLocalDateTimeToTime;
 
 @Service
 @RequiredArgsConstructor
@@ -68,7 +67,9 @@ public class BoardService {
     @Transactional
     public String createBoard(Long userId, PostBoardReq postBoardReq, List<MultipartFile> multipartFiles) throws BaseException {
         try {
+            // 블랙 유저 검증
             reportService.checkBlackUser("board",userId);
+
             User user = utilService.findByUserIdWithValidation(userId);
             Board board = Board.builder()
                     .title(postBoardReq.getTitle())

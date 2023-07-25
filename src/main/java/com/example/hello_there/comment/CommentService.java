@@ -6,7 +6,6 @@ import com.example.hello_there.comment.dto.*;
 import com.example.hello_there.comment.likecomment.LikeComment;
 import com.example.hello_there.comment.likecomment.LikeCommentRepository;
 import com.example.hello_there.exception.BaseException;
-import com.example.hello_there.exception.BaseResponseStatus;
 import com.example.hello_there.report.Report;
 import com.example.hello_there.report.ReportRepository;
 import com.example.hello_there.report.ReportService;
@@ -43,11 +42,9 @@ public class CommentService {
      * 댓글 생성
      */
     @Transactional
-    public PostCommentRes addComment(Long boardId, Long userId, PostCommentReq postCommentReq) throws BaseException {
+    public PostCommentRes addComment(Long boardId, Long userId, Long parentId,PostCommentReq postCommentReq) throws BaseException {
         // comment 에대한 black 유저 검증
         reportService.checkBlackUser("comment", userId);
-//        if(reportService.checkBlackUser(userId))
-//            throw new BaseException(UNABLE_TO_COMMENT);
 
         User user = utilService.findByUserIdWithValidation(userId);
         Board board = utilService.findByBoardIdWithValidation(boardId);
@@ -61,13 +58,13 @@ public class CommentService {
          * parentId == null 부모댓글
          * parentId != null 자식댓글
          */
-        if (postCommentReq.getParentId() == null) {
+        if (parentId == null) {
             comment.addGroupId(groupId + 1L);
             Comment savedParentComment = commentRepository.save(comment);
             // 부모 댓글 저장
             return new PostCommentRes(savedParentComment);
         } else {
-            parentComment = commentRepository.findById(postCommentReq.getParentId())
+            parentComment = commentRepository.findById(parentId)
                     .orElseThrow(() -> new BaseException(NONE_EXIST_PARENT_COMMENT));
             comment.addParentComment(parentComment);
             comment.addGroupId(parentComment.getGroupId());
