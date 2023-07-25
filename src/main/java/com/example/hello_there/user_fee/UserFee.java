@@ -45,4 +45,12 @@ public class UserFee extends BaseTimeEntity {
         this.cost = cost;
         this.paymentCheck = paymentCheck;
     }
+
+    public void setCost(Double cost) {
+        this.cost = cost;
+    }
+
+    public void setPaymentCheck(Boolean paymentCheck) {
+        this.paymentCheck = paymentCheck;
+    }
 }

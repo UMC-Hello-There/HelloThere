@@ -1,6 +1,8 @@
 package com.example.hello_there.user_fee;
 
+import com.example.hello_there.exception.BaseException;
 import com.example.hello_there.user.User;
+import com.example.hello_there.user_fee.dto.PatchUserFeeReq;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -8,6 +10,9 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+
+import static com.example.hello_there.exception.BaseResponseStatus.NONE_EXIST_COMMENT;
+import static com.example.hello_there.exception.BaseResponseStatus.NONE_EXIST_USERFEE;
 
 @Service
 @AllArgsConstructor
@@ -40,5 +45,10 @@ public class UserFeeService {
         Pageable pageable = PageRequest.of(0, 3);
         getUserFeeCurrent(userId, houseId, feeYear, feeMonth);    //해당 년월의 관리비가 존재하지 않을 경우 데이터를 생성
         return userFeeRepository.findByUserIdAndHouseIdAndFeeYearAndFeeMonthLessThanEqualOrderByFeeYearDescFeeMonthDesc(userId, houseId, feeYear, feeMonth, pageable);
+    }
+
+    public UserFee updateUserFee(Long id, PatchUserFeeReq patchUserFeeReq) {
+        UserFee userFee = userFeeRepository.findById(id).orElseThrow(()-> new BaseException(NONE_EXIST_USERFEE));
+        return userFeeRepository.save(patchUserFeeReq.updateEntity(userFee));
     }
 }
