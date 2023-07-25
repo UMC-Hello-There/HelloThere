@@ -20,10 +20,10 @@ public class UserFeeController {
 
     /** 이달의 관리비 조회(홈 화면) **/
     @GetMapping("")
-    public BaseResponse<UserFeeRes> getUserFeeCurrent(@RequestParam("houseId") Long houseId, @RequestParam("feeYear") int feeYear, @RequestParam("feeMonth") int feeMonth) {
+    public BaseResponse<UserFeeRes> getUserFeeCurrent(@RequestParam("feeYear") int feeYear, @RequestParam("feeMonth") int feeMonth) {
         try{
             Long userId = jwtService.getUserIdx();
-            UserFee userFeeCurrent = userFeeService.getUserFeeCurrent(userId, houseId, feeYear, feeMonth);
+            UserFee userFeeCurrent = userFeeService.getUserFeeCurrent(userId, feeYear, feeMonth);
             UserFeeRes res = UserFeeRes.mapEntityToResponse(userFeeCurrent);
             return new BaseResponse<>(res);
         }
@@ -36,10 +36,10 @@ public class UserFeeController {
      * TODO feeYear과 feeMonth가 null 로 입력되었을 경우에 대한 처리
      * **/
     @GetMapping("/detail")
-    public BaseResponse<List<UserFeeRes>> getUserFeeCustom(@RequestParam("houseId") Long houseId, @RequestParam("feeYear") int feeYear, @RequestParam("feeMonth") int feeMonth) {
+    public BaseResponse<List<UserFeeRes>> getUserFeeCustom(@RequestParam("feeYear") int feeYear, @RequestParam("feeMonth") int feeMonth) {
         try{
             Long userId = jwtService.getUserIdx();
-            List<UserFee> userFeeCustomList = userFeeService.getUserFeeCustom(userId, houseId, feeYear, feeMonth);
+            List<UserFee> userFeeCustomList = userFeeService.getUserFeeCustom(userId, feeYear, feeMonth);
             List<UserFeeRes> res =
                     userFeeCustomList.stream().map(it-> UserFeeRes.mapEntityToResponse(it)).collect(Collectors.toList());
             return new BaseResponse<>(res);
@@ -49,9 +49,9 @@ public class UserFeeController {
         }
     }
 
-    @PatchMapping("/{id}")
-    public BaseResponse<UserFeeRes> modifyUserFee(@PathVariable Long id, @RequestBody PatchUserFeeReq patchUserFeeReq){
-        UserFee userFeeCurrent = userFeeService.updateUserFee(id, patchUserFeeReq);
+    @PatchMapping("/{userFeeId}")
+    public BaseResponse<UserFeeRes> modifyUserFee(@PathVariable Long userFeeId, @RequestBody PatchUserFeeReq patchUserFeeReq){
+        UserFee userFeeCurrent = userFeeService.updateUserFee(userFeeId, patchUserFeeReq);
         UserFeeRes res = UserFeeRes.mapEntityToResponse(userFeeCurrent);
         return new BaseResponse<>(res);
     }
