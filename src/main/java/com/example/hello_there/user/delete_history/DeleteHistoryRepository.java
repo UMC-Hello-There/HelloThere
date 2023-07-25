@@ -1,4 +1,4 @@
-package com.example.hello_there.user.delete_count;
+package com.example.hello_there.user.delete_history;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

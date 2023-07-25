@@ -9,8 +9,8 @@ import com.example.hello_there.login.jwt.JwtProvider;
 import com.example.hello_there.login.jwt.JwtService;
 import com.example.hello_there.login.jwt.Token;
 import com.example.hello_there.login.jwt.TokenRepository;
-import com.example.hello_there.user.delete_count.DeleteHistory;
-import com.example.hello_there.user.delete_count.DeleteHistoryRepository;
+import com.example.hello_there.user.delete_history.DeleteHistory;
+import com.example.hello_there.user.delete_history.DeleteHistoryRepository;
 import com.example.hello_there.user.dto.*;
 import com.example.hello_there.user.profile.Profile;
 import com.example.hello_there.user.profile.ProfileRepository;
@@ -19,7 +19,6 @@ import com.example.hello_there.utils.AES128;
 import com.example.hello_there.utils.S3Service;
 import com.example.hello_there.utils.Secret;
 import com.example.hello_there.utils.UtilService;
-import com.fasterxml.jackson.databind.ser.Serializers;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
@@ -306,7 +305,6 @@ public class UserService {
         if(!deleteHistoryRepository.existsByEmail(email)) { // 최초 탈퇴의 경우, 하루 동안 재가입이 제한된다.
             DeleteHistory deleteHistory = DeleteHistory.builder()
                     .email(email)
-                    .hasDeletedHistory(true)
                     .build();
             deleteHistoryRepository.save(deleteHistory);
             long expirationMillis = TimeUnit.DAYS.toMillis(1); // 하루(24시간)를 Redis의 TTL로 설정
