@@ -30,7 +30,7 @@ public class UserFeeService {
                 .feeYear(feeYear)
                 .feeMonth(feeMonth)
                 .build();
-        return userFeeRepository.save(userFee);
+        return userFeeRepository.saveAndFlush(userFee);
     }
 
     /*
@@ -38,6 +38,7 @@ public class UserFeeService {
      */
     public List<UserFee> getUserFeeCustom(Long userId, Long houseId, int feeYear, int feeMonth) {
         Pageable pageable = PageRequest.of(0, 3);
+        getUserFeeCurrent(userId, houseId, feeYear, feeMonth);    //해당 년월의 관리비가 존재하지 않을 경우 데이터를 생성
         return userFeeRepository.findByUserIdAndHouseIdAndFeeYearAndFeeMonthLessThanEqualOrderByFeeYearDescFeeMonthDesc(userId, houseId, feeYear, feeMonth, pageable);
     }
 }
