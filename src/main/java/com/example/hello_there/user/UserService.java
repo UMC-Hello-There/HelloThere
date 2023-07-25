@@ -306,7 +306,6 @@ public class UserService {
         if(!deleteHistoryRepository.existsByEmail(email)) { // 최초 탈퇴의 경우, 하루 동안 재가입이 제한된다.
             DeleteHistory deleteHistory = DeleteHistory.builder()
                     .email(email)
-                    .hasDeletedHistory(true)
                     .build();
             deleteHistoryRepository.save(deleteHistory);
             long expirationMillis = TimeUnit.DAYS.toMillis(1); // 하루(24시간)를 Redis의 TTL로 설정
