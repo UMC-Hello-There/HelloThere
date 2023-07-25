@@ -1,6 +1,7 @@
 package com.example.hello_there.login.jwt;
 
 import com.example.hello_there.login.dto.JwtResponseDTO;
+import com.example.hello_there.utils.Secret;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
