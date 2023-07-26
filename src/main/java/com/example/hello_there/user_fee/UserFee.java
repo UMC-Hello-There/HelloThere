@@ -28,12 +28,10 @@ public class UserFee extends BaseTimeEntity {
     @Column(nullable = false, name="fee_month")
     private int feeMonth;   //관리비 년도 컬럼 ex) 2023
 
-    @Column
-    @ColumnDefault("0")
+    @Column(columnDefinition = "DOUBLE DEFAULT 0.0")
     private double cost;    //관리비
 
-    @Column(name="payment_check")
-    @ColumnDefault("false")
+    @Column(name="payment_check", columnDefinition = "boolean default false")
     private boolean paymentCheck;   //납부 여부
 
     @Builder
