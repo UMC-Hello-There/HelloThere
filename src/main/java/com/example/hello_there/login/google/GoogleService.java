@@ -48,7 +48,7 @@ public class GoogleService {
     @Value("${spring.security.oauth2.client.registration.google.client-secret}")
     private String Google_Client_Secret;
 
-    private UserService userService;
+    private final UserService userService;
     private final UserRepository userRepository;
     private final TokenRepository tokenRepository;
     private final JwtProvider jwtProvider;

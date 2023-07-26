@@ -155,7 +155,7 @@ public class ChatRoomService {
                 Message prevMsg = messages.get(i + 1); // 바로 이전 메시지
                 User prevSender = prevMsg.getSender(); // 바로 이전 메시지의 발신자
                 // 이전에 메시지를 보낸 유저와 이번 메시지를 보낸 유저가 같으면
-                if (sender.getId() == prevSender.getId()) {
+                if (sender.getId().equals(prevSender.getId())) {
                     continue; // 더 이상 할 거 없다.
                 }
             }
