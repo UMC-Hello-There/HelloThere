@@ -5,21 +5,19 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.util.Optional;
-
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
-public class GetUserFeeRes {
+public class UserFeeRes {
     private Long id;
     private int feeYear;
     private int feeMonth;
     private double cost;
     private boolean paymentCheck;
 
-    public static GetUserFeeRes mapEntityToResponse(UserFee userFee){
-        return new GetUserFeeRes(
-                userFee.getUserId(),
+    public static UserFeeRes mapEntityToResponse(UserFee userFee){
+        return new UserFeeRes(
+                userFee.getId(),
                 userFee.getFeeYear(),
                 userFee.getFeeMonth(),
                 userFee.getCost(),
