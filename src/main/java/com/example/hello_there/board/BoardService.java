@@ -175,7 +175,7 @@ public class BoardService {
         Board deleteBoard = utilService.findByBoardIdWithValidation(boardId);
         User writer = deleteBoard.getUser();
         User visitor = utilService.findByUserIdWithValidation(userId);
-        if (writer.getId() == visitor.getId()) {
+        if (writer.getId().equals(visitor.getId())) {
             // S3에 업로드된 파일을 삭제하는 명령
             List<PostPhoto> allByBoardId = postPhotoService.findAllByBoardId(boardId);
             if (!allByBoardId.isEmpty()) {
@@ -203,7 +203,7 @@ public class BoardService {
             Board board = utilService.findByBoardIdWithValidation(boardId);
             User writer = board.getUser();
             User visitor = utilService.findByUserIdWithValidation(userId);
-            if (writer.getId() == visitor.getId()) {
+            if (writer.getId().equals(visitor.getId())) {
                 board.updateBoard(patchBoardReq.getBoardType(), patchBoardReq.getTitle(), patchBoardReq.getContent());
                 //사진 업데이트, 지우고 다시 저장
                 List<PostPhoto> allByBoardId = postPhotoService.findAllByBoardId(boardId);
@@ -258,7 +258,7 @@ public class BoardService {
             throw new BaseException(ALREADY_REPORT);
         }
         // 자기 자신을 신고할 수 없도록 예외를 호출
-        if (reported.getId() == reporterId) {
+        if (reported.getId().equals(reporterId)) {
             throw new BaseException(CANNOT_REPORT);
         }
         reportRepository.save(report.createReport(reason, boardId, null, null, repoter, reported));
