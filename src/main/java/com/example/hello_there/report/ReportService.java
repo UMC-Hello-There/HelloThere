@@ -3,6 +3,7 @@ package com.example.hello_there.report;
 import com.example.hello_there.exception.BaseException;
 import com.example.hello_there.exception.BaseResponseStatus;
 import com.example.hello_there.user.User;
+import com.example.hello_there.user.UserStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
@@ -11,11 +12,14 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.concurrent.TimeUnit;
 
+import static com.example.hello_there.exception.BaseResponseStatus.*;
+
 @Service
 @RequiredArgsConstructor
 public class ReportService {
 
     private final RedisTemplate redisTemplate;
+    private final ReportRepository reportRepository;
 
     /**
      * Redis 블랙 리스트 등록 여부 확인
@@ -55,4 +59,17 @@ public class ReportService {
          */
         return Integer.parseInt(cumulativeReport.substring(length-(digit+1),length-(digit-1)));
     }
+
+    public void isDuplicateReport(Long reporterId, Long reportedId, Long boardId, Long commentId, Long messageId){
+        if (reportRepository.findMatchingReportsCount(reporterId, reportedId, boardId, commentId, messageId) >= 1) {
+            throw new BaseException(ALREADY_REPORT);
+        }
+    }
+
+    public void isSelfReport(Long reportedId, Long reporterId) {
+        if (reportedId.equals(reporterId)) {
+            throw new BaseException(CANNOT_REPORT);
+        }
+    }
+
 }

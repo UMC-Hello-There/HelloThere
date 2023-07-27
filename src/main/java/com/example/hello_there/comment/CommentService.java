@@ -186,14 +186,11 @@ public class CommentService {
         Report report = new Report();
 
         // 한 명의 유저가 중복으로 신고할 수 없도록 예외를 호출
-        if (reportRepository.findMatchingReportsCount(reporterId, reported.getId(), 0L, commentId, 0L) >= 1) {
-            throw new BaseException(ALREADY_REPORT);
-        }
+        reportService.isDuplicateReport(reporterId,reported.getId(),0L,commentId,0L);
 
         // 자기 자신을 신고할 수 없도록 예외를 호출
-        if (reported.getId().equals(reporterId)) {
-            throw new BaseException(CANNOT_REPORT);
-        }
+        reportService.isSelfReport(reported.getId(),reporterId);
+
 
         // 댓글 신고
         reportRepository.save(report.createReport(reason, null, commentId, null, reporter, reported));
