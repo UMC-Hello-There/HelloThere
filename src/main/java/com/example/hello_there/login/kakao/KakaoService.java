@@ -56,7 +56,7 @@ public class KakaoService {
                     .user(kakaoUser)
                     .build();
             tokenRepository.save(token);
-            if(kakaoUser.getEmail() == "" || kakaoUser.getNickName() == "") {
+            if(kakaoUser.getEmail().equals("") || kakaoUser.getNickName().equals("")) {
                 String message = "마이페이지에서 본인의 정보를 알맞게 수정 후 이용해주세요.";
                 AssertionDTO assertionDTO = new AssertionDTO(tokenInfo, message);
                 return new BaseResponse<>(assertionDTO); // 이걸 예외처리하면 너무 복잡해질 거 같아, 그냥 기본값으로 세팅하고 로그인 처리하였다.
