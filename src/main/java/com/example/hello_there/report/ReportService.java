@@ -60,13 +60,12 @@ public class ReportService {
         return Integer.parseInt(cumulativeReport.substring(length-(digit+1),length-(digit-1)));
     }
 
-    public void isDuplicateReport(Long reporterId, Long reportedId, Long boardId, Long commentId, Long messageId){
+    public void chkReportValidation(Long reporterId, Long reportedId, Long boardId, Long commentId, Long messageId){
+        // 중복신고 검증
         if (reportRepository.findMatchingReportsCount(reporterId, reportedId, boardId, commentId, messageId) >= 1) {
             throw new BaseException(ALREADY_REPORT);
         }
-    }
-
-    public void isSelfReport(Long reportedId, Long reporterId) {
+        // 자기 자신 신고 검증
         if (reportedId.equals(reporterId)) {
             throw new BaseException(CANNOT_REPORT);
         }

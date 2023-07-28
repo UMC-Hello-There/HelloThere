@@ -254,11 +254,8 @@ public class BoardService {
         User repoter = utilService.findByUserIdWithValidation(reporterId);
         Report report = new Report();
 
-        // 한 명의 유저가 중복으로 신고할 수 없도록 예외를 호출
-        reportService.isDuplicateReport(reporterId, reported.getId(),boardId,0L,0L);
-
-        // 자기 자신을 신고할 수 없도록 예외를 호출
-        reportService.isSelfReport(reported.getId(),reporterId);
+        // 신고 검증 (중복 신고, 자기 자신 신고)
+        reportService.chkReportValidation(reporterId, reported.getId(),boardId,0L,0L);
 
         reportRepository.save(report.createReport(reason, boardId, null, null, repoter, reported));
 

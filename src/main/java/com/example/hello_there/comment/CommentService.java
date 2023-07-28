@@ -185,12 +185,8 @@ public class CommentService {
         User reporter = utilService.findByUserIdWithValidation(reporterId);
         Report report = new Report();
 
-        // 한 명의 유저가 중복으로 신고할 수 없도록 예외를 호출
-        reportService.isDuplicateReport(reporterId,reported.getId(),0L,commentId,0L);
-
-        // 자기 자신을 신고할 수 없도록 예외를 호출
-        reportService.isSelfReport(reported.getId(),reporterId);
-
+        // 신고 검증 (중복 신고, 자기 자신 신고)
+        reportService.chkReportValidation(reporterId,reported.getId(),0L,commentId,0L);
 
         // 댓글 신고
         reportRepository.save(report.createReport(reason, null, commentId, null, reporter, reported));
