@@ -82,12 +82,13 @@ public class BoardController {
     }
 
     /** 게시글 작성자 신고하기 **/
-    @PatchMapping("/report/{board-id}")
-    public BaseResponse<String> reportWriter(@PathVariable(name = "board-id") Long boardId,
-                                             @RequestParam String reason) {
+    @PatchMapping("/report/{boardId}")
+    public BaseResponse<String> reportWriter(
+            @PathVariable Long boardId,
+            @RequestParam(required = false) String reason) {
         try {
-            Long reproterId = jwtService.getUserIdx();
-            return new BaseResponse<>(boardService.reportWriter(reproterId, boardId, reason));
+            Long reporterId = jwtService.getUserIdx();
+            return new BaseResponse<>(boardService.reportWriter(reporterId, boardId, reason));
         } catch (BaseException exception) {
             return new BaseResponse<>(exception.getStatus());
         }
