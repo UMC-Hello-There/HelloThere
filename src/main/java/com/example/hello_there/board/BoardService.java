@@ -11,6 +11,7 @@ import com.example.hello_there.comment.Comment;
 import com.example.hello_there.comment.CommentRepository;
 import com.example.hello_there.comment.dto.GetCommentRes;
 import com.example.hello_there.exception.BaseException;
+import com.example.hello_there.house.House;
 import com.example.hello_there.report.Report;
 import com.example.hello_there.report.ReportRepository;
 import com.example.hello_there.report.ReportService;
@@ -70,6 +71,7 @@ public class BoardService {
                 throw new BaseException(UNABLE_TO_UPLOAD);
             }
             User user = utilService.findByUserIdWithValidation(userId);
+            House house = utilService.findByHouseIdWithValidation(postBoardReq.getHouseId());
             Board board = Board.builder()
                     .title(postBoardReq.getTitle())
                     .content(postBoardReq.getContent())
@@ -77,6 +79,7 @@ public class BoardService {
                     .boardType(postBoardReq.getBoardType())
                     .photoList(new ArrayList<>())
                     .user(user)
+                    .house(house)
                     // .commentList(new ArrayList<>())
                     .build();
             save(board);
