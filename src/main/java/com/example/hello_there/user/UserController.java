@@ -2,22 +2,15 @@ package com.example.hello_there.user;
 
 import com.example.hello_there.exception.BaseException;
 import com.example.hello_there.exception.BaseResponse;
-import com.example.hello_there.login.jwt.JwtProvider;
 import com.example.hello_there.login.jwt.JwtService;
-import com.example.hello_there.login.jwt.Token;
-import com.example.hello_there.login.jwt.TokenRepository;
 import com.example.hello_there.user.dto.*;
-import com.example.hello_there.user.profile.ProfileService;
-import com.example.hello_there.utils.UtilService;
+import com.example.hello_there.user.user_setting.UserSettingService;
+import com.example.hello_there.user.user_setting.UserSetting;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.sound.midi.Patch;
 import java.util.List;
-
-import static com.example.hello_there.exception.BaseResponseStatus.*;
-import static com.example.hello_there.utils.ValidationRegex.*;
 
 @RequiredArgsConstructor
 @RestController
@@ -25,6 +18,7 @@ import static com.example.hello_there.utils.ValidationRegex.*;
 public class UserController {
 
     private final UserService userService;
+    private final UserSettingService userSettingService;
     private final JwtService jwtService;
 
     /**
@@ -68,13 +62,24 @@ public class UserController {
      * 닉네임 중복 확인
      */
     @GetMapping("/nickname")
-    public BaseResponse<String> nickNameChk(@RequestParam String nickName) {
+    public BaseResponse<Boolean> nickNameChk(@RequestParam String nickName) {
         try {
             return new BaseResponse<>(userService.nickNameChk(nickName));
         } catch (BaseException exception) {
             return new BaseResponse<>(exception.getStatus());
         }
+    }
 
+    /**
+     * 이메일 중복 확인
+     */
+    @GetMapping("/email")
+    public BaseResponse<Boolean> emailChk(@RequestParam String email) {
+        try {
+            return new BaseResponse<>(userService.emailChk(email));
+        } catch (BaseException exception) {
+            return new BaseResponse<>(exception.getStatus());
+        }
     }
 
     /**
@@ -100,7 +105,7 @@ public class UserController {
     /**
      * 유저 닉네임 변경
      */
-    @PatchMapping("")
+    @PatchMapping("/nickname")
     public BaseResponse<String> modifyUserName(@RequestParam String nickName) {
         try {
             Long userId = jwtService.getUserIdx();
@@ -111,7 +116,7 @@ public class UserController {
     }
 
     /**
-     * 유저 프로필 변경
+     * 유저 프로필 사진 변경
      */
     @PatchMapping("/profile")
     public BaseResponse<String> modifyProfile(@RequestPart(value = "image", required = false) MultipartFile multipartFile) {
@@ -150,5 +155,62 @@ public class UserController {
             return new BaseResponse<>(exception.getStatus());
         }
     }
+
+    /**
+     * 마이페이지 알림 설정 조회
+     */
+    @GetMapping("/setting")
+    public BaseResponse<UserSettingRes> getUserSetting() {
+        try {
+            Long userId = jwtService.getUserIdx();
+            UserSetting userSetting = userSettingService.findByUserId(userId);
+            return new BaseResponse<>(UserSettingRes.fromEntity(userSetting));
+        } catch (BaseException exception) {
+            return new BaseResponse<>(exception.getStatus());
+        }
+    }
+
+    /**
+     * 마이페이지 알림 설정
+     */
+    @PatchMapping("/setting")
+    public BaseResponse<UserSettingRes> patchUserSetting(@RequestBody UserSettingReq userSettingReq) {
+        try {
+            Long userId = jwtService.getUserIdx();
+            UserSetting userSetting = userSettingService.modifyUserSetting(userId, userSettingReq);
+            return new BaseResponse<>(UserSettingRes.fromEntity(userSetting));
+        } catch (BaseException exception) {
+            return new BaseResponse<>(exception.getStatus());
+        }
+    }
+
+    /**
+     * 마이페이지 쪽지 설정 조회
+     */
+    @GetMapping("/setting/message")
+    public BaseResponse<UserSettingMessageRes> getUserSettingMessage() {
+        try {
+            Long userId = jwtService.getUserIdx();
+            UserSetting userSetting = userSettingService.findByUserId(userId);
+            return new BaseResponse<>(UserSettingMessageRes.fromEntity(userSetting));
+        } catch (BaseException exception) {
+            return new BaseResponse<>(exception.getStatus());
+        }
+    }
+
+    /**
+     * 마이페이지 쪽지 설정
+     */
+    @PatchMapping("/setting/message")
+    public BaseResponse<UserSettingRes> patchUserSettingMessage(@RequestBody UserSettingMessageReq userSettingMessageReq) {
+        try {
+            Long userId = jwtService.getUserIdx();
+            UserSetting userSetting = userSettingService.modifyUserSettingMessage(userId, userSettingMessageReq);
+            return new BaseResponse<>(UserSettingRes.fromEntity(userSetting));
+        } catch (BaseException exception) {
+            return new BaseResponse<>(exception.getStatus());
+        }
+    }
+
 }
 
