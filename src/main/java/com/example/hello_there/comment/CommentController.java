@@ -27,10 +27,11 @@ public class CommentController {
     @PostMapping
     public BaseResponse<PostCommentRes> addComment(
             @RequestBody @Valid PostCommentReq postCommentReq,
+            @RequestParam(required = false) Long parentId,
             @PathVariable Long boardId) {
         try{
             Long userId = jwtService.getUserIdx();
-            return new BaseResponse<>(commentService.addComment(boardId, userId, postCommentReq));
+            return new BaseResponse<>(commentService.addComment(boardId, userId, parentId, postCommentReq));
         }
         catch(BaseException exception) {
             return new BaseResponse<>(exception.getStatus());
@@ -84,6 +85,20 @@ public class CommentController {
             Long userId = jwtService.getUserIdx();
             return new BaseResponse<>(commentService.switchLikeComment(userId,boardId,commentId));
         }catch (BaseException exception){
+            return new BaseResponse<>(exception.getStatus());
+        }
+    }
+
+    /** 댓글 작성자 신고 **/
+    @PostMapping("/report/{commentId}")
+    public BaseResponse<String> reportWriter(
+            @PathVariable Long commentId,
+            @PathVariable Long boardId,
+            @RequestParam(required = false) String reason){
+        try {
+            Long reporterId = jwtService.getUserIdx();
+            return new BaseResponse<>(commentService.reportComment(reporterId, boardId, commentId, reason));
+        } catch (BaseException exception) {
             return new BaseResponse<>(exception.getStatus());
         }
     }
