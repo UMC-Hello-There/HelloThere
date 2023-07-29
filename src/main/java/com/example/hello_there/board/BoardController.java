@@ -35,10 +35,10 @@ public class BoardController {
     }
 
     /** 게시글을 category로 조회하기(최신순) **/
-    @GetMapping("/{category}")
-    public BaseResponse<List<GetBoardRes>> getCommentsByBoardId(@PathVariable BoardType category) {
+    @GetMapping("/{houseId}/{category}")
+    public BaseResponse<List<GetBoardRes>> getCommentsByBoardId(@PathVariable Long houseId, @PathVariable BoardType category) {
         try{
-            return new BaseResponse<>(boardService.getBoardsByCategory(category));
+            return new BaseResponse<>(boardService.getBoardsByCategory(houseId, category));
         }catch (BaseException exception){
             return new BaseResponse<>(exception.getStatus());
         }

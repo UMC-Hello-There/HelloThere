@@ -138,9 +138,9 @@ public class BoardService {
      * 게시글 카테고리별 전체 조회
      **/
     @Transactional
-    public List<GetBoardRes> getBoardsByCategory(BoardType category) throws BaseException {
+    public List<GetBoardRes> getBoardsByCategory(Long houseId, BoardType category) throws BaseException {
         try {
-            List<Board> boards = boardRepository.findAllByBoardTypeOrderByBoardIdDesc(category);
+            List<Board> boards = boardRepository.findAllByBoardTypeAndHouse_HouseIdOrderByBoardIdDesc(category, houseId);
             List<GetBoardRes> getBoardRes = boards.stream()
                     .map(board -> new GetBoardRes(board.getBoardId(), board.getBoardType(),
                             convertLocalDateTimeToLocalDate(board.getCreateDate()),
