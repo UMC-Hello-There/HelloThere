@@ -15,7 +15,7 @@ import java.util.List;
 
 @Component
 @RequiredArgsConstructor
-public class HouseRegistrationRunner {//implements ApplicationRunner {
+public class HouseRegistrationRunner implements ApplicationRunner {
 
     @Value("${bupyeong.url}")
     private String bupyeongUrl;
@@ -32,7 +32,7 @@ public class HouseRegistrationRunner {//implements ApplicationRunner {
     private final HouseService houseService;
 
     /** 아파트 자동 등록 **/
-    //@Override
+    @Override
     public void run(ApplicationArguments args) {
         try {
             List<PostHouseReq> postHouseReqList = new ArrayList<>();
