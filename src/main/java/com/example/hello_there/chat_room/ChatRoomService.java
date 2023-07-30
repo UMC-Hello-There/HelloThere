@@ -1,5 +1,6 @@
 package com.example.hello_there.chat_room;
 
+import com.example.hello_there.board.Board;
 import com.example.hello_there.chat_room.dto.*;
 import com.example.hello_there.exception.BaseException;
 import com.example.hello_there.login.jwt.TokenRepository;
@@ -7,7 +8,11 @@ import com.example.hello_there.message.Message;
 import com.example.hello_there.message.MessageRepository;
 import com.example.hello_there.message.dto.AddUserReq;
 import com.example.hello_there.message.dto.PostMessageReq;
+import com.example.hello_there.report.Report;
+import com.example.hello_there.report.ReportRepository;
+import com.example.hello_there.report.ReportService;
 import com.example.hello_there.user.User;
+import com.example.hello_there.user.UserStatus;
 import com.example.hello_there.user.profile.Profile;
 import com.example.hello_there.user_chatroom.UserChatRoom;
 import com.example.hello_there.user_chatroom.UserChatRoomRepository;
@@ -23,12 +28,15 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static com.example.hello_there.exception.BaseResponseStatus.*;
+import static com.example.hello_there.report.ReportCount.ADD_REPORT_FOR_BOARD;
+import static com.example.hello_there.report.ReportCount.ADD_REPORT_FOR_MESSAGE;
 
 @Service
 @RequiredArgsConstructor
@@ -38,6 +46,8 @@ public class ChatRoomService {
     private final TokenRepository tokenRepository;
     private final MessageRepository messageRepository;
     private final S3Service s3Service;
+    private final ReportService reportService;
+    private final ReportRepository reportRepository;
     private final UtilService utilService;
 
     @Transactional
@@ -237,6 +247,9 @@ public class ChatRoomService {
     /** <-- test 환경을 위해 사용할 서비스, Production 환경에서는 사용하지 않는다. 다만 ChatRoom API를 테스트해보기 위해 정의하는 메서드이다.(예외처리 안함) --> **/
     @Transactional
     public String sendMessage(Long userId, PostMessageReq postMessageReq) throws BaseException {
+        // 블랙 유저 검증
+        reportService.checkBlackUser("message",userId);
+
         User user = utilService.findByUserIdWithValidation(userId);
         ChatRoom chatRoom = utilService.findChatRoomByChatRoomIdWithValidation(postMessageReq.getRoomId());
         String msg = postMessageReq.getMessage();
@@ -278,4 +291,41 @@ public class ChatRoomService {
         }
     }
 
+    @Transactional
+    public String reportWriter(Long reporterId, Long messageId, String reason) throws BaseException{
+        // reason 값은 나중에 푸시 또는 알림 창에 왜 신고를 당했는지 보여주는 용도로 사용할 예정
+        Message message = utilService.findMessageByMessageIdWithValidation(messageId);
+        User reported = message.getSender(); // 게시글의 작성자
+        User reporter = utilService.findByUserIdWithValidation(reporterId);
+        Report report = new Report();
+
+        // 신고 검증 (중복 신고, 자기 자신 신고)
+        reportService.chkReportValidation(reporterId,reported.getId(),0L,0L,messageId);
+
+        reportRepository.save(report.createReport(reason, null, null, messageId, reporter, reported));
+
+        // 메세지 누적 신고 횟수에 따른 처리
+        reportService.updateReport(ADD_REPORT_FOR_MESSAGE, reported);
+
+        int cumulativeReportCount = reportService.findCumulativeReportCount(reported,1);
+
+        LocalDateTime now = LocalDateTime.now(); // 현재 시간
+        String prefix = "message";
+        switch (cumulativeReportCount) {
+            case 4 -> // 누적 신고 횟수 4
+                    reportService.setReportExpiration(prefix,reported, now.plus(3, ChronoUnit.DAYS), UNABLE_TO_MESSAGE_THREE.name());
+            case 8 -> // 누적 신고 횟수 8
+                    reportService.setReportExpiration(prefix,reported, now.plus(5, ChronoUnit.DAYS), UNABLE_TO_MESSAGE_FIVE.name());
+            case 12 -> // 누적 신고 횟수 12
+                    reportService.setReportExpiration(prefix,reported, now.plus(7, ChronoUnit.DAYS), UNABLE_TO_MESSAGE_SEVEN.name());
+            case 16 -> // 누적 신고 횟수 16
+                    reportService.setReportExpiration(prefix,reported, now.plus(14, ChronoUnit.DAYS), UNABLE_TO_MESSAGE_FOURTEEN.name());
+            case 20 -> // 누적 신고 횟수 20
+                    reportService.setReportExpiration(prefix,reported, now.plus(30, ChronoUnit.DAYS), UNABLE_TO_MESSAGE_MONTH.name());
+            case 21 -> // 누적 신고 횟수 21
+                    reported.setStatus(UserStatus.INACTIVE); // 영구 정지
+        }
+
+        return "메세지 작성자에 대한 신고 처리가 완료되었습니다.";
+    }
 }
