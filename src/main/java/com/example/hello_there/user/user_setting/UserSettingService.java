@@ -1,8 +1,7 @@
 package com.example.hello_there.user.user_setting;
 
-import com.example.hello_there.user.User;
-import com.example.hello_there.user.dto.UserSettingMessageReq;
-import com.example.hello_there.user.dto.UserSettingReq;
+import com.example.hello_there.user.user_setting.dto.UserSettingMessageReq;
+import com.example.hello_there.user.user_setting.dto.UserSettingReq;
 import com.example.hello_there.utils.UtilService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

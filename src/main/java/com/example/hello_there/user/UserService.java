@@ -345,7 +345,7 @@ public class UserService {
 
     public Boolean emailChk(String email) {
         if(email == null || email.isEmpty()) {
-            throw new BaseException(NICKNAME_CANNOT_BE_NULL);
+            throw new BaseException(EMAIL_CANNOT_BE_NULL);
         }
         if(userRepository.existsByEmail(email)) {
             return false;

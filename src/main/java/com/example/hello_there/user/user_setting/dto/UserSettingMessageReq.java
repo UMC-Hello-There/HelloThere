@@ -1,4 +1,4 @@
-package com.example.hello_there.user.dto;
+package com.example.hello_there.user.user_setting.dto;
 
 import com.example.hello_there.user.user_setting.UserSetting;
 import lombok.AllArgsConstructor;

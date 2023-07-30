@@ -108,6 +108,7 @@ public enum BaseResponseStatus {
     NICKNAME_CANNOT_BE_NULL(false, 6006, "닉네임을 입력해주세요"),
     DELETED_USER(false, 6007, "탈퇴한 유저는 일정 시간동안 재가입이 제한됩니다."),
     NONE_EXIST_USERFEE(false, 6008, "요청하신 관리비는 존재하지 않습니다."),
+    EMAIL_CANNOT_BE_NULL(false, 6009, "이메일을 입력해주세요"),
 
     /**
      *   7000 : 댓글 관련 오류
