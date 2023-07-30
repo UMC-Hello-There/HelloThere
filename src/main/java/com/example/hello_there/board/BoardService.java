@@ -72,7 +72,7 @@ public class BoardService {
             reportService.checkBlackUser("board",userId);
 
             User user = utilService.findByUserIdWithValidation(userId);
-            House house = utilService.findByHouseIdWithValidation(postBoardReq.getHouseId());
+            House house = utilService.findByHouseIdWithValidation(user.getHouse().getHouseId());
             Board board = Board.builder()
                     .title(postBoardReq.getTitle())
                     .content(postBoardReq.getContent())
@@ -139,8 +139,9 @@ public class BoardService {
      * 게시글 카테고리별 전체 조회
      **/
     @Transactional
-    public List<GetBoardRes> getBoardsByCategory(Long houseId, BoardType category) throws BaseException {
+    public List<GetBoardRes> getBoardsByCategory(Long userId, BoardType category) throws BaseException {
         try {
+            Long houseId = utilService.findByUserIdWithValidation(userId).getHouse().getHouseId();
             List<Board> boards = boardRepository.findAllByBoardTypeAndHouse_HouseIdOrderByBoardIdDesc(category, houseId);
             List<GetBoardRes> getBoardRes = boards.stream()
                     .map(board -> new GetBoardRes(board.getBoardId(), board.getBoardType(),
