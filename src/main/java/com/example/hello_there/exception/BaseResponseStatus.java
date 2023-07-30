@@ -43,6 +43,9 @@ public enum BaseResponseStatus {
     INVALID_INPUT(false, 2026, "유효하지 않은 입력입니다."),
     FAIL_TO_LOAD(false, 2027, "게시글을 불러오는데 실패했어요"),
 
+    // Notification
+    INVALID_DEVICE_TOKEN(false, 2028, "디바이스 토큰이 존재하지 않습니다."),
+    FAIL_TO_PUSH(false, 2029, "푸시 알림 발신에 실패하였습니다."),
 
     /**
      * 3000 : Response 오류

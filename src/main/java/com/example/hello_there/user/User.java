@@ -1,5 +1,6 @@
 package com.example.hello_there.user;
 
+import com.example.hello_there.device.Device;
 import com.example.hello_there.house.House;
 import com.example.hello_there.board.Board;
 import com.example.hello_there.user_chatroom.UserChatRoom;
@@ -44,6 +45,9 @@ public class  User extends BaseTimeEntity {
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private Profile profile; // 프로필 사진과 일대일 매핑
+
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Device device; // 디바이스와 일대일 매핑
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "house_id")
