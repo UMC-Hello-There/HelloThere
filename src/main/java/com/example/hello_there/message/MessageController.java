@@ -23,9 +23,7 @@ import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 
 import java.time.LocalDateTime;
@@ -117,10 +115,23 @@ public class MessageController {
         }
     }
 
+
     @PostMapping("message/add")
     public BaseResponse<String> AddUserTest(@RequestBody AddUserReq addUserReq) {
         try {
             return new BaseResponse<>(chatRoomService.addUserTest(addUserReq));
+        } catch (BaseException exception) {
+            return new BaseResponse<>(exception.getStatus());
+        }
+    }
+
+    @PostMapping("/report/{messageId}")
+    public BaseResponse<String> reportWriter(
+            @PathVariable Long messageId,
+            @RequestParam(required = false) String reason) {
+        try {
+            Long reporterId = jwtService.getUserIdx();
+            return new BaseResponse<>(chatRoomService.reportWriter(reporterId,messageId,reason));
         } catch (BaseException exception) {
             return new BaseResponse<>(exception.getStatus());
         }

@@ -15,6 +15,8 @@ import com.example.hello_there.user.dto.*;
 import com.example.hello_there.user.profile.Profile;
 import com.example.hello_there.user.profile.ProfileRepository;
 import com.example.hello_there.user.profile.ProfileService;
+import com.example.hello_there.user.user_setting.UserSettingRepository;
+import com.example.hello_there.user.user_setting.UserSetting;
 import com.example.hello_there.utils.AES128;
 import com.example.hello_there.utils.S3Service;
 import com.example.hello_there.utils.Secret;
@@ -43,6 +45,7 @@ public class UserService {
     private final ProfileRepository profileRepository;
     private final TokenRepository tokenRepository;
     private final DeleteHistoryRepository deleteHistoryRepository;
+    private final UserSettingRepository userSettingRepository;
     private final S3Service s3Service;
     private final JwtProvider jwtProvider;
     private final UtilService utilService;
@@ -82,6 +85,11 @@ public class UserService {
         User user = new User();
         user.createUser(postUserReq.getNickName(),postUserReq.getEmail(), pwd, null);
         userRepository.save(user);
+        userRepository.flush(); //id 생성 후 userSetting을 진행하기 위함
+
+        UserSetting userSetting = UserSetting.builder().userId(user.getId()).build();
+        userSettingRepository.save(userSetting);    //기본 UserSetting 데이터 생성
+        
         return new PostUserRes(user);
     }
 
@@ -123,14 +131,14 @@ public class UserService {
     /**
      * 닉네임 중복 확인
      */
-    public String nickNameChk(String nickName) throws BaseException {
+    public Boolean nickNameChk(String nickName) throws BaseException {
         if(nickName == null || nickName.isEmpty()) {
             throw new BaseException(NICKNAME_CANNOT_BE_NULL);
         }
         if(userRepository.existsByNickName(nickName)) {
-            return "이미 사용 중인 닉네임입니다.";
+            return false;
         }
-        return "사용 가능한 닉네임입니다.";
+        return true;
     }
 
     /**
@@ -333,5 +341,15 @@ public class UserService {
             suffix++;
         }
         return uniqueNickName;
+    }
+
+    public Boolean emailChk(String email) {
+        if(email == null || email.isEmpty()) {
+            throw new BaseException(EMAIL_CANNOT_BE_NULL);
+        }
+        if(userRepository.existsByEmail(email)) {
+            return false;
+        }
+        return true;
     }
 }

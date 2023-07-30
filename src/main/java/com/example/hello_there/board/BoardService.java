@@ -1,6 +1,9 @@
 package com.example.hello_there.board;
 
-import com.example.hello_there.board.dto.*;
+import com.example.hello_there.board.dto.GetBoardDetailRes;
+import com.example.hello_there.board.dto.GetBoardRes;
+import com.example.hello_there.board.dto.PatchBoardReq;
+import com.example.hello_there.board.dto.PostBoardReq;
 import com.example.hello_there.board.like.LikeBoard;
 import com.example.hello_there.board.like.LikeBoardRepository;
 import com.example.hello_there.board.photo.PostPhoto;
@@ -16,8 +19,6 @@ import com.example.hello_there.report.Report;
 import com.example.hello_there.report.ReportRepository;
 import com.example.hello_there.report.ReportService;
 import com.example.hello_there.user.User;
-import com.example.hello_there.user.UserRepository;
-import com.example.hello_there.user.User;
 import com.example.hello_there.user.UserStatus;
 import com.example.hello_there.utils.S3Service;
 import com.example.hello_there.utils.UtilService;
@@ -32,18 +33,18 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
-
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static com.example.hello_there.exception.BaseResponseStatus.*;
-import static com.example.hello_there.utils.UtilService.*;
+import static com.example.hello_there.report.ReportCount.ADD_REPORT_FOR_BOARD;
+import static com.example.hello_there.utils.UtilService.convertLocalDateTimeToLocalDate;
+import static com.example.hello_there.utils.UtilService.convertLocalDateTimeToTime;
 
 @Service
 @RequiredArgsConstructor
@@ -67,9 +68,9 @@ public class BoardService {
     @Transactional
     public String createBoard(Long userId, PostBoardReq postBoardReq, List<MultipartFile> multipartFiles) throws BaseException {
         try {
-            if (reportService.checkBlackUser(userId)) {
-                throw new BaseException(UNABLE_TO_UPLOAD);
-            }
+            // 블랙 유저 검증
+            reportService.checkBlackUser("board",userId);
+
             User user = utilService.findByUserIdWithValidation(userId);
             House house = utilService.findByHouseIdWithValidation(postBoardReq.getHouseId());
             Board board = Board.builder()
@@ -178,7 +179,7 @@ public class BoardService {
         Board deleteBoard = utilService.findByBoardIdWithValidation(boardId);
         User writer = deleteBoard.getUser();
         User visitor = utilService.findByUserIdWithValidation(userId);
-        if (writer.getId().equals(visitor.getId())) {
+        if (writer.getId() == visitor.getId()) {
             // S3에 업로드된 파일을 삭제하는 명령
             List<PostPhoto> allByBoardId = postPhotoService.findAllByBoardId(boardId);
             if (!allByBoardId.isEmpty()) {
@@ -206,7 +207,7 @@ public class BoardService {
             Board board = utilService.findByBoardIdWithValidation(boardId);
             User writer = board.getUser();
             User visitor = utilService.findByUserIdWithValidation(userId);
-            if (writer.getId().equals(visitor.getId())) {
+            if (writer.getId() == visitor.getId()) {
                 board.updateBoard(patchBoardReq.getBoardType(), patchBoardReq.getTitle(), patchBoardReq.getContent());
                 //사진 업데이트, 지우고 다시 저장
                 List<PostPhoto> allByBoardId = postPhotoService.findAllByBoardId(boardId);
@@ -256,48 +257,31 @@ public class BoardService {
         User repoter = utilService.findByUserIdWithValidation(reporterId);
         Report report = new Report();
 
-        // 한 명의 유저가 중복으로 신고할 수 없도록 예외를 호출
-        if (reportRepository.findMatchingReportsCount(reporterId, reported.getId(), boardId, 0L, "") >= 1) {
-            throw new BaseException(ALREADY_REPORT);
-        }
-        // 자기 자신을 신고할 수 없도록 예외를 호출
-        if (reported.getId().equals(reporterId)) {
-            throw new BaseException(CANNOT_REPORT);
-        }
-        reportRepository.save(report.createReport(reason, boardId, null, null, repoter, reported));
-        // 게시글 누적 신고 횟수에 따른 처리
-        int cumulativeReportInt = Integer.parseInt(reported.getCumulativeReport()); // int형 정수로 변환
-        int updatedCumulativeReportInt = cumulativeReportInt + 10000; // 정수 값에 10000을 더함
-        String updateCumulativeReport = String.valueOf(updatedCumulativeReportInt); // 다시 String으로 형변환
-        reported.setCumulativeReport(updateCumulativeReport); // 유저의 누적 신고횟수 업데이트
+        // 신고 검증 (중복 신고, 자기 자신 신고)
+        reportService.chkReportValidation(reporterId, reported.getId(),boardId,0L,0L);
 
-        int cumulativeReportCount;
-        if(reported.getCumulativeReport().length() == 5) { // 게시글 누적 신고횟수가 9 이하
-            cumulativeReportCount = Integer.parseInt(reported.getCumulativeReport().substring(0, 1));
-        }
-        else { // getCumulativeReport().length() == 6
-            cumulativeReportCount = Integer.parseInt(reported.getCumulativeReport().substring(0, 2));
-        }
+        reportRepository.save(report.createReport(reason, boardId, null, null, repoter, reported));
+
+        // 게시글 누적 신고 횟수에 따른 처리
+        reportService.updateReport(ADD_REPORT_FOR_BOARD, reported);
+
+        int cumulativeReportCount = reportService.findCumulativeReportCount(reported,5);
+
         LocalDateTime now = LocalDateTime.now(); // 현재 시간
+        String prefix = "board";
         switch (cumulativeReportCount) {
-            case 4: // 누적 신고 횟수 4
-                reportService.setReportExpiration(reported, now.plus(3, ChronoUnit.DAYS), "DISABLE_TO_UPLOAD");
-                break;
-            case 8: // 누적 신고 횟수 8
-                reportService.setReportExpiration(reported, now.plus(5, ChronoUnit.DAYS), "DISABLE_TO_UPLOAD");
-                break;
-            case 12: // 누적 신고 횟수 12
-                reportService.setReportExpiration(reported, now.plus(7, ChronoUnit.DAYS), "DISABLE_TO_UPLOAD");
-                break;
-            case 16: // 누적 신고 횟수 16
-                reportService.setReportExpiration(reported, now.plus(14, ChronoUnit.DAYS), "DISABLE_TO_UPLOAD");
-                break;
-            case 20: // 누적 신고 횟수 20
-                reportService.setReportExpiration(reported, now.plus(30, ChronoUnit.DAYS), "DISABLE_TO_UPLOAD");
-                break;
-            case 21: // 누적 신고 횟수 21
-                reported.setStatus(UserStatus.INACTIVE); // 영구 정지
-                break;
+            case 4 -> // 누적 신고 횟수 4
+                    reportService.setReportExpiration(prefix,reported, now.plus(3, ChronoUnit.DAYS), UNABLE_TO_UPLOAD_THREE.name());
+            case 8 -> // 누적 신고 횟수 8
+                    reportService.setReportExpiration(prefix,reported, now.plus(5, ChronoUnit.DAYS), UNABLE_TO_UPLOAD_FIVE.name());
+            case 12 -> // 누적 신고 횟수 12
+                    reportService.setReportExpiration(prefix,reported, now.plus(7, ChronoUnit.DAYS), UNABLE_TO_UPLOAD_SEVEN.name());
+            case 16 -> // 누적 신고 횟수 16
+                    reportService.setReportExpiration(prefix,reported, now.plus(14, ChronoUnit.DAYS), UNABLE_TO_UPLOAD_FOURTEEN.name());
+            case 20 -> // 누적 신고 횟수 20
+                    reportService.setReportExpiration(prefix,reported, now.plus(30, ChronoUnit.DAYS), UNABLE_TO_UPLOAD_MONTH.name());
+            case 21 -> // 누적 신고 횟수 21
+                    reported.setStatus(UserStatus.INACTIVE); // 영구 정지
         }
 
         return "게시글 작성자에 대한 신고 처리가 완료되었습니다.";
