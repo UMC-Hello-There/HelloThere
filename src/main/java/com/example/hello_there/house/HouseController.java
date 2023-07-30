@@ -35,7 +35,7 @@ public class HouseController {
     }
 
     /**
-     * 유저의 아파트 등록하기
+     * 유저의 아파트 등록하기 -> User의 house 등록이 아님 확인 필요
      */
     @PostMapping("/register")
     public BaseResponse<String> createHouse(@RequestBody PostHouseReq postHouseReq) {
