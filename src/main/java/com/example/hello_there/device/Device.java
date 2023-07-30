@@ -19,9 +19,13 @@ public class Device {
     private Long deviceId;
 
     @Column(nullable = false)
-    private String token;
+    private String token; // 파이어베이스에서 발급하는 디바이스 토큰
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
+
+    public void setToken(String token) {
+        this.token = token;
+    }
 }

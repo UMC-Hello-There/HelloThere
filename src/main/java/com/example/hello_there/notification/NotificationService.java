@@ -5,6 +5,8 @@ import com.example.hello_there.exception.BaseResponseStatus;
 import com.example.hello_there.notification.dto.PostNotificationReq;
 import com.example.hello_there.user.User;
 import com.example.hello_there.user.UserRepository;
+import com.example.hello_there.user.user_setting.UserSetting;
+import com.example.hello_there.user.user_setting.UserSettingRepository;
 import com.example.hello_there.utils.UtilService;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.FirebaseMessagingException;
@@ -21,13 +23,14 @@ import static com.example.hello_there.notification.Notification.*;
 public class NotificationService {
     private final FirebaseMessaging firebaseMessaging;
     private final NotificationRepository notificationRepository;
+    private final UserSettingRepository userSettingRepository;
     private final UtilService utilService;
 
     public String sendNotification(PostNotificationReq postNotificationReq) {
         User user = utilService.findByUserIdWithValidation(postNotificationReq.getUserId());
-
+        UserSetting userSetting = userSettingRepository.findByUserId(user.getId());
         // 해당 알림에 대한 UserSetting이 false인 경우
-        if(!chkUserSetting(postNotificationReq.getNotificationType(), user)) {
+        if(!chkUserSetting(postNotificationReq.getNotificationType(), userSetting)) {
             return null;
         }
         if (user.getDevice().getToken() != null) {
@@ -59,18 +62,18 @@ public class NotificationService {
         }
     }
 
-    private Boolean chkUserSetting(NotificationType notificationType, User user) {
+    private Boolean chkUserSetting(NotificationType notificationType, UserSetting userSetting) {
         switch (notificationType) {
             case COMMENT_CHECK:
-                return user.getUserSettings().getCommentCheck();
+                return userSetting.isCommentCheck();
             case RECOMMENT_CHECK:
-                return user.getUserSettings().isRecommentCheck();
+                return userSetting.isRecommentCheck();
             case MESSAGE_CHECK:
-                return user.getUserSettings().isMessageCheck();
+                return userSetting.isMessageCheck();
             case BEST_BOARD_CHECK:
-                return user.getUserSettings().isBestBoardCheck();
+                return userSetting.isBestBoardCheck();
             case MESSAGE_RECEPTION:
-                return user.getUserSettings().isMessageReceptionBlock();
+                return userSetting.isMessageReceptionBlock();
             default:
                 return null;
         }

@@ -16,7 +16,7 @@ import java.util.List;
 public class FirebaseConfig {
     @Bean
     FirebaseMessaging firebaseMessaging() throws IOException {
-        ClassPathResource resource = new ClassPathResource("src/main/resources/ServiceAccountKey.json");
+        ClassPathResource resource = new ClassPathResource("ServiceAccountKey.json");
         InputStream refreshToken = resource.getInputStream();
         FirebaseApp firebaseApp = null;
         List<FirebaseApp> firebaseAppList = FirebaseApp.getApps();

@@ -1,5 +1,7 @@
 package com.example.hello_there.utils;
 
+import com.example.hello_there.device.Device;
+import com.example.hello_there.device.DeviceRepository;
 import com.example.hello_there.house.House;
 import com.example.hello_there.house.HouseRepository;
 import com.example.hello_there.board.Board;
@@ -41,6 +43,7 @@ public class UtilService {
     private final ChatRoomRepository chatRoomRepository;
     private final HouseRepository houseRepository;
     private final MessageRepository messageRepository;
+    private final DeviceRepository deviceRepository;
 
     public User findByUserIdWithValidation(Long userId) throws BaseException {
         return userRepository.findUserById(userId)
@@ -80,7 +83,12 @@ public class UtilService {
 
     public Message findMessageByMessageIdWithValidation(Long messageId) throws BaseException{
         return messageRepository.findByMessageId(messageId)
-                .orElseThrow(()->new BaseException(NONE_EXIST_MESSAGE));
+                .orElseThrow(() -> new BaseException(NONE_EXIST_MESSAGE));
+    }
+
+    public Device findDeviceByTokenWithValidation(String token) throws BaseException {
+        return deviceRepository.findDeviceByToken(token)
+                .orElseThrow(() -> new BaseException(NONE_EXIST_DEVICE));
     }
 
     public static String  convertLocalDateTimeToLocalDate(LocalDateTime localDateTime) {
