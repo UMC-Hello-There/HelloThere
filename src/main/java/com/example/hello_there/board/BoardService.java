@@ -77,6 +77,8 @@ public class BoardService {
                     .title(postBoardReq.getTitle())
                     .content(postBoardReq.getContent())
                     .view(0L)
+                    .commentCount(0L)
+                    .likeCount(0L)
                     .boardType(postBoardReq.getBoardType())
                     .photoList(new ArrayList<>())
                     .user(user)
@@ -129,7 +131,7 @@ public class BoardService {
                 board.getBoardType(), convertLocalDateTimeToLocalDate(board.getCreateDate()),
                 convertLocalDateTimeToTime(board.getCreateDate()), board.getUser().getNickName(),
                 profile, board.getTitle(), board.getContent(), board.getView(),
-                commentRepository.countByBoardBoardId(boardId), likeBoardRepository.countByBoardBoardId(board.getBoardId()), getS3Res, response);
+                board.getCommentCount(), board.getLikeCount(), getS3Res, response);
 
         return getBoardDetailRes;
     }
@@ -148,7 +150,7 @@ public class BoardService {
                             convertLocalDateTimeToLocalDate(board.getCreateDate()),
                             convertLocalDateTimeToTime(board.getCreateDate()),
                             board.getUser().getNickName(), board.getTitle(), board.getContent(), board.getView(),
-                            commentRepository.countByBoardBoardId(board.getBoardId()), likeBoardRepository.countByBoardBoardId(board.getBoardId())))
+                            board.getCommentCount(), board.getLikeCount()))
                     .collect(Collectors.toList());
 
             return getBoardRes;
@@ -167,7 +169,7 @@ public class BoardService {
                             convertLocalDateTimeToLocalDate(board.getCreateDate()),
                             convertLocalDateTimeToTime(board.getCreateDate()),
                             board.getUser().getNickName(), board.getTitle(), board.getContent(), board.getView(),
-                            commentRepository.countByBoardBoardId(board.getBoardId()), likeBoardRepository.countByBoardBoardId(board.getBoardId())))
+                            board.getCommentCount(), board.getLikeCount()))
                     .collect(Collectors.toList());
             return getBoardRes;
         } catch (Exception exception) {
@@ -185,7 +187,7 @@ public class BoardService {
                             convertLocalDateTimeToLocalDate(board.getCreateDate()),
                             convertLocalDateTimeToTime(board.getCreateDate()),
                             board.getUser().getNickName(), board.getTitle(), board.getContent(), board.getView(),
-                            commentRepository.countByBoardBoardId(board.getBoardId()), likeBoardRepository.countByBoardBoardId(board.getBoardId())))
+                            board.getCommentCount(), board.getLikeCount()))
                     .collect(Collectors.toList());
 
             return getBoardRes;
@@ -248,6 +250,7 @@ public class BoardService {
         }
     }
 
+    @Transactional
     public String likeOrUnlikeBoard(Long userId, Long boardId) throws BaseException {
         try {
             Board board = utilService.findByBoardIdWithValidation(boardId);
@@ -258,10 +261,14 @@ public class BoardService {
                 // 이미 좋아요가 눌러져 있는 상태 -> 좋아요 취소
                 LikeBoard likeBoard = likeBoardOptional.get();
                 this.likeBoardRepository.deleteById(likeBoard.getId());
+                // board의 좋아요 count - 1;
+                this.boardRepository.decrementlikesCountById(boardId);
                 return "게시글의 좋아요를 취소했습니다.";
             } else {
-                // 이미 좋아요가 눌러져 있지 않은 상태 -> 좋아요
+                // 좋아요가 눌러져 있지 않은 상태 -> 좋아요
                 this.likeBoardRepository.save(new LikeBoard(user, board));
+                // board의 좋아요 count + 1;
+                this.boardRepository.incrementlikesCountById(boardId);
                 return "게시글에 좋아요를 눌렀습니다.";
             }
         } catch (BaseException exception) {

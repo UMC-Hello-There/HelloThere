@@ -52,6 +52,8 @@ public class CommentService {
 
         //groupId == null 이면 return 0L , groupId != null 이면 return max(groupId)
         Long groupId = commentRepository.findGroupIdByBoardId(boardId);
+        // board의 댓글 count + 1
+        boardRepository.incrementCommentsCountById(boardId);
         Comment parentComment;
         /*
          * 댓글 생성 로직
@@ -137,6 +139,9 @@ public class CommentService {
 
         // 댓글 원작자 검증
         isOriginalWriter(requestUserId, originUserId);
+
+        // board의 댓글 count - 1
+        this.boardRepository.decrementCommentsCountById(boardId);
 
         // 부모 댓글인 경우
         if (deleteRequestComment.getParent() == null) {
