@@ -1,6 +1,5 @@
 package com.example.hello_there.chat_room.dto;
 
-import com.example.hello_there.message.Message;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

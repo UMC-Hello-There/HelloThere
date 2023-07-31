@@ -20,9 +20,10 @@ public class DeviceController {
      * 프론트엔드 측에서 디바이스 토큰을 DB에 저장하기 위해 사용하는 API
      */
     @PostMapping("/device-token")
-    public BaseResponse<String> saveDeviceToken(@RequestBody String token) {
+    public BaseResponse<String> saveDeviceToken() {
         try {
             Long userId = jwtService.getUserIdx();
+            String token = deviceService.getDeviceToken();
             return new BaseResponse<>(deviceService.saveDevice(token, userId));
         } catch (BaseException exception) {
             return new BaseResponse<>(exception.getStatus());
@@ -33,9 +34,10 @@ public class DeviceController {
      * 프론트엔드 측에서 디바이스 토큰 갱신을 반영하기 위해 사용하는 API
      */
     @PatchMapping("/device-token")
-    public BaseResponse<String> updateDeviceToken(@RequestBody String token) {
+    public BaseResponse<String> updateDeviceToken() {
         try {
             Long userId = jwtService.getUserIdx();
+            String token = deviceService.getDeviceToken();
             return new BaseResponse<>(deviceService.updateDevice(token, userId));
         } catch (BaseException exception) {
             return new BaseResponse<>(exception.getStatus());

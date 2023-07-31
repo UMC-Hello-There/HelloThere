@@ -8,6 +8,6 @@ import org.springframework.data.repository.query.Param;
 import java.util.Optional;
 
 public interface DeviceRepository extends JpaRepository<Device, Long> {
-    @Query("select d from Device d where d.token = :token")
-    Optional<Device> findDeviceByToken(@Param("token") String token);
+    @Query("select d from Device d where d.user.id = :userId")
+    Optional<Device> findDeviceByUserId(@Param("userId") Long userId);
 }

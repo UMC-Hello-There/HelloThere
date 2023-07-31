@@ -14,8 +14,8 @@ import com.example.hello_there.exception.BaseException;
 import com.example.hello_there.exception.BaseResponseStatus;
 import com.example.hello_there.login.jwt.Token;
 import com.example.hello_there.login.jwt.TokenRepository;
-import com.example.hello_there.message.Message;
-import com.example.hello_there.message.MessageRepository;
+import com.example.hello_there.text_message.TextMessage;
+import com.example.hello_there.text_message.TextMessageRepository;
 import com.example.hello_there.user.User;
 import com.example.hello_there.user.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -42,7 +42,7 @@ public class UtilService {
     private final TokenRepository tokenRepository;
     private final ChatRoomRepository chatRoomRepository;
     private final HouseRepository houseRepository;
-    private final MessageRepository messageRepository;
+    private final TextMessageRepository textMessageRepository;
     private final DeviceRepository deviceRepository;
 
     public User findByUserIdWithValidation(Long userId) throws BaseException {
@@ -81,17 +81,17 @@ public class UtilService {
                 .orElseThrow(() -> new BaseException(NONE_EXIST_ROOM));
     }
 
-    public Message findMessageByMessageIdWithValidation(Long messageId) throws BaseException{
-        return messageRepository.findByMessageId(messageId)
+    public TextMessage findByTextMessageIdWithValidation(Long textMessageId) throws BaseException{
+        return textMessageRepository.findByMessageId(textMessageId)
                 .orElseThrow(() -> new BaseException(NONE_EXIST_MESSAGE));
     }
 
-    public Device findDeviceByTokenWithValidation(String token) throws BaseException {
-        return deviceRepository.findDeviceByToken(token)
+    public Device findDeviceByUserIdWithValidation(Long userId) throws BaseException {
+        return deviceRepository.findDeviceByUserId(userId)
                 .orElseThrow(() -> new BaseException(NONE_EXIST_DEVICE));
     }
 
-    public static String  convertLocalDateTimeToLocalDate(LocalDateTime localDateTime) {
+    public static String convertLocalDateTimeToLocalDate(LocalDateTime localDateTime) {
         return localDateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
     }
     public static String convertLocalDateTimeToTime(LocalDateTime localDateTime) {

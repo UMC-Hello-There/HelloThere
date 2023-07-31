@@ -6,6 +6,7 @@ import com.example.hello_there.board.Board;
 import com.example.hello_there.user_chatroom.UserChatRoom;
 import com.example.hello_there.login.jwt.Token;
 import com.example.hello_there.user.profile.Profile;
+import com.example.hello_there.user_notice.UserNotice;
 import com.example.hello_there.utils.BaseTimeEntity;
 import lombok.*;
 
@@ -59,6 +60,8 @@ public class  User extends BaseTimeEntity {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<UserChatRoom> userChatRooms = new ArrayList<>();
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<UserNotice> userNotice = new ArrayList<>();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Board> comments = new ArrayList<>();
