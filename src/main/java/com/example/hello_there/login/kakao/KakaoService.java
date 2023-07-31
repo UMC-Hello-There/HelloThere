@@ -1,6 +1,5 @@
 package com.example.hello_there.login.kakao;
 
-import com.amazonaws.services.ec2.model.transform.UserBucketStaxUnmarshaller;
 import com.example.hello_there.exception.BaseException;
 import com.example.hello_there.exception.BaseResponse;
 import com.example.hello_there.login.dto.AssertionDTO;
@@ -24,7 +23,8 @@ import org.springframework.web.client.RestTemplate;
 import java.util.Map;
 import java.util.Optional;
 
-import static com.example.hello_there.exception.BaseResponseStatus.*;
+import static com.example.hello_there.exception.BaseResponseStatus.KAKAO_ERROR;
+import static com.example.hello_there.exception.BaseResponseStatus.POST_USERS_EXISTS_EMAIL;
 
 @Service
 @RequiredArgsConstructor
