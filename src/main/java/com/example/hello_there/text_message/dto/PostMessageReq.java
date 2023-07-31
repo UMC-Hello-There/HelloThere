@@ -1,6 +1,6 @@
-package com.example.hello_there.message.dto;
+package com.example.hello_there.text_message.dto;
 
-import com.example.hello_there.message.Message;
+import com.example.hello_there.text_message.TextMessage.TextMessageType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -10,7 +10,8 @@ import lombok.Setter;
 @Setter // 해당 클래스에 대한 설정자 생성
 @AllArgsConstructor // 해당 클래스의 모든 멤버 변수를 받는 생성자를 생성
 @NoArgsConstructor
-public class SendMessageReq {
+public class PostMessageReq {
+    private TextMessageType textMessageType;
     private String roomId;
     private String message;
 }

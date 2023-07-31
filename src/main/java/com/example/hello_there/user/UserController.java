@@ -216,5 +216,17 @@ public class UserController {
         }
     }
 
+    /**
+     * 알림 조회
+     */
+    @GetMapping("/notice")
+    public BaseResponse<List<GetNoticeRes>> getNotice() {
+        try {
+            Long userId = jwtService.getUserIdx();
+            return new BaseResponse<>(userService.getNotice(userId));
+        } catch (BaseException exception) {
+            return new BaseResponse<>(exception.getStatus());
+        }
+    }
 }
 

@@ -1,4 +1,4 @@
-package com.example.hello_there.message;
+package com.example.hello_there.text_message;
 
 import com.example.hello_there.chat_room.ChatRoom;
 import com.example.hello_there.user.User;
@@ -6,7 +6,6 @@ import lombok.*;
 import org.hibernate.annotations.DynamicInsert;
 
 import javax.persistence.*;
-import java.time.LocalDateTime;
 
 @Entity
 @AllArgsConstructor
@@ -15,21 +14,21 @@ import java.time.LocalDateTime;
 @DynamicInsert
 @Getter
 @Setter
-public class Message {
-    public enum MessageType{
+public class TextMessage {
+    public enum TextMessageType {
         ENTER, TALK, LEAVE;
     }
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long messageId;
+    private Long textMessageId;
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-    private MessageType messageType;
+    private TextMessageType textMessageType;
 
     @Column(nullable = false)
-    private String message;
+    private String message; // 메시지 내용
 
     @Column(nullable = false)
     private String sendDate;

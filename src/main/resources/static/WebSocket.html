@@ -27,7 +27,7 @@
 
     function sendMessage() {
         const inputElement = document.getElementById('messageInput');
-        const message = inputElement.value;
+        const textMessage = inputElement.value;
         inputElement.value = '';
 
         const senderId = 1;
@@ -35,7 +35,7 @@
         const chatRoomId = 3;
 
         const payload = {
-            message: message,
+            textMessage: textMessage,
             senderId: senderId,
             receiverId: receiverId,
             chatRoomId: chatRoomId
@@ -44,10 +44,10 @@
         socket.send(JSON.stringify(payload));
     }
 
-    function showMessage(message) {
+    function showMessage(textMessage) {
         const messageList = document.getElementById('messageList');
         const listItem = document.createElement('li');
-        listItem.textContent = message;
+        listItem.textContent = textMessage;
         messageList.appendChild(listItem);
     }
 </script>

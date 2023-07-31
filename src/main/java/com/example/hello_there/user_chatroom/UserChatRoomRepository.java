@@ -13,7 +13,7 @@ public interface UserChatRoomRepository extends JpaRepository<UserChatRoom, Long
     Optional<UserChatRoom> findUserChatRoomByUserIdWithRoomId(@Param("userId") Long userId, @Param("chatRoomId") String chatRoomId);
 
     @Query("select uc from UserChatRoom uc where uc.chatRoom.chatRoomId = :chatRoomId")
-    List<UserChatRoom> findUserListByRoomId(@Param("chatRoomId") String chatRoomId);
+    List<UserChatRoom> findUserChatRoomByRoomId(@Param("chatRoomId") String chatRoomId);
 
     @Query("select uc from UserChatRoom uc where uc.user.id = :userId")
     List<UserChatRoom> findUserListByUserId(@Param("userId") Long userId);

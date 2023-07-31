@@ -1,16 +1,14 @@
-package com.example.hello_there.message;
+package com.example.hello_there.text_message;
 
-import com.example.hello_there.chat_room.ChatRoom;
 import com.example.hello_there.chat_room.ChatRoomService;
-import com.example.hello_there.chat_room.dto.PostChatRoomReq;
 import com.example.hello_there.exception.BaseException;
 import com.example.hello_there.exception.BaseResponse;
 import com.example.hello_there.exception.BaseResponseStatus;
 import com.example.hello_there.login.jwt.JwtService;
-import com.example.hello_there.message.dto.AddUserReq;
-import com.example.hello_there.message.dto.MessageDto;
-import com.example.hello_there.message.dto.PostMessageReq;
-import com.example.hello_there.message.dto.SendMessageReq;
+import com.example.hello_there.text_message.dto.AddUserReq;
+import com.example.hello_there.text_message.dto.TextMessageDto;
+import com.example.hello_there.text_message.dto.PostMessageReq;
+import com.example.hello_there.text_message.dto.SendMessageReq;
 import com.example.hello_there.user.User;
 import com.example.hello_there.user.UserRepository;
 import com.example.hello_there.user_chatroom.UserChatRoomRepository;
@@ -31,7 +29,7 @@ import java.time.LocalDateTime;
 @Slf4j
 @RequiredArgsConstructor
 @RestController
-public class MessageController {
+public class TextMessageController {
     private final UserChatRoomRepository userChatRoomRepository;
     private final UserRepository userRepository;
     private final SimpMessageSendingOperations template;
@@ -42,20 +40,20 @@ public class MessageController {
     // localhost:8080/pub/messageDto/enterUser와 같은 URI로 WebSocket 메시지를 전송하면,
     // 해당 요청이 서버에 도달하고, enterUser 메서드가 실행된다. 이는 클라이언트가 채팅방에 입장할 때 트리거되는 메서드이다.
     @MessageMapping("/messageDto/enter-user")
-    public BaseResponse<String> enterUser(@Payload MessageDto messageDto, SimpMessageHeaderAccessor headerAccessor) {
+    public BaseResponse<String> enterUser(@Payload TextMessageDto textMessageDto, SimpMessageHeaderAccessor headerAccessor) {
         try {
             // 채팅방 유저+1
-            chatRoomService.plusUserCount(messageDto.getRoomId());
+            chatRoomService.plusUserCount(textMessageDto.getRoomId());
 
             // 채팅방에 유저 추가
-            chatRoomService.addUser(messageDto.getSenderId(), messageDto.getRoomId());
-            Long userId = messageDto.getSenderId();
+            chatRoomService.addUser(textMessageDto.getSenderId(), textMessageDto.getRoomId());
+            Long userId = textMessageDto.getSenderId();
             // 반환 결과를 socket session 에 user ID 로 저장
             headerAccessor.getSessionAttributes().put("userId", userId); // getSessionAttributes()는 WebSocket 세션의 속성(attribute) 맵에 접근하는 메서드
-            headerAccessor.getSessionAttributes().put("roomId", messageDto.getRoomId());
-            User user = utilService.findByUserIdWithValidation(messageDto.getSenderId());
-            messageDto.setMessage(user.getNickName() + " 님이 입장하셨습니다.");
-            template.convertAndSend("/sub/messageDto/room/" + messageDto.getRoomId(), messageDto);
+            headerAccessor.getSessionAttributes().put("roomId", textMessageDto.getRoomId());
+            User user = utilService.findByUserIdWithValidation(textMessageDto.getSenderId());
+            textMessageDto.setMessage(user.getNickName() + " 님이 입장하셨습니다.");
+            template.convertAndSend("/sub/messageDto/room/" + textMessageDto.getRoomId(), textMessageDto);
             return new BaseResponse<>("채팅방 입장 처리를 완료하였습니다.");
         } catch (BaseException ignored) {
             return new BaseResponse<>(BaseResponseStatus.FAILED_TO_ENTER);
@@ -65,8 +63,8 @@ public class MessageController {
     // 메시지를 보낼 때는 /sub/chat/room/{roomId}를 대상으로 메시지를 전송
     // 클라이언트가 localhost:8080/pub/chat/sendMessage와 같은 URI로 WebSocket 메시지를 전송
     @MessageMapping("/chat/send-message")
-    public void sendMessage(@Payload MessageDto messageDto) {
-        template.convertAndSend("/sub/chat/room/" + messageDto.getRoomId(), messageDto);
+    public void sendMessage(@Payload TextMessageDto textMessageDto) {
+        template.convertAndSend("/sub/chat/room/" + textMessageDto.getRoomId(), textMessageDto);
 
     }
 
@@ -90,14 +88,14 @@ public class MessageController {
 
         if (userId != null) {
             User user = userRepository.findUserById(userId).orElse(null);
-            MessageDto messageDto = MessageDto.builder()
-                    .type(Message.MessageType.LEAVE)
+            TextMessageDto textMessageDto = TextMessageDto.builder()
+                    .type(TextMessage.TextMessageType.LEAVE)
                     .senderId(userId)
                     .message(user.getNickName() + " 님의 연결이 끊어졌습니다.")
                     .sendTime(LocalDateTime.now().toString())
                     .build();
 
-            template.convertAndSend("/sub/chat/room/" + roomId, messageDto);
+            template.convertAndSend("/sub/chat/room/" + roomId, textMessageDto);
         }
     }
 
@@ -107,7 +105,7 @@ public class MessageController {
     public BaseResponse<String> SendMessageTest(@RequestBody SendMessageReq sendMessageReq) {
         try {
             Long userId = jwtService.getUserIdx();
-            PostMessageReq postMessageReq = new PostMessageReq(Message.MessageType.TALK,
+            PostMessageReq postMessageReq = new PostMessageReq(TextMessage.TextMessageType.TALK,
                     sendMessageReq.getRoomId(), sendMessageReq.getMessage());
             return new BaseResponse<>(chatRoomService.sendMessage(userId, postMessageReq));
         } catch (BaseException exception) {

@@ -1,7 +1,7 @@
 package com.example.hello_there.chat_room;
 
 import com.example.hello_there.user_chatroom.UserChatRoom;
-import com.example.hello_there.message.Message;
+import com.example.hello_there.text_message.TextMessage;
 import com.example.hello_there.utils.BaseTimeEntity;
 import lombok.*;
 
@@ -38,7 +38,7 @@ public class ChatRoom extends BaseTimeEntity {
     private List<UserChatRoom> userChatRooms = new ArrayList<>();
 
     @OneToMany(mappedBy = "chatRoom", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Message> messageList = new ArrayList<>();
+    private List<TextMessage> textMessageList = new ArrayList<>();
 
     public void updateUserCount(int userCount){
         this.userCount = userCount;

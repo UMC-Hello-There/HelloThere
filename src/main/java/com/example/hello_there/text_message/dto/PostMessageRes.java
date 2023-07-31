@@ -1,11 +1,10 @@
-package com.example.hello_there.message.dto;
+package com.example.hello_there.text_message.dto;
 
 import com.example.hello_there.user.User;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import reactor.netty.udp.UdpServer;
 
 import java.time.LocalDateTime;
 
