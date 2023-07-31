@@ -11,7 +11,7 @@ import java.util.Optional;
 
 public interface BoardRepository extends JpaRepository<Board, Long> {
 
-    List<Board> findAllByBoardTypeOrderByBoardIdDesc(BoardType boardType);
+    List<Board> findAllByBoardTypeAndHouse_HouseIdOrderByBoardIdDesc(BoardType boardType, Long houseId);
 
     @Query("select b from Board b where b.boardId = :boardId")
     Optional<Board> findBoardById(@Param("boardId") Long boardId);

@@ -1,10 +1,12 @@
 package com.example.hello_there.user;
 
+import com.example.hello_there.device.Device;
 import com.example.hello_there.house.House;
 import com.example.hello_there.board.Board;
 import com.example.hello_there.user_chatroom.UserChatRoom;
 import com.example.hello_there.login.jwt.Token;
 import com.example.hello_there.user.profile.Profile;
+import com.example.hello_there.user_notice.UserNotice;
 import com.example.hello_there.utils.BaseTimeEntity;
 import lombok.*;
 
@@ -45,6 +47,9 @@ public class  User extends BaseTimeEntity {
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private Profile profile; // 프로필 사진과 일대일 매핑
 
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Device device; // 디바이스와 일대일 매핑
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "house_id")
     private House house; // 아파트와 일대다 매핑
@@ -55,6 +60,8 @@ public class  User extends BaseTimeEntity {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<UserChatRoom> userChatRooms = new ArrayList<>();
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<UserNotice> userNotice = new ArrayList<>();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Board> comments = new ArrayList<>();

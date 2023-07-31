@@ -1,13 +1,12 @@
 package com.example.hello_there.chat_room;
 
-import com.example.hello_there.board.Board;
 import com.example.hello_there.chat_room.dto.*;
 import com.example.hello_there.exception.BaseException;
 import com.example.hello_there.login.jwt.TokenRepository;
-import com.example.hello_there.message.Message;
-import com.example.hello_there.message.MessageRepository;
-import com.example.hello_there.message.dto.AddUserReq;
-import com.example.hello_there.message.dto.PostMessageReq;
+import com.example.hello_there.text_message.TextMessage;
+import com.example.hello_there.text_message.TextMessageRepository;
+import com.example.hello_there.text_message.dto.AddUserReq;
+import com.example.hello_there.text_message.dto.PostMessageReq;
 import com.example.hello_there.report.Report;
 import com.example.hello_there.report.ReportRepository;
 import com.example.hello_there.report.ReportService;
@@ -21,8 +20,6 @@ import com.example.hello_there.utils.S3Service;
 import com.example.hello_there.utils.Secret;
 import com.example.hello_there.utils.UtilService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,7 +32,6 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static com.example.hello_there.exception.BaseResponseStatus.*;
-import static com.example.hello_there.report.ReportCount.ADD_REPORT_FOR_BOARD;
 import static com.example.hello_there.report.ReportCount.ADD_REPORT_FOR_MESSAGE;
 
 @Service
@@ -44,7 +40,7 @@ public class ChatRoomService {
     private final ChatRoomRepository chatRoomRepository;
     private final UserChatRoomRepository userChatRoomRepository;
     private final TokenRepository tokenRepository;
-    private final MessageRepository messageRepository;
+    private final TextMessageRepository textMessageRepository;
     private final S3Service s3Service;
     private final ReportService reportService;
     private final ReportRepository reportRepository;
@@ -72,7 +68,7 @@ public class ChatRoomService {
                 .secretChk(postChatRoomReq.isSecretChk()) // 채팅방 잠금 여부
                 .userCount(1) // 채팅방 참여 인원수
                 .maxUserCount(postChatRoomReq.getMaxUserCount()) // 최대 인원수 제한
-                .messageList(new ArrayList<>())
+                .textMessageList(new ArrayList<>())
                 .build();
         User user = utilService.findByUserIdWithValidation(userId);
         UserChatRoom userChatRoom = new UserChatRoom();
@@ -115,7 +111,7 @@ public class ChatRoomService {
 
     public List<GetUserRes> getUserListById(String chatRoomId) throws BaseException {
         utilService.findChatRoomByChatRoomIdWithValidation(chatRoomId);
-        List<UserChatRoom> userChatRooms = userChatRoomRepository.findUserListByRoomId(chatRoomId);
+        List<UserChatRoom> userChatRooms = userChatRoomRepository.findUserChatRoomByRoomId(chatRoomId);
         List<GetUserRes> getUserRes = userChatRooms.stream()
                 .map(userChatRoom -> new GetUserRes(userChatRoom.getUser().getId(),
                                 userChatRoom.getUser().getNickName()))
@@ -154,15 +150,15 @@ public class ChatRoomService {
     public List<GetChatRoomDetailRes> getChatRoomDetails(String roomId) throws BaseException {
         List<GetChatRoomDetailRes> chatRoomDetailResList = new ArrayList<>(); // 유저에게 보여질 채팅방 정보
         utilService.findChatRoomByChatRoomIdWithValidation(roomId); // 채팅방 찾기
-        List<Message> messages = messageRepository.findMessagesByRoomId(roomId); // 채팅방에 있는 메시지 리스트를 저장
+        List<TextMessage> textMessages = textMessageRepository.findMessagesByRoomId(roomId); // 채팅방에 있는 메시지 리스트를 저장
 
         List<String> messageList = new ArrayList<>(); // 같은 유저의 연속된 메시지를 저장하는 리스트
-        for (int i = 0; i < messages.size(); i++) { // 채팅 기록을 역순(최근 순)으로 보여준다.
-            Message msg = messages.get(i);
+        for (int i = 0; i < textMessages.size(); i++) { // 채팅 기록을 역순(최근 순)으로 보여준다.
+            TextMessage msg = textMessages.get(i);
             User sender = msg.getSender();
             messageList.add(msg.getMessage()); // 리스트에 메시지를 add
-            if (i < messages.size() - 1) { // ArrayIndexOutOfBoundsException에 대한 Handling
-                Message prevMsg = messages.get(i + 1); // 바로 이전 메시지
+            if (i < textMessages.size() - 1) { // ArrayIndexOutOfBoundsException에 대한 Handling
+                TextMessage prevMsg = textMessages.get(i + 1); // 바로 이전 메시지
                 User prevSender = prevMsg.getSender(); // 바로 이전 메시지의 발신자
                 // 이전에 메시지를 보낸 유저와 이번 메시지를 보낸 유저가 같으면
                 if (sender.getId().equals(prevSender.getId())) {
@@ -238,7 +234,7 @@ public class ChatRoomService {
         ChatRoom chatRoom = utilService.findChatRoomByChatRoomIdWithValidation(roomId);
         if (chatRoom.getUserCount() == 0) { // 채팅방에 아무도 안 남게 되면 Repository에서 삭제
             userChatRoomRepository.deleteUserChatRoomsByRoomId(roomId);
-            messageRepository.deleteMessageByRoomId(roomId);
+            textMessageRepository.deleteMessageByRoomId(roomId);
             chatRoomRepository.deleteChatRoomById(roomId);
         }
         // 만약 사진 업로드 기능을 추가한다면 S3에 올라간 파일도 삭제해주어야 함
@@ -257,15 +253,15 @@ public class ChatRoomService {
         String formattedTime = LocalDateTime.now().format(formatTime);
         DateTimeFormatter formatDate = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         String formattedDate = LocalDateTime.now().format(formatDate);
-        Message message = Message.builder()
-                .messageType(postMessageReq.getMessageType())
+        TextMessage textMessage = TextMessage.builder()
+                .textMessageType(postMessageReq.getTextMessageType())
                 .message(msg)
                 .sendDate(formattedDate)
                 .sendTime(formattedTime)
                 .sender(user)
                 .chatRoom(chatRoom)
                 .build();
-        messageRepository.save(message);
+        textMessageRepository.save(textMessage);
         return "메시지 전송이 완료되었습니다.";
     }
 
@@ -283,7 +279,7 @@ public class ChatRoomService {
                     .build();
             userChatRoomRepository.save(userChatRoom);
             plusUserCount(addUserReq.getRoomId());
-            PostMessageReq postMessageReq = new PostMessageReq(Message.MessageType.ENTER,
+            PostMessageReq postMessageReq = new PostMessageReq(TextMessage.TextMessageType.ENTER,
                     addUserReq.getRoomId(), user.getNickName() + "님이 입장하셨습니다.");
             return sendMessage(user.getId(), postMessageReq);
         } catch (BaseException exception) {
@@ -294,8 +290,8 @@ public class ChatRoomService {
     @Transactional
     public String reportWriter(Long reporterId, Long messageId, String reason) throws BaseException{
         // reason 값은 나중에 푸시 또는 알림 창에 왜 신고를 당했는지 보여주는 용도로 사용할 예정
-        Message message = utilService.findMessageByMessageIdWithValidation(messageId);
-        User reported = message.getSender(); // 게시글의 작성자
+        TextMessage textMessage = utilService.findByTextMessageIdWithValidation(messageId);
+        User reported = textMessage.getSender(); // 게시글의 작성자
         User reporter = utilService.findByUserIdWithValidation(reporterId);
         Report report = new Report();
 
