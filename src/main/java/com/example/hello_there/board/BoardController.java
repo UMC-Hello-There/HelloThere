@@ -36,7 +36,7 @@ public class BoardController {
 
     /** 게시글을 category로 조회하기(최신순) **/
     @GetMapping("/{category}")
-    public BaseResponse<List<GetBoardRes>> getCommentsByBoardId(@PathVariable BoardType category) {
+    public BaseResponse<List<GetBoardRes>> getBoardsByCategory(@PathVariable BoardType category) {
         try{
             Long userId = jwtService.getUserIdx();
             return new BaseResponse<>(boardService.getBoardsByCategory(userId, category));
@@ -118,4 +118,17 @@ public class BoardController {
             return new BaseResponse<>(exception.getStatus());
         }
     }
+
+    /** 게시글을 내용 or 제목으로 검색하기 **/
+    @GetMapping("/search")
+    public BaseResponse<List<GetBoardRes>> getBoardsByTitleOrContent(@RequestParam(name="keyword") String keyword) {
+        try{
+            Long userId = jwtService.getUserIdx();
+            return new BaseResponse<>(boardService.getBoardsByTitleOrContent(userId, keyword));
+        }catch (BaseException exception){
+            return new BaseResponse<>(exception.getStatus());
+        }
+    }
+
+
 }

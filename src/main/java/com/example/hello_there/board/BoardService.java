@@ -176,6 +176,25 @@ public class BoardService {
     }
 
     @Transactional
+    public List<GetBoardRes> getBoardsByTitleOrContent(Long userId, String keyword) throws BaseException {
+        try {
+            Long houseId = utilService.findByUserIdWithValidation(userId).getHouse().getHouseId();
+            List<Board> boards = boardRepository.findBoardsByTitleOrContentContainingAndHouseId(keyword, houseId);
+            List<GetBoardRes> getBoardRes = boards.stream()
+                    .map(board -> new GetBoardRes(board.getBoardId(), board.getBoardType(),
+                            convertLocalDateTimeToLocalDate(board.getCreateDate()),
+                            convertLocalDateTimeToTime(board.getCreateDate()),
+                            board.getUser().getNickName(), board.getTitle(), board.getContent(), board.getView(),
+                            commentRepository.countByBoardBoardId(board.getBoardId()), likeBoardRepository.countByBoardBoardId(board.getBoardId())))
+                    .collect(Collectors.toList());
+
+            return getBoardRes;
+        } catch (Exception exception) {
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
+    @Transactional
     public String deleteBoard(Long userId, Long boardId) throws BaseException {
         Board deleteBoard = utilService.findByBoardIdWithValidation(boardId);
         User writer = deleteBoard.getUser();

@@ -13,6 +13,9 @@ public interface BoardRepository extends JpaRepository<Board, Long> {
 
     List<Board> findAllByBoardTypeAndHouse_HouseIdOrderByBoardIdDesc(BoardType boardType, Long houseId);
 
+    @Query("SELECT b FROM Board b WHERE (b.title LIKE %:keyword% OR b.content LIKE %:keyword%) AND b.house.houseId = :houseId ORDER BY b.boardId DESC")
+    List<Board> findBoardsByTitleOrContentContainingAndHouseId(@Param("keyword") String keyword, @Param("houseId") Long houseId);
+
     @Query("select b from Board b where b.boardId = :boardId")
     Optional<Board> findBoardById(@Param("boardId") Long boardId);
 
