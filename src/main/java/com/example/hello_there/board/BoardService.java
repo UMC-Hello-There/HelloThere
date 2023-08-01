@@ -1,9 +1,6 @@
 package com.example.hello_there.board;
 
-import com.example.hello_there.board.dto.GetBoardDetailRes;
-import com.example.hello_there.board.dto.GetBoardRes;
-import com.example.hello_there.board.dto.PatchBoardReq;
-import com.example.hello_there.board.dto.PostBoardReq;
+import com.example.hello_there.board.dto.*;
 import com.example.hello_there.board.like.LikeBoard;
 import com.example.hello_there.board.like.LikeBoardRepository;
 import com.example.hello_there.board.photo.PostPhoto;
@@ -159,6 +156,21 @@ public class BoardService {
         }
     }
 
+
+    @Transactional
+    public List<GetBoardEachOneRes> getBoardsByCategoryOne(Long userId) throws BaseException {
+        try {
+            Long houseId = utilService.findByUserIdWithValidation(userId).getHouse().getHouseId();
+            List<Board> boards = boardRepository.findBoardsWithMaxBoardIdForEachBoardType(houseId);
+            List<GetBoardEachOneRes> getBoardEachOneRes = boards.stream()
+                    .map(board -> new GetBoardEachOneRes(board.getBoardId(), board.getBoardType(),
+                           board.getTitle()))
+                    .collect(Collectors.toList());
+            return getBoardEachOneRes;
+        } catch (Exception exception) {
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
 
     @Transactional
     public List<GetBoardRes> getBoardById(Long userId) throws BaseException {

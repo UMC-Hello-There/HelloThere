@@ -130,5 +130,17 @@ public class BoardController {
         }
     }
 
+    /** 게시글을 boardType별로 가장 최신글 하나씩 조회 **/
+    @GetMapping("/new")
+    public BaseResponse<List<GetBoardEachOneRes>> getBoardsByCategoryOne() {
+        try{
+            Long userId = jwtService.getUserIdx();
+            return new BaseResponse<>(boardService.getBoardsByCategoryOne(userId));
+        }catch (BaseException exception){
+            return new BaseResponse<>(exception.getStatus());
+        }
+    }
+
+
 
 }
