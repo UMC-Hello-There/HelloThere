@@ -7,13 +7,9 @@ import com.example.hello_there.login.jwt.JwtService;
 import com.example.hello_there.user.User;
 import com.example.hello_there.utils.UtilService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
@@ -92,8 +88,8 @@ public class ChatRoomController {
     }
 
     // 본인을 제외한 현재 로그인한 유저의 리스트를 반환
-    @GetMapping("/")
-    public BaseResponse<List<GetLoginUserRes>> goChatRoom() {
+    @GetMapping("")
+    public BaseResponse<List<GetLoginUserRes>> getLoginUsers() {
         try {
             Long userId = jwtService.getUserIdx();
             return new BaseResponse<>(chatRoomService.getLoginUsers(userId));
@@ -114,14 +110,21 @@ public class ChatRoomController {
 
     // 채팅방 나가기
     @DeleteMapping("/room/{roomId}")
-    public BaseResponse<String> deleteChatRoom(@PathVariable String roomId){
-        // roomId 기준으로 chatRoom 삭제, 해당 채팅룸 안에 있는 사진, 메시지 삭제
+    public BaseResponse<String> exitChatRoom(@PathVariable String roomId){
         try {
             Long userId = jwtService.getUserIdx();
-            chatRoomService.deleteChatRoom(userId, roomId);
-            User user = utilService.findByUserIdWithValidation(userId);
-            String result = user.getNickName() + "님이 " + roomId + "번 채팅방을 나갔습니다.";
-            return new BaseResponse<>(result);
+            return new BaseResponse<>(chatRoomService.exitChatRoom(userId, roomId));
+        } catch (BaseException exception) {
+            return new BaseResponse<>(exception.getStatus());
+        }
+    }
+
+    // 채팅방 찾기
+    @GetMapping ("/search")
+    public BaseResponse<List<GetChatRoomRes>> findChatRooms(@RequestParam String text) {
+        try {
+            Long userId = jwtService.getUserIdx();
+            return new BaseResponse<>(chatRoomService.findChatRooms(userId, text));
         } catch (BaseException exception) {
             return new BaseResponse<>(exception.getStatus());
         }

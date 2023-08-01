@@ -16,7 +16,6 @@ import com.example.hello_there.user.profile.Profile;
 import com.example.hello_there.user_chatroom.UserChatRoom;
 import com.example.hello_there.user_chatroom.UserChatRoomRepository;
 import com.example.hello_there.utils.AES128;
-import com.example.hello_there.utils.S3Service;
 import com.example.hello_there.utils.Secret;
 import com.example.hello_there.utils.UtilService;
 import lombok.RequiredArgsConstructor;
@@ -24,11 +23,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.example.hello_there.exception.BaseResponseStatus.*;
@@ -41,7 +39,6 @@ public class ChatRoomService {
     private final UserChatRoomRepository userChatRoomRepository;
     private final TokenRepository tokenRepository;
     private final TextMessageRepository textMessageRepository;
-    private final S3Service s3Service;
     private final ReportService reportService;
     private final ReportRepository reportRepository;
     private final UtilService utilService;
@@ -113,24 +110,61 @@ public class ChatRoomService {
         utilService.findChatRoomByChatRoomIdWithValidation(chatRoomId);
         List<UserChatRoom> userChatRooms = userChatRoomRepository.findUserChatRoomByRoomId(chatRoomId);
         List<GetUserRes> getUserRes = userChatRooms.stream()
-                .map(userChatRoom -> new GetUserRes(userChatRoom.getUser().getId(),
-                                userChatRoom.getUser().getNickName()))
+                .map(userChatRoom -> {
+                    Long userId = userChatRoom.getUser().getId();
+                    String nickName = userChatRoom.getUser().getNickName();
+                    String profileUrl = Optional.ofNullable(userChatRoom.getUser().getProfile())
+                            .map(profile -> profile.getProfileUrl())
+                            .orElse(""); // 프로필 URL이 null일 경우 빈 문자열로 대체
+
+                    String profileFileName = Optional.ofNullable(userChatRoom.getUser().getProfile())
+                            .map(profile -> profile.getProfileFileName())
+                            .orElse(""); // 프로필 파일 이름이 null일 경우 빈 문자열로 대체
+
+                    return new GetUserRes(userId, nickName, profileUrl, profileFileName);
+                })
                 .collect(Collectors.toList());
         return getUserRes;
     }
 
     public List<GetChatRoomRes> getChatRoomListById(Long userId) {
         List<UserChatRoom> userChatRooms = userChatRoomRepository.findUserListByUserId(userId);
+
         List<GetChatRoomRes> getChatRoomRes = userChatRooms.stream()
-                .map(userChatRoom -> new GetChatRoomRes(userChatRoom.getChatRoom().getChatRoomId(),
-                        userChatRoom.getChatRoom().getRoomName(),
-                        userChatRoom.getChatRoom().getUserCount()))
+                .map(userChatRoom -> {
+                    List<TextMessage> textMessages =
+                            textMessageRepository.findMessagesByRoomId(userChatRoom.getChatRoom().getChatRoomId());
+                    String latestMessage = "";
+                    String latestDate = "";
+                    String latestTime = "";
+                    int unreadCount = 0;
+                    if (!textMessages.isEmpty()) {
+                        TextMessage lastMessage = textMessages.get(textMessages.size() - 1);
+                        latestMessage = lastMessage.getMessage();
+                        latestDate = lastMessage.getSendDate();
+                        latestTime = lastMessage.getSendTime();
+                        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
+                        LocalTime localTime = LocalTime.parse(latestTime, formatter);
+                        latestTime = UtilService.formatTime(localTime);
+                        for(TextMessage textMessage : textMessages) {
+                            if(!textMessage.isRead()) {
+                                unreadCount++;
+                            }
+                        }
+                    }
+
+                    return new GetChatRoomRes(userChatRoom.getChatRoom().getChatRoomId(),
+                            userChatRoom.getChatRoom().getRoomName(), latestMessage,
+                            latestDate, latestTime, unreadCount);
+                })
                 .collect(Collectors.toList());
         return getChatRoomRes;
     }
 
     public List<GetLoginUserRes> getLoginUsers(Long userId) throws BaseException {
-        List<User> users = tokenRepository.findUsersWithOutMe(userId);
+        User me = utilService.findByUserIdWithValidation(userId);
+        Long houseId = me.getHouse().getHouseId();
+        List<User> users = tokenRepository.findUsersWithOutMe(userId, houseId);
 
         List<GetLoginUserRes> getLoginUserRes = users.stream()
                 .map(user -> {
@@ -155,6 +189,7 @@ public class ChatRoomService {
         List<String> messageList = new ArrayList<>(); // 같은 유저의 연속된 메시지를 저장하는 리스트
         for (int i = 0; i < textMessages.size(); i++) { // 채팅 기록을 역순(최근 순)으로 보여준다.
             TextMessage msg = textMessages.get(i);
+            msg.setRead(true);
             User sender = msg.getSender();
             messageList.add(msg.getMessage()); // 리스트에 메시지를 add
             if (i < textMessages.size() - 1) { // ArrayIndexOutOfBoundsException에 대한 Handling
@@ -227,7 +262,7 @@ public class ChatRoomService {
 
     // 채팅방 나가기
     @Transactional
-    public void deleteChatRoom(Long userId, String roomId) throws BaseException {
+    public String exitChatRoom(Long userId, String roomId) throws BaseException {
         utilService.findChatRoomByChatRoomIdWithValidation(roomId);
         userChatRoomRepository.deleteUserChatRoomByUserIdWithRoomId(userId, roomId);
         minusUserCount(roomId); // 프론트의 클라이언트 코드에서 웹 소켓 연결을 끊어주어야 한다.
@@ -238,6 +273,9 @@ public class ChatRoomService {
             chatRoomRepository.deleteChatRoomById(roomId);
         }
         // 만약 사진 업로드 기능을 추가한다면 S3에 올라간 파일도 삭제해주어야 함
+        User user = utilService.findByUserIdWithValidation(userId);
+        String result = user.getNickName() + "님이 " + roomId + "번 채팅방을 나갔습니다.";
+        return result;
     }
 
     /** <-- test 환경을 위해 사용할 서비스, Production 환경에서는 사용하지 않는다. 다만 ChatRoom API를 테스트해보기 위해 정의하는 메서드이다.(예외처리 안함) --> **/
@@ -323,5 +361,53 @@ public class ChatRoomService {
         }
 
         return "메세지 작성자에 대한 신고 처리가 완료되었습니다.";
+    }
+
+    @Transactional
+    public List<GetChatRoomRes> findChatRooms(Long userId, String text) {
+        List<GetChatRoomRes> resultList = new ArrayList<>();
+
+        // 채팅방 이름으로 검색
+        List<ChatRoom> chatRoomsByRoomName = chatRoomRepository.findChatRoomByRoomName(userId, text);
+        resultList.addAll(findChatRooms(chatRoomsByRoomName));
+
+        // 유저 닉네임으로 검색
+        List<UserChatRoom> userChatRooms = userChatRoomRepository.findUserListByUserId(userId);
+        List<ChatRoom> chatRoomsByNickName = chatRoomRepository.findChatRoomByNickName(userId, text);
+        resultList.addAll(findChatRooms(chatRoomsByNickName));
+
+        List<GetChatRoomRes> resultListWithoutDuplicate = resultList.stream()
+                .distinct()
+                .collect(Collectors.toList());
+
+        return resultListWithoutDuplicate;
+    }
+
+    private List<GetChatRoomRes> findChatRooms(List<ChatRoom> chatRoomList) {
+        List<GetChatRoomRes> resultList = new ArrayList<>();
+        for (ChatRoom chatRoom : chatRoomList) {
+            List<TextMessage> textMessages = textMessageRepository.findMessagesByRoomId(chatRoom.getChatRoomId());
+            String latestMessage = "";
+            String latestDate = "";
+            String latestTime = "";
+            int unreadCount = 0;
+            if (!textMessages.isEmpty()) {
+                TextMessage lastMessage = textMessages.get(textMessages.size() - 1);
+                latestMessage = lastMessage.getMessage();
+                latestDate = lastMessage.getSendDate();
+                latestTime = lastMessage.getSendTime();
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
+                LocalTime localTime = LocalTime.parse(latestTime, formatter);
+                latestTime = UtilService.formatTime(localTime);
+                for(TextMessage textMessage : textMessages) {
+                    if(!textMessage.isRead()) {
+                        unreadCount++;
+                    }
+                }
+            }
+            resultList.add(new GetChatRoomRes(chatRoom.getChatRoomId(), chatRoom.getRoomName(),
+                    latestMessage, latestDate, latestTime, unreadCount));
+        }
+        return resultList;
     }
 }
