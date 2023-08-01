@@ -142,5 +142,25 @@ public class BoardController {
     }
 
 
+    /** 메인화면 인기 게시글 4개 조회 (좋아요 10개 이상, 최신순 정렬) **/
+    @GetMapping("/hot/main")
+    public BaseResponse<List<GetBoardEachOneRes>> getBoardsByLikeMain() {
+        try{
+            Long userId = jwtService.getUserIdx();
+            return new BaseResponse<>(boardService.getBoardsByLikeMain(userId));
+        }catch (BaseException exception){
+            return new BaseResponse<>(exception.getStatus());
+        }
+    }
 
+    /** 인기 게시글 전체 조회 (좋아요 10개 이상, 최신순 정렬) **/
+    @GetMapping("/hot")
+    public BaseResponse<List<GetBoardEachOneRes>> getBoardsByLike() {
+        try{
+            Long userId = jwtService.getUserIdx();
+            return new BaseResponse<>(boardService.getBoardsByLike(userId));
+        }catch (BaseException exception){
+            return new BaseResponse<>(exception.getStatus());
+        }
+    }
 }

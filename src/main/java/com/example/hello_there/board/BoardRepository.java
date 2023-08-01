@@ -31,6 +31,13 @@ public interface BoardRepository extends JpaRepository<Board, Long> {
             nativeQuery = true)
     List<Board> findBoardsWithMaxBoardIdForEachBoardType(@Param("houseId") Long houseId);
 
+
+    @Query(value = "SELECT * FROM board WHERE house_id = :houseId AND like_count >= 10 ORDER BY board_id DESC LIMIT 4", nativeQuery = true)
+    List<Board> findBoardsByLikesMain(Long houseId);
+
+    @Query(value = "SELECT * FROM board WHERE house_id = :houseId AND like_count >= 10 ORDER BY board_id DESC", nativeQuery = true)
+    List<Board> findBoardsByLikes(Long houseId);
+
     @Query("select b from Board b where b.boardId = :boardId")
     Optional<Board> findBoardById(@Param("boardId") Long boardId);
 

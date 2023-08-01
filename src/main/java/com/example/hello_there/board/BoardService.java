@@ -173,6 +173,37 @@ public class BoardService {
     }
 
     @Transactional
+    public List<GetBoardEachOneRes> getBoardsByLikeMain(Long userId) throws BaseException {
+        try {
+            Long houseId = utilService.findByUserIdWithValidation(userId).getHouse().getHouseId(); // house 가져오고, 해당 house에서 좋아요수가 10개 이상인것들을 최신순으로 정렬 -> limit 4
+            List<Board> boards = boardRepository.findBoardsByLikesMain(houseId);
+            List<GetBoardEachOneRes> getBoardEachOneRes = boards.stream()
+                    .map(board -> new GetBoardEachOneRes(board.getBoardId(), board.getBoardType(),
+                            board.getTitle()))
+                    .collect(Collectors.toList());
+            return getBoardEachOneRes;
+        } catch (Exception exception) {
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
+
+    @Transactional
+    public List<GetBoardEachOneRes> getBoardsByLike(Long userId) throws BaseException {
+        try {
+            Long houseId = utilService.findByUserIdWithValidation(userId).getHouse().getHouseId(); // house 가져오고, 해당 house에서 좋아요수가 10개 이상인것들을 최신순으로 정렬
+            List<Board> boards = boardRepository.findBoardsByLikes(houseId);
+            List<GetBoardEachOneRes> getBoardEachOneRes = boards.stream()
+                    .map(board -> new GetBoardEachOneRes(board.getBoardId(), board.getBoardType(),
+                            board.getTitle()))
+                    .collect(Collectors.toList());
+            return getBoardEachOneRes;
+        } catch (Exception exception) {
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
+    @Transactional
     public List<GetBoardRes> getBoardById(Long userId) throws BaseException {
         try {
             List<Board> boards = boardRepository.findBoardByUserId(userId);
