@@ -16,8 +16,8 @@ public interface TokenRepository extends JpaRepository<Token, Long> {
     @Query("select t from Token t JOIN User u ON u.id = t.user.id WHERE t.user.id= :userId")
     Optional<Token> findTokenByUserId(@Param("userId") Long userId);
 
-    @Query("SELECT DISTINCT t.user FROM Token t WHERE t.user.id <> :userId")
-    List<User> findUsersWithOutMe(@Param("userId") Long userId);
+    @Query("SELECT DISTINCT t.user FROM Token t WHERE t.user.id <> :userId and t.user.house.houseId = :houseId")
+    List<User> findUsersWithOutMe(@Param("userId") Long userId, @Param("houseId") Long houseId);
 
     @Modifying
     @Query("delete from Token t where t.user.id = :userId")

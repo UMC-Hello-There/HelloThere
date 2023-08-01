@@ -11,7 +11,7 @@ import java.util.List;
 @Setter // 해당 클래스에 대한 설정자 생성
 @AllArgsConstructor
 @NoArgsConstructor
-public class GetChatRoomDetailRes {
+public class  GetChatRoomDetailRes {
     Long userId;
     String nickName;
     String fileName;
