@@ -14,6 +14,7 @@ import com.example.hello_there.comment.Comment;
 import com.example.hello_there.comment.CommentRepository;
 import com.example.hello_there.comment.dto.GetCommentRes;
 import com.example.hello_there.exception.BaseException;
+import com.example.hello_there.house.House;
 import com.example.hello_there.report.Report;
 import com.example.hello_there.report.ReportRepository;
 import com.example.hello_there.report.ReportService;
@@ -71,6 +72,7 @@ public class BoardService {
             reportService.checkBlackUser("board",userId);
 
             User user = utilService.findByUserIdWithValidation(userId);
+            House house = utilService.findByHouseIdWithValidation(user.getHouse().getHouseId());
             Board board = Board.builder()
                     .title(postBoardReq.getTitle())
                     .content(postBoardReq.getContent())
@@ -78,6 +80,7 @@ public class BoardService {
                     .boardType(postBoardReq.getBoardType())
                     .photoList(new ArrayList<>())
                     .user(user)
+                    .house(house)
                     // .commentList(new ArrayList<>())
                     .build();
             save(board);
@@ -136,9 +139,10 @@ public class BoardService {
      * 게시글 카테고리별 전체 조회
      **/
     @Transactional
-    public List<GetBoardRes> getBoardsByCategory(BoardType category) throws BaseException {
+    public List<GetBoardRes> getBoardsByCategory(Long userId, BoardType category) throws BaseException {
         try {
-            List<Board> boards = boardRepository.findAllByBoardTypeOrderByBoardIdDesc(category);
+            Long houseId = utilService.findByUserIdWithValidation(userId).getHouse().getHouseId();
+            List<Board> boards = boardRepository.findAllByBoardTypeAndHouse_HouseIdOrderByBoardIdDesc(category, houseId);
             List<GetBoardRes> getBoardRes = boards.stream()
                     .map(board -> new GetBoardRes(board.getBoardId(), board.getBoardType(),
                             convertLocalDateTimeToLocalDate(board.getCreateDate()),

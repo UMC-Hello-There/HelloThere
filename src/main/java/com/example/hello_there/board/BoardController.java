@@ -38,7 +38,8 @@ public class BoardController {
     @GetMapping("/{category}")
     public BaseResponse<List<GetBoardRes>> getCommentsByBoardId(@PathVariable BoardType category) {
         try{
-            return new BaseResponse<>(boardService.getBoardsByCategory(category));
+            Long userId = jwtService.getUserIdx();
+            return new BaseResponse<>(boardService.getBoardsByCategory(userId, category));
         }catch (BaseException exception){
             return new BaseResponse<>(exception.getStatus());
         }

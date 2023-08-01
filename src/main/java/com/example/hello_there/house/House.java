@@ -1,5 +1,6 @@
 package com.example.hello_there.house;
 
+import com.example.hello_there.board.Board;
 import com.example.hello_there.user.User;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
@@ -43,4 +44,7 @@ public class House {
 
     @OneToMany(mappedBy = "house", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<User> users = new ArrayList<>();
+
+    @OneToMany(mappedBy = "house", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Board> boards = new ArrayList<>();
 }

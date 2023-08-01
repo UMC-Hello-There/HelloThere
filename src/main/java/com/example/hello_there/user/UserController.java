@@ -6,6 +6,13 @@ import com.example.hello_there.login.jwt.JwtService;
 import com.example.hello_there.user.dto.*;
 import com.example.hello_there.user.user_setting.UserSettingService;
 import com.example.hello_there.user.user_setting.UserSetting;
+<<<<<<< HEAD
+=======
+import com.example.hello_there.user.user_setting.dto.UserSettingMessageReq;
+import com.example.hello_there.user.user_setting.dto.UserSettingMessageRes;
+import com.example.hello_there.user.user_setting.dto.UserSettingReq;
+import com.example.hello_there.user.user_setting.dto.UserSettingRes;
+>>>>>>> 57dda2832b8e8a332786e756058b4838617b4ce3
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -212,5 +219,20 @@ public class UserController {
         }
     }
 
+<<<<<<< HEAD
+=======
+    /**
+     * 알림 조회
+     */
+    @GetMapping("/notice")
+    public BaseResponse<List<GetNoticeRes>> getNotice() {
+        try {
+            Long userId = jwtService.getUserIdx();
+            return new BaseResponse<>(userService.getNotice(userId));
+        } catch (BaseException exception) {
+            return new BaseResponse<>(exception.getStatus());
+        }
+    }
+>>>>>>> 57dda2832b8e8a332786e756058b4838617b4ce3
 }
 

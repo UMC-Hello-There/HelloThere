@@ -3,14 +3,13 @@ package com.example.hello_there.login.kakao;
 import com.example.hello_there.exception.BaseException;
 import com.example.hello_there.exception.BaseResponse;
 import com.example.hello_there.login.jwt.JwtService;
-import com.example.hello_there.user.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import static com.example.hello_there.exception.BaseResponseStatus.*;
+import static com.example.hello_there.exception.BaseResponseStatus.KAKAO_ERROR;
 
 @RestController
 @RequiredArgsConstructor

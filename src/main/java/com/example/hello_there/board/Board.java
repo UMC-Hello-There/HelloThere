@@ -2,6 +2,7 @@ package com.example.hello_there.board;
 
 import com.example.hello_there.board.like.LikeBoard;
 import com.example.hello_there.board.photo.PostPhoto;
+import com.example.hello_there.house.House;
 import com.example.hello_there.user.User;
 import com.example.hello_there.utils.BaseTimeEntity;
 import lombok.AllArgsConstructor;
@@ -39,6 +40,11 @@ public class Board extends BaseTimeEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
+
+    // 거주지와 관계 매핑
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "house_id")
+    private House house;
 
     // 게시 사진과 관계매핑
     @OneToMany(mappedBy = "board", cascade = {CascadeType.ALL}, orphanRemoval = true)

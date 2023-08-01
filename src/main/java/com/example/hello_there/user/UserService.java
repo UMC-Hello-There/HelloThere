@@ -3,6 +3,7 @@ package com.example.hello_there.user;
 import com.example.hello_there.board.Board;
 import com.example.hello_there.board.BoardRepository;
 import com.example.hello_there.board.photo.dto.GetS3Res;
+import com.example.hello_there.chat_room.dto.GetChatRoomRes;
 import com.example.hello_there.exception.BaseException;
 import com.example.hello_there.login.dto.JwtResponseDTO;
 import com.example.hello_there.login.jwt.JwtProvider;
@@ -17,6 +18,9 @@ import com.example.hello_there.user.profile.ProfileRepository;
 import com.example.hello_there.user.profile.ProfileService;
 import com.example.hello_there.user.user_setting.UserSettingRepository;
 import com.example.hello_there.user.user_setting.UserSetting;
+import com.example.hello_there.user_chatroom.UserChatRoom;
+import com.example.hello_there.user_notice.UserNotice;
+import com.example.hello_there.user_notice.UserNoticeRepository;
 import com.example.hello_there.utils.AES128;
 import com.example.hello_there.utils.S3Service;
 import com.example.hello_there.utils.Secret;
@@ -28,11 +32,13 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static com.example.hello_there.exception.BaseResponseStatus.*;
+import static com.example.hello_there.utils.UtilService.convertLocalDateTimeToTime;
 import static com.example.hello_there.utils.ValidationRegex.isRegexEmail;
 
 @EnableTransactionManagement
@@ -46,6 +52,7 @@ public class UserService {
     private final TokenRepository tokenRepository;
     private final DeleteHistoryRepository deleteHistoryRepository;
     private final UserSettingRepository userSettingRepository;
+    private final UserNoticeRepository userNoticeRepository;
     private final S3Service s3Service;
     private final JwtProvider jwtProvider;
     private final UtilService utilService;
@@ -345,11 +352,23 @@ public class UserService {
 
     public Boolean emailChk(String email) {
         if(email == null || email.isEmpty()) {
-            throw new BaseException(NICKNAME_CANNOT_BE_NULL);
+            throw new BaseException(EMAIL_CANNOT_BE_NULL);
         }
         if(userRepository.existsByEmail(email)) {
             return false;
         }
         return true;
+    }
+
+    public List<GetNoticeRes> getNotice(Long userId) {
+        List<UserNotice> userNotices = userNoticeRepository.findUserNoticeByUserId(userId);
+        List<GetNoticeRes> getNoticeRes = userNotices.stream()
+                .map(userNotice -> new GetNoticeRes(userNotice.getNotice().getNoticeId(),
+                        userNotice.getNotice().getTitle(), userNotice.getNotice().getBody(),
+                        userNotice.getNotice().getBoardType(),
+                        convertLocalDateTimeToTime(userNotice.getNotice().getCreateDate())))
+                .sorted(Comparator.comparing(GetNoticeRes::getNoticeId).reversed())
+                .collect(Collectors.toList());
+        return getNoticeRes;
     }
 }

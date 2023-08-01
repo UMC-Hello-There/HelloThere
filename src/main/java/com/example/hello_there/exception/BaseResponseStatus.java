@@ -43,6 +43,10 @@ public enum BaseResponseStatus {
     INVALID_INPUT(false, 2026, "유효하지 않은 입력입니다."),
     FAIL_TO_LOAD(false, 2027, "게시글을 불러오는데 실패했어요"),
 
+    // Notification
+    INVALID_DEVICE_TOKEN(false, 2028, "디바이스 토큰이 존재하지 않습니다."),
+    FAIL_TO_PUSH(false, 2029, "푸시 알림 발신에 실패하였습니다."),
+    NONE_EXIST_DEVICE(false, 2030, "존재하지 않는 디바이스입니다."),
 
     /**
      * 3000 : Response 오류
@@ -108,6 +112,7 @@ public enum BaseResponseStatus {
     NICKNAME_CANNOT_BE_NULL(false, 6006, "닉네임을 입력해주세요"),
     DELETED_USER(false, 6007, "탈퇴한 유저는 일정 시간동안 재가입이 제한됩니다."),
     NONE_EXIST_USERFEE(false, 6008, "요청하신 관리비는 존재하지 않습니다."),
+    EMAIL_CANNOT_BE_NULL(false, 6009, "이메일을 입력해주세요"),
 
     /**
      *   7000 : 댓글 관련 오류

@@ -17,6 +17,7 @@ public class PostBoardReq {
     // build.gradle의 dependencies에
     // implementation 'org.springframework.boot:spring-boot-starter-validation'
     // 추가해야 Not Blank와 Size사용 가능
+    private Long houseId;
     private BoardType boardType;
     @NotBlank(message = "제목을 입력하세요.")
     @Size(min=2, max=20, message = "제목의 길이는 2~20글자까지 입력 가능합니다.")

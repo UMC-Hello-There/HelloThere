@@ -55,6 +55,9 @@ dependencies {
 	//hibernate-spaitial 의존성
 	implementation("org.hibernate:hibernate-spatial:5.6.15.Final")
 
+	// firebase sdk 의존성
+	implementation 'com.google.firebase:firebase-admin:7.1.0'
+
 	compileOnly 'org.projectlombok:lombok'
 	runtimeOnly 'com.mysql:mysql-connector-j'
 	annotationProcessor 'org.projectlombok:lombok'

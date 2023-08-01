@@ -1,5 +1,7 @@
 package com.example.hello_there.comment;
 
+import com.example.hello_there.board.Board;
+import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -37,4 +39,8 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
     @Modifying
     @Query("delete from Comment c where c.board.boardId = :boardId")
     void deleteCommentsByBoardId(@Param("boardId") Long boardId);
+
+    //== For MyPage ==//
+    @Query("select distinct c.board from Comment c where c.user.id = :userId")
+    List<Board> findCommentedBoardsByUserId(@Param("userId") Long userId);
 }
