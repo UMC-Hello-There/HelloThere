@@ -13,4 +13,6 @@ import lombok.Setter;
 public class GetUserRes {
     private Long userId;
     private String nickName;
+    private String imgUrl;
+    private String fileName;
 }

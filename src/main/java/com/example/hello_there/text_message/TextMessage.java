@@ -30,6 +30,9 @@ public class TextMessage {
     @Column(nullable = false)
     private String message; // 메시지 내용
 
+    @Column(nullable = false, columnDefinition = "boolean default false")
+    private boolean isRead; // 메시지 읽음 여부
+
     @Column(nullable = false)
     private String sendDate;
 
