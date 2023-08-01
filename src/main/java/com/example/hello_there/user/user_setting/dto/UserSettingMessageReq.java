@@ -15,7 +15,7 @@ public class UserSettingMessageReq {
 
     public UserSetting updateEntity(UserSetting userSetting) {
         if(Objects.nonNull(messageReceptionBlock)){
-            userSetting.setCommentCheck(messageReceptionBlock);
+            userSetting.setMessageReceptionBlock(messageReceptionBlock);
         }
         return userSetting;
     }
