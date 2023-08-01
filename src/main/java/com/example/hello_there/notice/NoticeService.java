@@ -1,7 +1,6 @@
 package com.example.hello_there.notice;
 
 import com.example.hello_there.board.Board;
-import com.example.hello_there.chat_room.ChatRoom;
 import com.example.hello_there.comment.Comment;
 import com.example.hello_there.exception.BaseException;
 import com.example.hello_there.notice.dto.PostNoticeRes;
@@ -43,7 +42,7 @@ public class NoticeService {
         User user = comment.getBoard().getUser(); // 게시글 작성자에게 알림을 보냄
         Notice notice = Notice.builder()
                 .title(comment.getBoard().getTitle())
-                .body("새로운 댓글이 달렸어요!: " + comment.getContent())
+                .body("새로운 댓글이 달렸어요! " + comment.getContent())
                 .boardType(comment.getBoard().getBoardType())
                 .build();
         createNotice(user, notice); // 알림 생성 및 저장
@@ -67,7 +66,7 @@ public class NoticeService {
         User user = parentComment.getUser(); // 부모 댓글 작성자에게 알림을 보냄
         Notice notice = Notice.builder()
                 .title(parentComment.getContent())
-                .body("대댓글이 달렸어요!: " + comment.getContent())
+                .body("대댓글이 달렸어요! " + comment.getContent())
                 .boardType(comment.getBoard().getBoardType())
                 .build();
         createNotice(user, notice);

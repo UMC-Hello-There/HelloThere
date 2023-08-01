@@ -12,6 +12,9 @@ public interface TextMessageRepository extends JpaRepository<TextMessage, Long> 
     @Query("select t from TextMessage t where t.chatRoom.chatRoomId = :roomId")
     List<TextMessage> findMessagesByRoomId(@Param("roomId") String roomId);
 
+    @Query("select t from TextMessage t where t.chatRoom.chatRoomId = :roomId and t.message Like %:text%")
+    List<TextMessage> findMessagesByText(@Param("roomId") String roomId, @Param("text") String text);
+
     @Modifying
     @Query("delete from TextMessage t where t.chatRoom.chatRoomId = :roomId")
     void deleteMessageByRoomId(@Param("roomId") String roomId);

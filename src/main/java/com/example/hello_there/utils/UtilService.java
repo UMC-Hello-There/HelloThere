@@ -22,6 +22,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 
@@ -120,5 +121,15 @@ public class UtilService {
         }
         diffTime = diffTime / MONTH;
         return diffTime + "년 전";
+    }
+
+    public static String formatTime(LocalTime time) {
+        int hour = time.getHour();
+        int min = time.getMinute();
+        String meridiem = (hour >= 12) ? "오후" : "오전";
+        if (hour >= 12) {
+            hour -= 12;
+        }
+        return meridiem + " " + hour + ":" + String.format("%02d", min);
     }
 }
