@@ -38,6 +38,14 @@ public interface BoardRepository extends JpaRepository<Board, Long> {
     @Query(value = "SELECT * FROM board WHERE house_id = :houseId AND like_count >= 10 ORDER BY board_id DESC", nativeQuery = true)
     List<Board> findBoardsByLikes(Long houseId);
 
+    @Query(value =
+             "(SELECT * FROM board WHERE board_type = :#{#boardType.name()} AND house_id = :houseId AND like_count >= 10 ORDER BY board_id DESC LIMIT 1) " +
+                  "UNION ALL " +
+                  "(SELECT * FROM board WHERE board_type = :#{#boardType.name()} AND house_id = :houseId AND comment_count >= 10 ORDER BY board_id DESC LIMIT 1) ",
+           nativeQuery = true)
+    List<Board> findBoardsWithMostCommentsAndLikes(@Param("houseId") Long houseId, @Param("boardType") BoardType boardType);
+
+
     @Query("select b from Board b where b.boardId = :boardId")
     Optional<Board> findBoardById(@Param("boardId") Long boardId);
 

@@ -175,7 +175,7 @@ public class BoardService {
     @Transactional
     public List<GetBoardEachOneRes> getBoardsByLikeMain(Long userId) throws BaseException {
         try {
-            Long houseId = utilService.findByUserIdWithValidation(userId).getHouse().getHouseId(); // house 가져오고, 해당 house에서 좋아요수가 10개 이상인것들을 최신순으로 정렬 -> limit 4
+            Long houseId = utilService.findByUserIdWithValidation(userId).getHouse().getHouseId();
             List<Board> boards = boardRepository.findBoardsByLikesMain(houseId);
             List<GetBoardEachOneRes> getBoardEachOneRes = boards.stream()
                     .map(board -> new GetBoardEachOneRes(board.getBoardId(), board.getBoardType(),
@@ -189,9 +189,25 @@ public class BoardService {
 
 
     @Transactional
+    public List<GetTopBoardRes> getTopBoardsByCategory(Long userId, BoardType category) throws BaseException {
+        try {
+            Long houseId = utilService.findByUserIdWithValidation(userId).getHouse().getHouseId();
+            List<Board> boards = boardRepository.findBoardsWithMostCommentsAndLikes(houseId, category); // houseId가 같고 category가 같으며 댓글이 가장 많은 게시글과 좋아요가 가장 많은 게시글 이렇게 두 개를 반환
+            List<GetTopBoardRes> getBoardRes = boards.stream()
+                    .map(board -> new GetTopBoardRes(board.getBoardId(), board.getBoardType(),
+                       board.getTitle(), board.getCommentCount(), board.getLikeCount()))
+                    .collect(Collectors.toList());
+            return getBoardRes;
+        } catch (Exception exception) {
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
+
+    @Transactional
     public List<GetBoardEachOneRes> getBoardsByLike(Long userId) throws BaseException {
         try {
-            Long houseId = utilService.findByUserIdWithValidation(userId).getHouse().getHouseId(); // house 가져오고, 해당 house에서 좋아요수가 10개 이상인것들을 최신순으로 정렬
+            Long houseId = utilService.findByUserIdWithValidation(userId).getHouse().getHouseId();
             List<Board> boards = boardRepository.findBoardsByLikes(houseId);
             List<GetBoardEachOneRes> getBoardEachOneRes = boards.stream()
                     .map(board -> new GetBoardEachOneRes(board.getBoardId(), board.getBoardType(),

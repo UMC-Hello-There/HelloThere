@@ -163,4 +163,16 @@ public class BoardController {
             return new BaseResponse<>(exception.getStatus());
         }
     }
+
+
+    /** category별 좋아요 top 게시글, 댓글 top 게시글 조회하기(최신순) **/
+    @GetMapping("/{category}/top")
+    public BaseResponse<List<GetTopBoardRes>> getTopBoardsByCategory(@PathVariable BoardType category) {
+        try{
+            Long userId = jwtService.getUserIdx();
+            return new BaseResponse<>(boardService.getTopBoardsByCategory(userId, category));
+        }catch (BaseException exception){
+            return new BaseResponse<>(exception.getStatus());
+        }
+    }
 }
