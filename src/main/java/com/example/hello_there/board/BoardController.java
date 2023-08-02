@@ -35,10 +35,11 @@ public class BoardController {
     }
 
     /** 게시글을 category로 조회하기(최신순) **/
-    @GetMapping("/{houseId}/{category}")
-    public BaseResponse<List<GetBoardRes>> getCommentsByBoardId(@PathVariable Long houseId, @PathVariable BoardType category) {
+    @GetMapping("/{category}")
+    public BaseResponse<List<GetBoardRes>> getBoardsByCategory(@PathVariable BoardType category) {
         try{
-            return new BaseResponse<>(boardService.getBoardsByCategory(houseId, category));
+            Long userId = jwtService.getUserIdx();
+            return new BaseResponse<>(boardService.getBoardsByCategory(userId, category));
         }catch (BaseException exception){
             return new BaseResponse<>(exception.getStatus());
         }
@@ -114,6 +115,63 @@ public class BoardController {
             Long userId = jwtService.getUserIdx();
             return new BaseResponse<>(boardService.deleteBoard(userId, boardId));
         } catch(BaseException exception){
+            return new BaseResponse<>(exception.getStatus());
+        }
+    }
+
+    /** 게시글을 내용 or 제목으로 검색하기 **/
+    @GetMapping("/search")
+    public BaseResponse<List<GetBoardRes>> getBoardsByTitleOrContent(@RequestParam(name="keyword") String keyword) {
+        try{
+            Long userId = jwtService.getUserIdx();
+            return new BaseResponse<>(boardService.getBoardsByTitleOrContent(userId, keyword));
+        }catch (BaseException exception){
+            return new BaseResponse<>(exception.getStatus());
+        }
+    }
+
+    /** 게시글을 boardType별로 가장 최신글 하나씩 조회 **/
+    @GetMapping("/new")
+    public BaseResponse<List<GetBoardEachOneRes>> getBoardsByCategoryOne() {
+        try{
+            Long userId = jwtService.getUserIdx();
+            return new BaseResponse<>(boardService.getBoardsByCategoryOne(userId));
+        }catch (BaseException exception){
+            return new BaseResponse<>(exception.getStatus());
+        }
+    }
+
+
+    /** 메인화면 인기 게시글 4개 조회 (좋아요 10개 이상, 최신순 정렬) **/
+    @GetMapping("/hot/main")
+    public BaseResponse<List<GetBoardEachOneRes>> getBoardsByLikeMain() {
+        try{
+            Long userId = jwtService.getUserIdx();
+            return new BaseResponse<>(boardService.getBoardsByLikeMain(userId));
+        }catch (BaseException exception){
+            return new BaseResponse<>(exception.getStatus());
+        }
+    }
+
+    /** 인기 게시글 전체 조회 (좋아요 10개 이상, 최신순 정렬) **/
+    @GetMapping("/hot")
+    public BaseResponse<List<GetBoardEachOneRes>> getBoardsByLike() {
+        try{
+            Long userId = jwtService.getUserIdx();
+            return new BaseResponse<>(boardService.getBoardsByLike(userId));
+        }catch (BaseException exception){
+            return new BaseResponse<>(exception.getStatus());
+        }
+    }
+
+
+    /** category별 좋아요 top 게시글, 댓글 top 게시글 조회하기(최신순) **/
+    @GetMapping("/{category}/top")
+    public BaseResponse<List<GetTopBoardRes>> getTopBoardsByCategory(@PathVariable BoardType category) {
+        try{
+            Long userId = jwtService.getUserIdx();
+            return new BaseResponse<>(boardService.getTopBoardsByCategory(userId, category));
+        }catch (BaseException exception){
             return new BaseResponse<>(exception.getStatus());
         }
     }

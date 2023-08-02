@@ -2,37 +2,23 @@ package com.example.hello_there.login.naver;
 
 import com.example.hello_there.exception.BaseException;
 import com.example.hello_there.exception.BaseResponse;
-import com.example.hello_there.login.dto.AssertionDTO;
 import com.example.hello_there.login.dto.JwtResponseDTO;
-import com.example.hello_there.login.google.dto.GetGoogleUserRes;
 import com.example.hello_there.login.jwt.JwtProvider;
 import com.example.hello_there.login.jwt.Token;
 import com.example.hello_there.login.jwt.TokenRepository;
-import com.example.hello_there.login.kakao.dto.GetKakaoUserRes;
 import com.example.hello_there.login.naver.dto.GetNaverUserRes;
 import com.example.hello_there.user.User;
 import com.example.hello_there.user.UserRepository;
 import com.example.hello_there.user.UserService;
 import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonParser;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 

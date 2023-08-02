@@ -20,6 +20,6 @@ public class GetBoardRes {
     private String title;
     private String content;
     private Long view; // 조회수
-    private Long CommentCount; // 댓글 수
-    private Long LikeCount; // 좋아요 수
+    private Long commentCount; // 댓글 수
+    private Long likeCount; // 좋아요 수
 }

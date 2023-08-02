@@ -36,6 +36,12 @@ public class Board extends BaseTimeEntity {
     @Column(columnDefinition = "bigint default 0")
     private Long view; // 조회수
 
+    @Column(columnDefinition = "bigint default 0")
+    private Long commentCount; // 댓글 수
+
+    @Column(columnDefinition = "bigint default 0")
+    private Long likeCount; // 좋아요 수
+
     // 멤버와 관계 매핑
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")

@@ -1,9 +1,6 @@
 package com.example.hello_there.board;
 
-import com.example.hello_there.board.dto.GetBoardDetailRes;
-import com.example.hello_there.board.dto.GetBoardRes;
-import com.example.hello_there.board.dto.PatchBoardReq;
-import com.example.hello_there.board.dto.PostBoardReq;
+import com.example.hello_there.board.dto.*;
 import com.example.hello_there.board.like.LikeBoard;
 import com.example.hello_there.board.like.LikeBoardRepository;
 import com.example.hello_there.board.photo.PostPhoto;
@@ -72,11 +69,13 @@ public class BoardService {
             reportService.checkBlackUser("board",userId);
 
             User user = utilService.findByUserIdWithValidation(userId);
-            House house = utilService.findByHouseIdWithValidation(postBoardReq.getHouseId());
+            House house = utilService.findByHouseIdWithValidation(user.getHouse().getHouseId());
             Board board = Board.builder()
                     .title(postBoardReq.getTitle())
                     .content(postBoardReq.getContent())
                     .view(0L)
+                    .commentCount(0L)
+                    .likeCount(0L)
                     .boardType(postBoardReq.getBoardType())
                     .photoList(new ArrayList<>())
                     .user(user)
@@ -129,7 +128,7 @@ public class BoardService {
                 board.getBoardType(), convertLocalDateTimeToLocalDate(board.getCreateDate()),
                 convertLocalDateTimeToTime(board.getCreateDate()), board.getUser().getNickName(),
                 profile, board.getTitle(), board.getContent(), board.getView(),
-                commentRepository.countByBoardBoardId(boardId), likeBoardRepository.countByBoardBoardId(board.getBoardId()), getS3Res, response);
+                board.getCommentCount(), board.getLikeCount(), getS3Res, response);
 
         return getBoardDetailRes;
     }
@@ -139,15 +138,16 @@ public class BoardService {
      * 게시글 카테고리별 전체 조회
      **/
     @Transactional
-    public List<GetBoardRes> getBoardsByCategory(Long houseId, BoardType category) throws BaseException {
+    public List<GetBoardRes> getBoardsByCategory(Long userId, BoardType category) throws BaseException {
         try {
+            Long houseId = utilService.findByUserIdWithValidation(userId).getHouse().getHouseId();
             List<Board> boards = boardRepository.findAllByBoardTypeAndHouse_HouseIdOrderByBoardIdDesc(category, houseId);
             List<GetBoardRes> getBoardRes = boards.stream()
                     .map(board -> new GetBoardRes(board.getBoardId(), board.getBoardType(),
                             convertLocalDateTimeToLocalDate(board.getCreateDate()),
                             convertLocalDateTimeToTime(board.getCreateDate()),
                             board.getUser().getNickName(), board.getTitle(), board.getContent(), board.getView(),
-                            commentRepository.countByBoardBoardId(board.getBoardId()), likeBoardRepository.countByBoardBoardId(board.getBoardId())))
+                            board.getCommentCount(), board.getLikeCount()))
                     .collect(Collectors.toList());
 
             return getBoardRes;
@@ -158,6 +158,68 @@ public class BoardService {
 
 
     @Transactional
+    public List<GetBoardEachOneRes> getBoardsByCategoryOne(Long userId) throws BaseException {
+        try {
+            Long houseId = utilService.findByUserIdWithValidation(userId).getHouse().getHouseId();
+            List<Board> boards = boardRepository.findBoardsWithMaxBoardIdForEachBoardType(houseId);
+            List<GetBoardEachOneRes> getBoardEachOneRes = boards.stream()
+                    .map(board -> new GetBoardEachOneRes(board.getBoardId(), board.getBoardType(),
+                           board.getTitle()))
+                    .collect(Collectors.toList());
+            return getBoardEachOneRes;
+        } catch (Exception exception) {
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
+    @Transactional
+    public List<GetBoardEachOneRes> getBoardsByLikeMain(Long userId) throws BaseException {
+        try {
+            Long houseId = utilService.findByUserIdWithValidation(userId).getHouse().getHouseId();
+            List<Board> boards = boardRepository.findBoardsByLikesMain(houseId);
+            List<GetBoardEachOneRes> getBoardEachOneRes = boards.stream()
+                    .map(board -> new GetBoardEachOneRes(board.getBoardId(), board.getBoardType(),
+                            board.getTitle()))
+                    .collect(Collectors.toList());
+            return getBoardEachOneRes;
+        } catch (Exception exception) {
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
+
+    @Transactional
+    public List<GetTopBoardRes> getTopBoardsByCategory(Long userId, BoardType category) throws BaseException {
+        try {
+            Long houseId = utilService.findByUserIdWithValidation(userId).getHouse().getHouseId();
+            List<Board> boards = boardRepository.findBoardsWithMostCommentsAndLikes(houseId, category); // houseId가 같고 category가 같으며 댓글이 가장 많은 게시글과 좋아요가 가장 많은 게시글 이렇게 두 개를 반환
+            List<GetTopBoardRes> getBoardRes = boards.stream()
+                    .map(board -> new GetTopBoardRes(board.getBoardId(), board.getBoardType(),
+                       board.getTitle(), board.getCommentCount(), board.getLikeCount()))
+                    .collect(Collectors.toList());
+            return getBoardRes;
+        } catch (Exception exception) {
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
+
+    @Transactional
+    public List<GetBoardEachOneRes> getBoardsByLike(Long userId) throws BaseException {
+        try {
+            Long houseId = utilService.findByUserIdWithValidation(userId).getHouse().getHouseId();
+            List<Board> boards = boardRepository.findBoardsByLikes(houseId);
+            List<GetBoardEachOneRes> getBoardEachOneRes = boards.stream()
+                    .map(board -> new GetBoardEachOneRes(board.getBoardId(), board.getBoardType(),
+                            board.getTitle()))
+                    .collect(Collectors.toList());
+            return getBoardEachOneRes;
+        } catch (Exception exception) {
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
+    @Transactional
     public List<GetBoardRes> getBoardById(Long userId) throws BaseException {
         try {
             List<Board> boards = boardRepository.findBoardByUserId(userId);
@@ -166,8 +228,27 @@ public class BoardService {
                             convertLocalDateTimeToLocalDate(board.getCreateDate()),
                             convertLocalDateTimeToTime(board.getCreateDate()),
                             board.getUser().getNickName(), board.getTitle(), board.getContent(), board.getView(),
-                            commentRepository.countByBoardBoardId(board.getBoardId()), likeBoardRepository.countByBoardBoardId(board.getBoardId())))
+                            board.getCommentCount(), board.getLikeCount()))
                     .collect(Collectors.toList());
+            return getBoardRes;
+        } catch (Exception exception) {
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
+    @Transactional
+    public List<GetBoardRes> getBoardsByTitleOrContent(Long userId, String keyword) throws BaseException {
+        try {
+            Long houseId = utilService.findByUserIdWithValidation(userId).getHouse().getHouseId();
+            List<Board> boards = boardRepository.findBoardsByTitleOrContentContainingAndHouseId(keyword, houseId);
+            List<GetBoardRes> getBoardRes = boards.stream()
+                    .map(board -> new GetBoardRes(board.getBoardId(), board.getBoardType(),
+                            convertLocalDateTimeToLocalDate(board.getCreateDate()),
+                            convertLocalDateTimeToTime(board.getCreateDate()),
+                            board.getUser().getNickName(), board.getTitle(), board.getContent(), board.getView(),
+                            board.getCommentCount(), board.getLikeCount()))
+                    .collect(Collectors.toList());
+
             return getBoardRes;
         } catch (Exception exception) {
             throw new BaseException(DATABASE_ERROR);
@@ -228,6 +309,7 @@ public class BoardService {
         }
     }
 
+    @Transactional
     public String likeOrUnlikeBoard(Long userId, Long boardId) throws BaseException {
         try {
             Board board = utilService.findByBoardIdWithValidation(boardId);
@@ -238,10 +320,14 @@ public class BoardService {
                 // 이미 좋아요가 눌러져 있는 상태 -> 좋아요 취소
                 LikeBoard likeBoard = likeBoardOptional.get();
                 this.likeBoardRepository.deleteById(likeBoard.getId());
+                // board의 좋아요 count - 1;
+                this.boardRepository.decrementlikesCountById(boardId);
                 return "게시글의 좋아요를 취소했습니다.";
             } else {
-                // 이미 좋아요가 눌러져 있지 않은 상태 -> 좋아요
+                // 좋아요가 눌러져 있지 않은 상태 -> 좋아요
                 this.likeBoardRepository.save(new LikeBoard(user, board));
+                // board의 좋아요 count + 1;
+                this.boardRepository.incrementlikesCountById(boardId);
                 return "게시글에 좋아요를 눌렀습니다.";
             }
         } catch (BaseException exception) {

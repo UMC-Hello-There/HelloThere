@@ -10,19 +10,15 @@ import com.example.hello_there.login.jwt.TokenRepository;
 import com.example.hello_there.user.User;
 import com.example.hello_there.user.UserRepository;
 import com.example.hello_there.user.UserService;
-import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -34,9 +30,9 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.HashMap;
-import java.util.Map;
 
-import static com.example.hello_there.exception.BaseResponseStatus.*;
+import static com.example.hello_there.exception.BaseResponseStatus.FAIL_TO_GET_INFO;
+import static com.example.hello_there.exception.BaseResponseStatus.POST_USERS_EXISTS_EMAIL;
 
 @Service
 @RequiredArgsConstructor
