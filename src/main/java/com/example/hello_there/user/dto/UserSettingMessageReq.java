@@ -1,4 +1,4 @@
-package com.example.hello_there.user.user_setting.dto;
+package com.example.hello_there.user.dto;
 
 import com.example.hello_there.user.user_setting.UserSetting;
 import lombok.AllArgsConstructor;
@@ -15,7 +15,7 @@ public class UserSettingMessageReq {
 
     public UserSetting updateEntity(UserSetting userSetting) {
         if(Objects.nonNull(messageReceptionBlock)){
-            userSetting.setMessageReceptionBlock(messageReceptionBlock);
+            userSetting.setCommentCheck(messageReceptionBlock);
         }
         return userSetting;
     }

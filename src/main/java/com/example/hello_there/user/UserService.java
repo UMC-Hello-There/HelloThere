@@ -2,8 +2,11 @@ package com.example.hello_there.user;
 
 import com.example.hello_there.board.Board;
 import com.example.hello_there.board.BoardRepository;
+import com.example.hello_there.board.dto.GetBoardRes;
+import com.example.hello_there.board.like.LikeBoardRepository;
 import com.example.hello_there.board.photo.dto.GetS3Res;
 import com.example.hello_there.chat_room.dto.GetChatRoomRes;
+import com.example.hello_there.comment.CommentRepository;
 import com.example.hello_there.exception.BaseException;
 import com.example.hello_there.login.dto.JwtResponseDTO;
 import com.example.hello_there.login.jwt.JwtProvider;
@@ -38,6 +41,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static com.example.hello_there.exception.BaseResponseStatus.*;
+import static com.example.hello_there.utils.UtilService.convertLocalDateTimeToLocalDate;
 import static com.example.hello_there.utils.UtilService.convertLocalDateTimeToTime;
 import static com.example.hello_there.utils.ValidationRegex.isRegexEmail;
 
@@ -53,12 +57,15 @@ public class UserService {
     private final DeleteHistoryRepository deleteHistoryRepository;
     private final UserSettingRepository userSettingRepository;
     private final UserNoticeRepository userNoticeRepository;
+    private final CommentRepository commentRepository;
+    private final LikeBoardRepository likeBoardRepository;
     private final S3Service s3Service;
     private final JwtProvider jwtProvider;
     private final UtilService utilService;
     private final ProfileService profileService;
     private final JwtService jwtService;
     private final RedisTemplate redisTemplate;
+
 
     /**
      * 유저 생성 후 DB에 저장(회원 가입) with JWT
@@ -370,5 +377,24 @@ public class UserService {
                 .sorted(Comparator.comparing(GetNoticeRes::getNoticeId).reversed())
                 .collect(Collectors.toList());
         return getNoticeRes;
+    }
+
+    /*
+     * 마이페이지 내가 댓글 단 게시물
+     */
+    public List<GetBoardRes> findCommentedBoards(Long userId) {
+        try {
+            List<Board> boards = commentRepository.findCommentedBoardsByUserId(userId);
+            List<GetBoardRes> getBoardRes = boards.stream()
+                    .map(board -> new GetBoardRes(board.getBoardId(), board.getBoardType(),
+                            convertLocalDateTimeToLocalDate(board.getCreateDate()),
+                            convertLocalDateTimeToTime(board.getCreateDate()),
+                            board.getUser().getNickName(), board.getTitle(), board.getContent(), board.getView(),
+                            commentRepository.countByBoardBoardId(board.getBoardId()), likeBoardRepository.countByBoardBoardId(board.getBoardId())))
+                    .collect(Collectors.toList());
+            return getBoardRes;
+        } catch (Exception exception) {
+            throw new BaseException(DATABASE_ERROR);
+        }
     }
 }
