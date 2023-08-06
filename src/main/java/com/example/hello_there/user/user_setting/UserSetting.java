@@ -61,4 +61,9 @@ public class UserSetting extends BaseTimeEntity {
     public void setBestBoardCheck(Boolean bestBoardCheck) {
         this.bestBoardCheck = bestBoardCheck;
     }
+
+    public void setMessageReceptionBlock(Boolean messageReceptionBlock) {
+        this.messageReceptionBlock = messageReceptionBlock;
+    }
+
 }
