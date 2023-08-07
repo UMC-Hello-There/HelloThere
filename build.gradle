@@ -58,6 +58,11 @@ dependencies {
 	// firebase sdk 의존성
 	implementation 'com.google.firebase:firebase-admin:7.1.0'
 
+	// AWS SQS 의존성
+	implementation group: 'org.springframework.cloud', name: 'spring-cloud-aws-messaging', version: '2.2.3.RELEASE'
+	implementation group: 'org.springframework.cloud', name: 'spring-cloud-aws-autoconfigure', version: '2.2.3.RELEASE'
+	implementation 'org.springframework.boot:spring-boot-starter'
+
 	compileOnly 'org.projectlombok:lombok'
 	runtimeOnly 'com.mysql:mysql-connector-j'
 	annotationProcessor 'org.projectlombok:lombok'
