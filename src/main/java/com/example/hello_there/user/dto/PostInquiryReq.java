@@ -1,4 +1,4 @@
-package com.example.hello_there.sqs.dto;
+package com.example.hello_there.user.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
