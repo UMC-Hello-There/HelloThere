@@ -9,6 +9,7 @@ import com.example.hello_there.exception.BaseException;
 import com.example.hello_there.report.Report;
 import com.example.hello_there.report.ReportRepository;
 import com.example.hello_there.report.ReportService;
+import com.example.hello_there.sqs.SQSService;
 import com.example.hello_there.user.User;
 import com.example.hello_there.user.UserRepository;
 import com.example.hello_there.user.UserStatus;
@@ -36,6 +37,7 @@ public class CommentService {
     private final ReportRepository reportRepository;
     private final ReportService reportService;
     private final UtilService utilService;
+    private final SQSService sqsService;
 
 
     /**
@@ -205,17 +207,35 @@ public class CommentService {
         String prefix = "comment";
         switch (cumulativeReportCount) {
             case 4 -> // 누적 신고 횟수 4
-                    reportService.setReportExpiration(prefix,reported, now.plus(3, ChronoUnit.DAYS), UNABLE_TO_COMMENT_THREE.name());
+            {
+                reportService.setReportExpiration(prefix,reported, now.plus(3, ChronoUnit.DAYS), UNABLE_TO_COMMENT_THREE.name());
+                sqsService.sendMessage(reported, 3, "댓글 작성 금지");
+            }
             case 8 -> // 누적 신고 횟수 8
-                    reportService.setReportExpiration(prefix,reported, now.plus(5, ChronoUnit.DAYS), UNABLE_TO_COMMENT_FIVE.name());
+            {
+                reportService.setReportExpiration(prefix,reported, now.plus(5, ChronoUnit.DAYS), UNABLE_TO_COMMENT_FIVE.name());
+                sqsService.sendMessage(reported, 5, "댓글 작성 금지");
+            }
             case 12 -> // 누적 신고 횟수 12
-                    reportService.setReportExpiration(prefix,reported, now.plus(7, ChronoUnit.DAYS), UNABLE_TO_COMMENT_SEVEN.name());
+            {
+                reportService.setReportExpiration(prefix,reported, now.plus(7, ChronoUnit.DAYS), UNABLE_TO_COMMENT_SEVEN.name());
+                sqsService.sendMessage(reported, 7, "댓글 작성 금지");
+            }
             case 16 -> // 누적 신고 횟수 16
-                    reportService.setReportExpiration(prefix,reported, now.plus(14, ChronoUnit.DAYS), UNABLE_TO_COMMENT_FOURTEEN.name());
+            {
+                reportService.setReportExpiration(prefix,reported, now.plus(14, ChronoUnit.DAYS), UNABLE_TO_COMMENT_FOURTEEN.name());
+                sqsService.sendMessage(reported, 14, "댓글 작성 금지");
+            }
             case 20 -> // 누적 신고 횟수 20
-                    reportService.setReportExpiration(prefix,reported, now.plus(30, ChronoUnit.DAYS), UNABLE_TO_COMMENT_MONTH.name());
+            {
+                reportService.setReportExpiration(prefix,reported, now.plus(30, ChronoUnit.DAYS), UNABLE_TO_COMMENT_MONTH.name());
+                sqsService.sendMessage(reported, 30, "댓글 작성 금지");
+            }
             case 21 -> // 누적 신고 횟수 21
-                    reported.setStatus(UserStatus.INACTIVE); // 영구 정지
+            {
+                reported.setStatus(UserStatus.INACTIVE); // 영구 정지
+                sqsService.sendMessage(reported, -1, "영구 정지");
+            }
         }
         return "댓글 작성자에 대한 신고 처리가 완료되었습니다.";
     }

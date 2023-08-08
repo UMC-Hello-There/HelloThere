@@ -15,6 +15,7 @@ import com.example.hello_there.house.House;
 import com.example.hello_there.report.Report;
 import com.example.hello_there.report.ReportRepository;
 import com.example.hello_there.report.ReportService;
+import com.example.hello_there.sqs.SQSService;
 import com.example.hello_there.user.User;
 import com.example.hello_there.user.UserStatus;
 import com.example.hello_there.utils.S3Service;
@@ -56,6 +57,7 @@ public class BoardService {
     private final PostPhotoService postPhotoService;
     private final CommentRepository commentRepository;
     private final LikeBoardRepository likeBoardRepository;
+    private final SQSService sqsService;
 
     @Transactional
     public void save(Board board) {
@@ -354,20 +356,39 @@ public class BoardService {
         int cumulativeReportCount = reportService.findCumulativeReportCount(reported,5);
 
         LocalDateTime now = LocalDateTime.now(); // 현재 시간
+        List<String> reasons = reportRepository.findMatchingReportReasons(reported.getId(), board.getBoardId(), 0L, 0L);
         String prefix = "board";
         switch (cumulativeReportCount) {
             case 4 -> // 누적 신고 횟수 4
-                    reportService.setReportExpiration(prefix,reported, now.plus(3, ChronoUnit.DAYS), UNABLE_TO_UPLOAD_THREE.name());
+            {
+                reportService.setReportExpiration(prefix,reported, now.plus(3, ChronoUnit.DAYS), UNABLE_TO_UPLOAD_THREE.name());
+                sqsService.sendMessage(reported, 3, "게시글 업로드 금지");
+            }
             case 8 -> // 누적 신고 횟수 8
-                    reportService.setReportExpiration(prefix,reported, now.plus(5, ChronoUnit.DAYS), UNABLE_TO_UPLOAD_FIVE.name());
+            {
+                reportService.setReportExpiration(prefix, reported, now.plus(5, ChronoUnit.DAYS), UNABLE_TO_UPLOAD_FIVE.name());
+                sqsService.sendMessage(reported, 5, "게시글 업로드 금지");
+            }
             case 12 -> // 누적 신고 횟수 12
-                    reportService.setReportExpiration(prefix,reported, now.plus(7, ChronoUnit.DAYS), UNABLE_TO_UPLOAD_SEVEN.name());
+            {
+                reportService.setReportExpiration(prefix, reported, now.plus(7, ChronoUnit.DAYS), UNABLE_TO_UPLOAD_SEVEN.name());
+                sqsService.sendMessage(reported, 7, "게시글 업로드 금지");
+            }
             case 16 -> // 누적 신고 횟수 16
-                    reportService.setReportExpiration(prefix,reported, now.plus(14, ChronoUnit.DAYS), UNABLE_TO_UPLOAD_FOURTEEN.name());
+            {
+                reportService.setReportExpiration(prefix, reported, now.plus(14, ChronoUnit.DAYS), UNABLE_TO_UPLOAD_FOURTEEN.name());
+                sqsService.sendMessage(reported, 14, "게시글 업로드 금지");
+            }
             case 20 -> // 누적 신고 횟수 20
-                    reportService.setReportExpiration(prefix,reported, now.plus(30, ChronoUnit.DAYS), UNABLE_TO_UPLOAD_MONTH.name());
+            {
+                reportService.setReportExpiration(prefix,reported, now.plus(30, ChronoUnit.DAYS), UNABLE_TO_UPLOAD_MONTH.name());
+                sqsService.sendMessage(reported, 30, "게시글 업로드 금지");
+            }
             case 21 -> // 누적 신고 횟수 21
-                    reported.setStatus(UserStatus.INACTIVE); // 영구 정지
+            {
+                reported.setStatus(UserStatus.INACTIVE); // 영구 정지
+                sqsService.sendMessage(reported, -1, "영구 정지");
+            }
         }
 
         return "게시글 작성자에 대한 신고 처리가 완료되었습니다.";

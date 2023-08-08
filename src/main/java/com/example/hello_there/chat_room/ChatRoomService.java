@@ -3,6 +3,7 @@ package com.example.hello_there.chat_room;
 import com.example.hello_there.chat_room.dto.*;
 import com.example.hello_there.exception.BaseException;
 import com.example.hello_there.login.jwt.TokenRepository;
+import com.example.hello_there.sqs.SQSService;
 import com.example.hello_there.text_message.TextMessage;
 import com.example.hello_there.text_message.TextMessageRepository;
 import com.example.hello_there.text_message.dto.AddUserReq;
@@ -42,6 +43,7 @@ public class ChatRoomService {
     private final ReportService reportService;
     private final ReportRepository reportRepository;
     private final UtilService utilService;
+    private final SQSService sqsService;
 
     @Transactional
     public ChatRoom createChatRoom(Long userId, PostChatRoomReq postChatRoomReq) throws BaseException {
@@ -347,17 +349,35 @@ public class ChatRoomService {
         String prefix = "message";
         switch (cumulativeReportCount) {
             case 4 -> // 누적 신고 횟수 4
-                    reportService.setReportExpiration(prefix,reported, now.plus(3, ChronoUnit.DAYS), UNABLE_TO_MESSAGE_THREE.name());
+            {
+                reportService.setReportExpiration(prefix,reported, now.plus(3, ChronoUnit.DAYS), UNABLE_TO_MESSAGE_THREE.name());
+                sqsService.sendMessage(reported, 3, "채팅 금지");
+            }
             case 8 -> // 누적 신고 횟수 8
-                    reportService.setReportExpiration(prefix,reported, now.plus(5, ChronoUnit.DAYS), UNABLE_TO_MESSAGE_FIVE.name());
+            {
+                reportService.setReportExpiration(prefix,reported, now.plus(5, ChronoUnit.DAYS), UNABLE_TO_MESSAGE_FIVE.name());
+                sqsService.sendMessage(reported, 5, "채팅 금지");
+            }
             case 12 -> // 누적 신고 횟수 12
-                    reportService.setReportExpiration(prefix,reported, now.plus(7, ChronoUnit.DAYS), UNABLE_TO_MESSAGE_SEVEN.name());
+            {
+                reportService.setReportExpiration(prefix,reported, now.plus(7, ChronoUnit.DAYS), UNABLE_TO_MESSAGE_SEVEN.name());
+                sqsService.sendMessage(reported, 7, "채팅 금지");
+            }
             case 16 -> // 누적 신고 횟수 16
-                    reportService.setReportExpiration(prefix,reported, now.plus(14, ChronoUnit.DAYS), UNABLE_TO_MESSAGE_FOURTEEN.name());
+            {
+                reportService.setReportExpiration(prefix,reported, now.plus(14, ChronoUnit.DAYS), UNABLE_TO_MESSAGE_FOURTEEN.name());
+                sqsService.sendMessage(reported, 14, "채팅 금지");
+            }
             case 20 -> // 누적 신고 횟수 20
-                    reportService.setReportExpiration(prefix,reported, now.plus(30, ChronoUnit.DAYS), UNABLE_TO_MESSAGE_MONTH.name());
+            {
+                reportService.setReportExpiration(prefix,reported, now.plus(30, ChronoUnit.DAYS), UNABLE_TO_MESSAGE_MONTH.name());
+                sqsService.sendMessage(reported, 30, "채팅 금지");
+            }
             case 21 -> // 누적 신고 횟수 21
-                    reported.setStatus(UserStatus.INACTIVE); // 영구 정지
+            {
+                reported.setStatus(UserStatus.INACTIVE); // 영구 정지
+                sqsService.sendMessage(reported, -1, "영구 정지");
+            }
         }
 
         return "메세지 작성자에 대한 신고 처리가 완료되었습니다.";

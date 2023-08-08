@@ -1,11 +1,12 @@
 package com.example.hello_there.user;
 
-import com.example.hello_there.board.Board;
 import com.example.hello_there.board.BoardService;
 import com.example.hello_there.board.dto.GetBoardRes;
 import com.example.hello_there.exception.BaseException;
 import com.example.hello_there.exception.BaseResponse;
 import com.example.hello_there.login.jwt.JwtService;
+import com.example.hello_there.sqs.SQSService;
+import com.example.hello_there.user.dto.PostInquiryReq;
 import com.example.hello_there.user.dto.*;
 import com.example.hello_there.user.user_setting.UserSettingService;
 import com.example.hello_there.user.user_setting.UserSetting;
@@ -28,6 +29,7 @@ public class UserController {
     private final BoardService boardService;
     private final UserSettingService userSettingService;
     private final JwtService jwtService;
+    private final SQSService sqsService;
 
     /**
      * 회원 가입
@@ -259,6 +261,16 @@ public class UserController {
         }
     }
 
-
+    /**
+     * 광고 문의하기
+     */
+    @PostMapping("/inquiry")
+    public BaseResponse<String> sendMessage(@RequestBody PostInquiryReq postInquiryReq) {
+        try {
+            return new BaseResponse<>(sqsService.sendInquiry(postInquiryReq));
+        } catch (BaseException exception) {
+            return new BaseResponse<>(exception.getStatus());
+        }
+    }
 }
 
