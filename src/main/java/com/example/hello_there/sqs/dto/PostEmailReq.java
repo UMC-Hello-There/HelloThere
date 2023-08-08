@@ -8,5 +8,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class PostEmailReq {
-    private String content;
+    private Long receiverId; // 수신자 ID
+    private int reportCount; // 누적 신고 횟수
+    private String prohibition; // 제재 사항
 }
