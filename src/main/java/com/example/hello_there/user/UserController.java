@@ -1,8 +1,12 @@
 package com.example.hello_there.user;
 
+import com.example.hello_there.board.BoardService;
+import com.example.hello_there.board.dto.GetBoardRes;
 import com.example.hello_there.exception.BaseException;
 import com.example.hello_there.exception.BaseResponse;
 import com.example.hello_there.login.jwt.JwtService;
+import com.example.hello_there.sqs.SQSService;
+import com.example.hello_there.user.dto.PostInquiryReq;
 import com.example.hello_there.user.dto.*;
 import com.example.hello_there.user.user_setting.UserSettingService;
 import com.example.hello_there.user.user_setting.UserSetting;
@@ -18,12 +22,14 @@ import java.util.List;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/user")
+@RequestMapping("/users")
 public class UserController {
 
     private final UserService userService;
+    private final BoardService boardService;
     private final UserSettingService userSettingService;
     private final JwtService jwtService;
+    private final SQSService sqsService;
 
     /**
      * 회원 가입
@@ -65,7 +71,7 @@ public class UserController {
     /**
      * 닉네임 중복 확인
      */
-    @GetMapping("/nickname")
+    @GetMapping("/check-nickname")
     public BaseResponse<Boolean> nickNameChk(@RequestParam String nickName) {
         try {
             return new BaseResponse<>(userService.nickNameChk(nickName));
@@ -77,7 +83,7 @@ public class UserController {
     /**
      * 이메일 중복 확인
      */
-    @GetMapping("/email")
+    @GetMapping("/check-email")
     public BaseResponse<Boolean> emailChk(@RequestParam String email) {
         try {
             return new BaseResponse<>(userService.emailChk(email));
@@ -206,11 +212,11 @@ public class UserController {
      * 마이페이지 쪽지 설정
      */
     @PatchMapping("/setting/message")
-    public BaseResponse<UserSettingRes> patchUserSettingMessage(@RequestBody UserSettingMessageReq userSettingMessageReq) {
+    public BaseResponse<UserSettingMessageRes> patchUserSettingMessage(@RequestBody UserSettingMessageReq userSettingMessageReq) {
         try {
             Long userId = jwtService.getUserIdx();
             UserSetting userSetting = userSettingService.modifyUserSettingMessage(userId, userSettingMessageReq);
-            return new BaseResponse<>(UserSettingRes.fromEntity(userSetting));
+            return new BaseResponse<>(UserSettingMessageRes.fromEntity(userSetting));
         } catch (BaseException exception) {
             return new BaseResponse<>(exception.getStatus());
         }
@@ -224,6 +230,44 @@ public class UserController {
         try {
             Long userId = jwtService.getUserIdx();
             return new BaseResponse<>(userService.getNotice(userId));
+        } catch (BaseException exception) {
+            return new BaseResponse<>(exception.getStatus());
+        }
+    }
+
+    /**
+     * 마이페이지 내 게시물
+     */
+    @GetMapping("/boards")
+    public BaseResponse<List<GetBoardRes>> getUserBoards() {
+        try {
+            Long userId = jwtService.getUserIdx();
+            return new BaseResponse<>(boardService.getBoardById(userId));
+        } catch (BaseException exception) {
+            return new BaseResponse<>(exception.getStatus());
+        }
+    }
+
+    /**
+     * 마이페이지 내가 댓글 단 게시물
+     */
+    @GetMapping("/comment/boards")
+    public BaseResponse<List<GetBoardRes>> getUserCommentBoards() {
+        try {
+            Long userId = jwtService.getUserIdx();
+            return new BaseResponse<>(userService.findCommentedBoards(userId));
+        } catch (BaseException exception) {
+            return new BaseResponse<>(exception.getStatus());
+        }
+    }
+
+    /**
+     * 광고 문의하기
+     */
+    @PostMapping("/inquiry")
+    public BaseResponse<String> sendMessage(@RequestBody PostInquiryReq postInquiryReq) {
+        try {
+            return new BaseResponse<>(sqsService.sendInquiry(postInquiryReq));
         } catch (BaseException exception) {
             return new BaseResponse<>(exception.getStatus());
         }
