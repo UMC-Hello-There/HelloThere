@@ -60,6 +60,7 @@ public enum BaseResponseStatus {
     FAILED_TO_LOGOUT(false, 3015, "로그아웃에 실패하였습니다"),
     MEMBER_NOT_FOUND(false, 3016, "등록된 이메일이 아닙니다."),
     INCORRECT_PASSWORD(false, 3017, "비밀번호가 틀렸습니다"),
+    FAILED_TO_CONVERT(false, 3018, "JSON 변환에 실패하였습니다."),
 
 
     /**
