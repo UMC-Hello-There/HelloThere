@@ -39,6 +39,4 @@ public class Ad {
         this.phoneNumber = phoneNumber;
         this.expireDate = expireDate;
     }
-
-
 }

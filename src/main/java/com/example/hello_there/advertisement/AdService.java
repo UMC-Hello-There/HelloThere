@@ -30,7 +30,7 @@ public class AdService {
                 .expireDate(postAdReq.getExpireDate())
                 .district(postAdReq.getDistrict())
                 .build());
-        return getS3Res.getFileName();
+        return getS3Res.getImgUrl();
     }
 
     // 광고 표출
