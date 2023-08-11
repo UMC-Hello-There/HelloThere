@@ -82,6 +82,9 @@ public class UserService {
         if(!postUserReq.getPassword().equals(postUserReq.getPasswordChk())) {
             throw new BaseException(PASSWORD_MISSMATCH);
         }
+        if(postUserReq.getNickName().isEmpty() || postUserReq.getNickName() == null) {
+            throw new BaseException(NICKNAME_CANNOT_BE_NULL);
+        }
         if(userRepository.existsByNickName(postUserReq.getNickName())) {
             throw new BaseException(DUPLICATED_NICKNAME);
         }
