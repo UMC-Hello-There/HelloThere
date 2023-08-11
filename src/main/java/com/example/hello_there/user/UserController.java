@@ -94,13 +94,13 @@ public class UserController {
 
     /**
      * 유저 조회
-     * nickname이 파라미터에 없을 경우 아파트 주민을 모두 조회
+     * 본인의 닉네임과 프로필 사진 조회
      */
     @GetMapping("")
     public BaseResponse<GetUserRes> getUsers() {
         try {
             Long userId = jwtService.getUserIdx();
-            return new BaseResponse<>(userService.getUsersByNickname(userId));
+            return new BaseResponse<>(userService.getUsersById(userId));
         } catch (BaseException exception) {
             return new BaseResponse<>(exception.getStatus());
         }
