@@ -32,7 +32,7 @@ public class UserFeeController {
         }
     }
 
-    /** 이달의 관0리비 조회(위젯 또는 하단 탭 접근)
+    /** 이달의 관리비 조회(위젯 또는 하단 탭 접근)
      * TODO feeYear과 feeMonth가 null 로 입력되었을 경우에 대한 처리
      * **/
     @GetMapping("/detail")
