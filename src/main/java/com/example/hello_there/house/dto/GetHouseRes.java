@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Getter
 public class GetHouseRes {
-    private Long id;
+    private Long houseId;
     private String houseName;
     private String city;
     private String district;

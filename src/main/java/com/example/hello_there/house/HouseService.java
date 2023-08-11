@@ -65,11 +65,11 @@ public class HouseService {
     }
 
     @Transactional
-    public String setHouseInfo(Long userId, Long houseId) throws BaseException {
+    public House setHouseInfo(Long userId, Long houseId) throws BaseException {
         House house = utilService.findByHouseIdWithValidation(houseId);
         User user = utilService.findByUserIdWithValidation(userId);
         user.setHouse(house);
-        return "My House 등록이 완료되었습니다";
+        return house;
     }
 
     public List<PostHouseReq> getHouseInfoByRegion(String city, String district, String url) throws UnsupportedEncodingException {
