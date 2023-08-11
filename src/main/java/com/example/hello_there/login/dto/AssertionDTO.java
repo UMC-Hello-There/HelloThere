@@ -1,7 +1,5 @@
 package com.example.hello_there.login.dto;
 
-import com.example.hello_there.user.User;
-import com.example.hello_there.user.dto.GetUserRes;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

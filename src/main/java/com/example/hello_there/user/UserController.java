@@ -97,15 +97,10 @@ public class UserController {
      * nickname이 파라미터에 없을 경우 아파트 주민을 모두 조회
      */
     @GetMapping("")
-    public BaseResponse<List<GetUserRes>> getUsers(@RequestParam(required = false) String nickName) {
+    public BaseResponse<GetUserRes> getUsers() {
         try {
-            // query string인 nickname이 없을 경우 전체 아파트 주민 정보를 반환
-            if (nickName == null) {
-                Long userId = jwtService.getUserIdx();
-                return new BaseResponse<>(userService.getMembers(userId));
-            }
-            // query string인 nickname이 있는 경우 해당 유저의 정보를 반환
-            return new BaseResponse<>(userService.getUsersByNickname(nickName));
+            Long userId = jwtService.getUserIdx();
+            return new BaseResponse<>(userService.getUsersByNickname(userId));
         } catch (BaseException exception) {
             return new BaseResponse<>(exception.getStatus());
         }

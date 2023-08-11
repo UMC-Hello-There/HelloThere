@@ -15,9 +15,6 @@ public class GetUserRes {
     private Long userId;
     private GetS3Res getS3Res; // 유저 프로필 사진
     private String nickName;
-    private String email;
-    private String address;
-    private UserStatus status;
 
     public GetUserRes(User user) {
         this.userId = user.getId();
@@ -25,11 +22,5 @@ public class GetUserRes {
                 ? new GetS3Res(user.getProfile().getProfileUrl(), user.getProfile().getProfileFileName())
                 : null;
         this.nickName = user.getNickName();
-        this.email = user.getEmail();
-        this.address = (user.getHouse() != null)
-                ? String.format("%s %s %s", user.getHouse().getCity(), user.getHouse().getDistrict(),
-                user.getHouse().getHouseName())
-                : "";
-        this.status = user.getStatus();
     }
 }
