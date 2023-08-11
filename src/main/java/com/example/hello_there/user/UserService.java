@@ -82,6 +82,7 @@ public class UserService {
         if(!postUserReq.getPassword().equals(postUserReq.getPasswordChk())) {
             throw new BaseException(PASSWORD_MISSMATCH);
         }
+
         if(postUserReq.getNickName() == null || postUserReq.getNickName().isEmpty()) {
             throw new BaseException(NICKNAME_CANNOT_BE_NULL);
         }
