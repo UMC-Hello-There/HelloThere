@@ -34,6 +34,7 @@ public class AdService {
     }
 
     // 광고 표출
+    @Transactional
     public GetAdRes findAd(String district){
         Ad ad = adRepository.findAdByRandom(district);
         // 계약된 광고가 없으면 null 반환

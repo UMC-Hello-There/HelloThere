@@ -1,5 +1,7 @@
 package com.example.hello_there.board;
 
+import com.example.hello_there.advertisement.AdService;
+import com.example.hello_there.advertisement.dto.GetAdRes;
 import com.example.hello_there.board.dto.*;
 import com.example.hello_there.board.like.LikeBoard;
 import com.example.hello_there.board.like.LikeBoardRepository;
@@ -58,6 +60,7 @@ public class BoardService {
     private final CommentRepository commentRepository;
     private final LikeBoardRepository likeBoardRepository;
     private final SQSService sqsService;
+    private final AdService adService;
 
     @Transactional
     public void save(Board board) {
@@ -126,10 +129,13 @@ public class BoardService {
         } else {
             throw new BaseException(FAIL_TO_LOAD);
         }
+        // 게시글 작성 지역
+        String district = board.getHouse().getDistrict();
+
         GetBoardDetailRes getBoardDetailRes = new GetBoardDetailRes(board.getBoardId(),
                 board.getBoardType(), convertLocalDateTimeToLocalDate(board.getCreateDate()),
                 convertLocalDateTimeToTime(board.getCreateDate()), board.getUser().getNickName(),
-                profile, board.getTitle(), board.getContent(), board.getView(),
+                profile, adService.findAd(district), board.getTitle(),  board.getContent(), board.getView(),
                 board.getCommentCount(), board.getLikeCount(), getS3Res, response);
 
         return getBoardDetailRes;
@@ -166,7 +172,7 @@ public class BoardService {
             List<Board> boards = boardRepository.findBoardsWithMaxBoardIdForEachBoardType(houseId);
             List<GetBoardEachOneRes> getBoardEachOneRes = boards.stream()
                     .map(board -> new GetBoardEachOneRes(board.getBoardId(), board.getBoardType(),
-                           board.getTitle()))
+                            board.getTitle()))
                     .collect(Collectors.toList());
             return getBoardEachOneRes;
         } catch (Exception exception) {
@@ -197,7 +203,7 @@ public class BoardService {
             List<Board> boards = boardRepository.findBoardsWithMostCommentsAndLikes(houseId, category); // houseId가 같고 category가 같으며 댓글이 가장 많은 게시글과 좋아요가 가장 많은 게시글 이렇게 두 개를 반환
             List<GetTopBoardRes> getBoardRes = boards.stream()
                     .map(board -> new GetTopBoardRes(board.getBoardId(), board.getBoardType(),
-                       board.getTitle(), board.getCommentCount(), board.getLikeCount()))
+                            board.getTitle(), board.getCommentCount(), board.getLikeCount()))
                     .collect(Collectors.toList());
             return getBoardRes;
         } catch (Exception exception) {
@@ -394,4 +400,3 @@ public class BoardService {
         return "게시글 작성자에 대한 신고 처리가 완료되었습니다.";
     }
 }
-
