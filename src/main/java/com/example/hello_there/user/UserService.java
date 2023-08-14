@@ -82,12 +82,12 @@ public class UserService {
         if(!postUserReq.getPassword().equals(postUserReq.getPasswordChk())) {
             throw new BaseException(PASSWORD_MISSMATCH);
         }
+
+        if(postUserReq.getNickName() == null || postUserReq.getNickName().isEmpty()) {
+            throw new BaseException(NICKNAME_CANNOT_BE_NULL);
+        }
         if(userRepository.existsByNickName(postUserReq.getNickName())) {
             throw new BaseException(DUPLICATED_NICKNAME);
-        }
-        Object redisUser = redisTemplate.opsForValue().get(postUserReq.getEmail());
-        if(redisUser != null) { // 이메일이 Redis에 등록되었다는 건 탈퇴한 유저임을 의미
-            throw new BaseException(DELETED_USER);
         }
         String pwd;
         try{
@@ -191,27 +191,11 @@ public class UserService {
     }
 
     /**
-     * 모든 아파트 주민 조회
+     * 본인의 닉네임과 프로필 사진 조회
      */
-    public List<GetUserRes> getMembers(Long userId) throws BaseException {
+    public GetUserRes getUsersById(Long userId) throws BaseException{
         User user = utilService.findByUserIdWithValidation(userId);
-        List<User> users = userRepository.findUsersByHouseId(user.getHouse().getHouseId());
-        return users.stream()
-                .map(GetUserRes::new) // 여기서 생성자를 활용하여 User 객체를 GetUserRes로 매핑
-                .collect(Collectors.toList());
-    }
-
-    /**
-     * 특정 유저를 닉네임으로 조회
-     */
-    public List<GetUserRes> getUsersByNickname(String nickname) throws BaseException{
-        List<User> users = userRepository.findUserByNickName(nickname);
-        if(users.isEmpty()) {
-            throw new BaseException(NONE_EXIST_NICKNAME);
-        }
-        return users.stream()
-                .map(GetUserRes::new) // 여기서 생성자를 활용하여 User 객체를 GetUserRes로 매핑
-                .collect(Collectors.toList());
+        return new GetUserRes(user); // 생성자를 활용하여 User 객체를 GetUserRes로 매핑
     }
 
     /**
@@ -360,6 +344,10 @@ public class UserService {
     public Boolean emailChk(String email) {
         if(email == null || email.isEmpty()) {
             throw new BaseException(EMAIL_CANNOT_BE_NULL);
+        }
+        Object redisUser = redisTemplate.opsForValue().get(email);
+        if(redisUser != null) { // 이메일이 Redis에 등록되었다는 건 탈퇴한 유저임을 의미
+            throw new BaseException(DELETED_USER);
         }
         if(userRepository.existsByEmail(email)) {
             return false;
