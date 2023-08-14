@@ -187,4 +187,15 @@ public class BoardController {
         }
     }
 
+    /** 오늘의 홈테리어 조회 (3개/메인화면) **/
+    @GetMapping("/market/main")
+    public BaseResponse<List<GetBoardMainRes>> getboardsMarket() {
+        try{
+            Long userId = jwtService.getUserIdx();
+            return new BaseResponse<>(boardService.getboardsMarket(userId));
+        }catch (BaseException exception){
+            return new BaseResponse<>(exception.getStatus());
+        }
+    }
+
 }

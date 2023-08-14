@@ -48,6 +48,9 @@ public interface BoardRepository extends JpaRepository<Board, Long> {
     @Query(value="(SELECT * FROM board WHERE board_type='HOME_TERRIER' AND house_id = :houseId ORDER BY board_id DESC LIMIT 3)", nativeQuery = true)
     List<Board> findBoardMainHomeTerrier(Long houseId);
 
+    @Query(value="(SELECT * FROM board WHERE board_type='MARKET_PLACE_BOARD' AND house_id = :houseId ORDER BY board_id DESC LIMIT 3)", nativeQuery = true)
+    List<Board> findBoardMainMarket(Long houseId);
+
     @Query("select b from Board b where b.boardId = :boardId")
     Optional<Board> findBoardById(@Param("boardId") Long boardId);
 

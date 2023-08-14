@@ -268,6 +268,28 @@ public class BoardService {
 
 
     @Transactional
+    public List<GetBoardMainRes> getboardsMarket(Long userId) throws BaseException {
+        try {
+            Long houseId = utilService.findByUserIdWithValidation(userId).getHouse().getHouseId();
+            List<Board> boards = boardRepository.findBoardMainMarket(houseId);
+
+            List<GetBoardMainRes> getBoardMainRes = boards.stream()
+                    .map(board -> {
+                        List<PostPhoto> postPhotos = postPhotoRepository.findAllByBoardId(board.getBoardId()).orElse(Collections.emptyList());
+                        GetS3Res getS3Res = postPhotos.isEmpty() ? null :
+                                new GetS3Res(postPhotos.get(0).getImgUrl(), postPhotos.get(0).getFileName());
+                        return new GetBoardMainRes(board.getBoardId(), board.getBoardType(),
+                                board.getTitle(), getS3Res);
+                    })
+                    .collect(Collectors.toList());
+
+            return getBoardMainRes;
+        } catch (Exception exception) {
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
+    @Transactional
     public List<GetBoardRes> getBoardsByTitleOrContent(Long userId, String keyword) throws BaseException {
         try {
             Long houseId = utilService.findByUserIdWithValidation(userId).getHouse().getHouseId();
