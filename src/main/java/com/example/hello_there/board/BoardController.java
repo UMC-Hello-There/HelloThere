@@ -175,4 +175,16 @@ public class BoardController {
             return new BaseResponse<>(exception.getStatus());
         }
     }
+
+    /** 오늘의 홈테리어 조회 (3개/메인화면) **/
+    @GetMapping("/hometerrier/main")
+    public BaseResponse<List<GetBoardMainRes>> getboardsHometerrier() {
+        try{
+            Long userId = jwtService.getUserIdx();
+            return new BaseResponse<>(boardService.getboardsHometerrier(userId));
+        }catch (BaseException exception){
+            return new BaseResponse<>(exception.getStatus());
+        }
+    }
+
 }
