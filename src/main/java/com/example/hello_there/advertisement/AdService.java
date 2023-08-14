@@ -34,9 +34,9 @@ public class AdService {
     }
 
     // 광고 표출
+    @Transactional
     public GetAdRes findAd(String district){
         Ad ad = adRepository.findAdByRandom(district);
-        // 계약된 광고가 없으면 null 반환
         if(ad == null){
             return null;
         }
@@ -45,6 +45,9 @@ public class AdService {
             s3Service.deleteFile(ad.getAdImgName());
             adRepository.delete(ad);
             ad = adRepository.findAdByRandom(district);
+            if(ad == null){
+                return null;
+            }
         }
         return GetAdRes.builder()
                 .adImgUrl(ad.getAdImgUrl())
