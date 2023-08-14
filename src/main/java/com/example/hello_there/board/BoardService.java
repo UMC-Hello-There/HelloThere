@@ -213,15 +213,18 @@ public class BoardService {
 
 
     @Transactional
-    public List<GetBoardEachOneRes> getBoardsByLike(Long userId) throws BaseException {
+    public List<GetBoardRes> getBoardsByLike(Long userId) throws BaseException {
         try {
             Long houseId = utilService.findByUserIdWithValidation(userId).getHouse().getHouseId();
             List<Board> boards = boardRepository.findBoardsByLikes(houseId);
-            List<GetBoardEachOneRes> getBoardEachOneRes = boards.stream()
-                    .map(board -> new GetBoardEachOneRes(board.getBoardId(), board.getBoardType(),
-                            board.getTitle()))
+            List<GetBoardRes> getBoardRes = boards.stream()
+                    .map(board -> new GetBoardRes(board.getBoardId(), board.getBoardType(),
+                            convertLocalDateTimeToLocalDate(board.getCreateDate()),
+                            convertLocalDateTimeToTime(board.getCreateDate()),
+                            board.getUser().getNickName(), board.getTitle(), board.getContent(), board.getView(),
+                            board.getCommentCount(), board.getLikeCount()))
                     .collect(Collectors.toList());
-            return getBoardEachOneRes;
+            return getBoardRes;
         } catch (Exception exception) {
             throw new BaseException(DATABASE_ERROR);
         }
@@ -239,6 +242,51 @@ public class BoardService {
                             board.getCommentCount(), board.getLikeCount()))
                     .collect(Collectors.toList());
             return getBoardRes;
+        } catch (Exception exception) {
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
+    @Transactional
+    public List<GetBoardMainRes> getboardsHometerrier(Long userId) throws BaseException {
+        try {
+            Long houseId = utilService.findByUserIdWithValidation(userId).getHouse().getHouseId();
+            List<Board> boards = boardRepository.findBoardMainHomeTerrier(houseId);
+
+            List<GetBoardMainRes> getBoardMainRes = boards.stream()
+                    .map(board -> {
+                        List<PostPhoto> postPhotos = postPhotoRepository.findAllByBoardId(board.getBoardId()).orElse(Collections.emptyList());
+                        GetS3Res getS3Res = postPhotos.isEmpty() ? null :
+                                new GetS3Res(postPhotos.get(0).getImgUrl(), postPhotos.get(0).getFileName());
+                        return new GetBoardMainRes(board.getBoardId(), board.getBoardType(),
+                                board.getTitle(), getS3Res);
+                    })
+                    .collect(Collectors.toList());
+
+            return getBoardMainRes;
+        } catch (Exception exception) {
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
+
+    @Transactional
+    public List<GetBoardMainRes> getboardsMarket(Long userId) throws BaseException {
+        try {
+            Long houseId = utilService.findByUserIdWithValidation(userId).getHouse().getHouseId();
+            List<Board> boards = boardRepository.findBoardMainMarket(houseId);
+
+            List<GetBoardMainRes> getBoardMainRes = boards.stream()
+                    .map(board -> {
+                        List<PostPhoto> postPhotos = postPhotoRepository.findAllByBoardId(board.getBoardId()).orElse(Collections.emptyList());
+                        GetS3Res getS3Res = postPhotos.isEmpty() ? null :
+                                new GetS3Res(postPhotos.get(0).getImgUrl(), postPhotos.get(0).getFileName());
+                        return new GetBoardMainRes(board.getBoardId(), board.getBoardType(),
+                                board.getTitle(), getS3Res);
+                    })
+                    .collect(Collectors.toList());
+
+            return getBoardMainRes;
         } catch (Exception exception) {
             throw new BaseException(DATABASE_ERROR);
         }
