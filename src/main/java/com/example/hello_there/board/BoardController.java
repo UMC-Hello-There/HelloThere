@@ -187,7 +187,7 @@ public class BoardController {
         }
     }
 
-    /** 오늘의 홈테리어 조회 (3개/메인화면) **/
+    /** 중고장터 조회 (3개/메인화면) **/
     @GetMapping("/market/main")
     public BaseResponse<List<GetBoardMainRes>> getboardsMarket() {
         try{
