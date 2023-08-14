@@ -213,15 +213,18 @@ public class BoardService {
 
 
     @Transactional
-    public List<GetBoardEachOneRes> getBoardsByLike(Long userId) throws BaseException {
+    public List<GetBoardRes> getBoardsByLike(Long userId) throws BaseException {
         try {
             Long houseId = utilService.findByUserIdWithValidation(userId).getHouse().getHouseId();
             List<Board> boards = boardRepository.findBoardsByLikes(houseId);
-            List<GetBoardEachOneRes> getBoardEachOneRes = boards.stream()
-                    .map(board -> new GetBoardEachOneRes(board.getBoardId(), board.getBoardType(),
-                            board.getTitle()))
+            List<GetBoardRes> getBoardRes = boards.stream()
+                    .map(board -> new GetBoardRes(board.getBoardId(), board.getBoardType(),
+                            convertLocalDateTimeToLocalDate(board.getCreateDate()),
+                            convertLocalDateTimeToTime(board.getCreateDate()),
+                            board.getUser().getNickName(), board.getTitle(), board.getContent(), board.getView(),
+                            board.getCommentCount(), board.getLikeCount()))
                     .collect(Collectors.toList());
-            return getBoardEachOneRes;
+            return getBoardRes;
         } catch (Exception exception) {
             throw new BaseException(DATABASE_ERROR);
         }

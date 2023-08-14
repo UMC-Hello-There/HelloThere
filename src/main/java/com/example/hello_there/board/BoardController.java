@@ -155,7 +155,7 @@ public class BoardController {
 
     /** 인기 게시글 전체 조회 (좋아요 10개 이상, 최신순 정렬) **/
     @GetMapping("/hot")
-    public BaseResponse<List<GetBoardEachOneRes>> getBoardsByLike() {
+    public BaseResponse<List<GetBoardRes>> getBoardsByLike() {
         try{
             Long userId = jwtService.getUserIdx();
             return new BaseResponse<>(boardService.getBoardsByLike(userId));
