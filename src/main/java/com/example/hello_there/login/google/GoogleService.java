@@ -95,7 +95,7 @@ public class GoogleService {
         body.add("grant_type", "authorization_code");
         body.add("client_id", Google_Client_Id);
         body.add("client_secret", Google_Client_Secret);
-        body.add("redirect_uri" , "http://localhost:8080/oauth/google"); // 프로덕션 환경에 교체
+        body.add("redirect_uri" , "http://hello-there.shop:8080/oauth/kakao"); // 프로덕션 환경에 교체
         body.add("code", code);
 
         HttpEntity<MultiValueMap<String, String>> requestEntity = new HttpEntity<>(body, httpHeaders);

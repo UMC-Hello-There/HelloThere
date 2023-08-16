@@ -115,7 +115,7 @@ public class BoardService {
         }
         RestTemplate restTemplate = new RestTemplate();
         ResponseEntity<List<GetCommentRes>> responseEntity = restTemplate.exchange(
-                "http://localhost:8080/boards/{boardId}/comments/{userId}",  // 호출할 API의 URL
+                "https://hello-there.shop/boards/{boardId}/comments/{userId}",  // 호출할 API의 URL
                 HttpMethod.GET,  // 요청 방법 (GET, POST 등)
                 null,  // 요청에 대한 데이터 (필요에 따라 설정)
                 new ParameterizedTypeReference<List<GetCommentRes>>() {
