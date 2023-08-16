@@ -4,7 +4,8 @@ name: CI
 # 워크 플로의 시작 조건: main 브랜치에 push
 on:
   push:
-    branches: [ main ]
+    branches:
+      - '*'
 
 jobs:
   build:
