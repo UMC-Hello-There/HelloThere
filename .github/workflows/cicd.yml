@@ -51,7 +51,7 @@ jobs:
         shell: bash
 
       - name: Permission to Script
-        run: chmod +x /home/ubuntu/.ssh/HelloThere/deploy.sh
+        run: chmod +x deploy.sh
 
       # AWS 자격 증명
       - name: Configure AWS credentials
