@@ -9,7 +9,8 @@ public enum BoardType {
     SHARE_BOARD(3), // 공구, 나눔 게시판
     MARKET_PLACE_BOARD(4), // 중고 장터 게시판
     INFORMATION_BOARD(5), // 정보 게시판
-    QUESTION_BOARD(6); // 질문 게시판
+    QUESTION_BOARD(6), // 질문 게시판
+    HOME_TERRIER(7); // 홈테리어 게시판
 
     private int value;
 

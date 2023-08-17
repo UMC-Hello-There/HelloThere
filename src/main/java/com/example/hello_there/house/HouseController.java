@@ -33,6 +33,15 @@ public class HouseController {
     /**
      * 유저의 아파트 정보 설정하기
      */
+    @GetMapping("")
+    public BaseResponse<GetHouseRes> getHouseInfo(@RequestParam Long houseId) {
+            GetHouseRes res = GetHouseRes.mapEntityToResponse(houseService.getHouseInfo(houseId));
+            return new BaseResponse<>(res);
+    }
+
+    /**
+     * 유저의 아파트 정보 설정하기
+     */
     @PatchMapping("")
     public BaseResponse<GetHouseRes> setHouseInfo(@RequestParam Long houseId) {
         try {
