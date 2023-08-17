@@ -5,7 +5,7 @@ files:
   - source: /
     destination: /home/ubuntu/.ssh/HelloThere
     overwrite: yes
-    file_exists_behavior: OVERWRITE
+file_exists_behavior: OVERWRITE
 permissions:
   - object: /home/ubuntu/.ssh/HelloThere
     owner: ubuntu
