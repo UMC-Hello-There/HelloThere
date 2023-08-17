@@ -137,4 +137,8 @@ public class HouseService {
                 .collect(Collectors.toList());
         return houseInfos;
     }
+
+    public House getHouseInfo(Long houseId) {
+        return utilService.findByHouseIdWithValidation(houseId);
+    }
 }
