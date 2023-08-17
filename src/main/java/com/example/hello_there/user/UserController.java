@@ -32,6 +32,14 @@ public class UserController {
     private final SQSService sqsService;
 
     /**
+     * ELB와 CI/CD Test의 정상 동작을 확인하는 API
+     */
+    @GetMapping("/healthcheck")
+    public String healthcheck() {
+        return "OK";
+    }
+
+    /**
      * 회원 가입
      */
     @PostMapping("")
