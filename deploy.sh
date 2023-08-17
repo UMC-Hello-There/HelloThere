@@ -8,7 +8,7 @@ JAR_NAME=$(ls $REPOSITORY/build/libs/ | grep 'SNAPSHOT.jar' | tail -n 1)
 JAR_PATH=$REPOSITORY/build/libs/$JAR_NAME
 
 CURRENT_PID=$(pgrep -f $APP_NAME)
-
+cp /home/ubuntu/.ssh/HelloThere/src/main/resources/application.yml /home/ubuntu/application.yml2
 if [ -z $CURRENT_PID ]
 then
   echo "> 종료할 애플리케이션이 없습니다."
@@ -17,6 +17,10 @@ else
   kill -15 $CURRENT_PID
   sleep 5
 fi
+
+cp /home/ubuntu/application.yml2 /home/ubuntu/.ssh/HelloThere/src/main/resources/application.yml
+./gradlew build
+sleep 100
 
 echo "> Deploy - $JAR_PATH "
 nohup java -jar $JAR_PATH > /dev/null 2> /dev/null < /dev/null &
