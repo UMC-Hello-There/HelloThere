@@ -35,7 +35,7 @@ jobs:
         run: |
           mkdir -p src/main/resources
           echo "${{ secrets.APPLICATION_YML }}" | base64 --decode > src/main/resources/application.yml
-          echo "${{ secrets.APPLICATION_YML }}" | base64 --decode > src/main/resources/application.yml 
+          find src
           echo "${{ secrets.SERVICE_ACCOUNT_KEY_JSON }}" | base64 --decode > src/main/resources/ServiceAccountKey.json
           find src
 
