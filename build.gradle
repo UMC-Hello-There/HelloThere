@@ -76,3 +76,10 @@ tasks.named('test') {
 jar {
 	enabled = false
 }
+
+processResources {
+	from(sourceSets.main.resources.srcDirs) {
+		include 'application.yml'
+		include 'ServiceAccountKey.json'
+	}
+}
