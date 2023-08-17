@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 BUILD_JAR=$(ls /home/ubuntu/.ssh/HelloThere/build/libs/*.jar | tail -n 1) # /home/ubuntu/.ssh/HelloThere/build/libs/hello_there-0.0.1-SNAPSHOT.jar
 REPOSITORY=/home/ubuntu/.ssh/HelloThere
-chmod +x /home/ubuntu/.ssh/HelloThere/deploy.sh
+
 cd $REPOSITORY
 
 APP_NAME=hello_there-0.0.1-SNAPSHOT.jar

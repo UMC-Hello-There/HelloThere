@@ -50,6 +50,9 @@ jobs:
         run: zip -r ./$GITHUB_SHA.zip .
         shell: bash
 
+      - name: Permission to Script
+        run: chmod +x /home/ubuntu/.ssh/HelloThere/deploy.sh
+
       # AWS 자격 증명
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
