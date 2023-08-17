@@ -42,7 +42,7 @@ public class UserController {
     /**
      * CI/CD의 정상 동작을 확인하는 API
      */
-    @GetMapping("/cicd-check")
+    @GetMapping("/cd-check")
     public String cdcheck() {
         return "OK";
     }
