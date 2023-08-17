@@ -19,6 +19,9 @@ jobs:
     # 작업의 실행 단계를 정의
     steps:
       - uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.GIT_TOKEN }}
+          submodules: true
 
       - uses: actions/setup-java@v3
         with:
