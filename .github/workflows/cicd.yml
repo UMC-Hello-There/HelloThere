@@ -7,12 +7,21 @@ on:
     branches:
       - '*'
 
+env:
+  PROJECT_NAME: hello-there
+  BUCKET_NAME: chrome-bucket
+  CODE_DEPLOY_APP_NAME: hello-there
+  DEPLOYMENT_GROUP_NAME: hello-there-group
+
 jobs:
   build:
     runs-on: ubuntu-latest # 실행 환경
     # 작업의 실행 단계를 정의
     steps:
       - uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.GIT_TOKEN }}
+          submodules: true
 
       - uses: actions/setup-java@v3
         with:
@@ -20,7 +29,8 @@ jobs:
           java-version: '17'
 
       - name: Grant execute permission for gradlew
-        run: chmod +x gradlew
+        run: chmod +x ./gradlew
+        shell: bash
       - name: Set YML
         run: |
           mkdir -p src/main/resources
@@ -30,24 +40,21 @@ jobs:
 
       - name: Build with Gradle
         run: ./gradlew clean build
-      # 현재 시간 가져오기
-      - name: Get current time
-      - uses: josStorer/get-current-time@v2.0.2
-        id: current-time
-        with:
-          format: YYYY-MM-DDTHH-mm-ss
-          utcOffset: "+09:00"
-      # 배포용 패키지 경로 저장
-      - name: Set artifact
-        run: echo "artifact=$(ls ./build/libs)" >> $GITHUB_ENV
-      # Beanstalk 배포
-      - name: Beanstalk Deploy
-        uses: einaregilsson/beanstalk-deploy@v20
+
+      - name: Make zip file # zip 파일 생성
+        run: zip -r ./$GITHUB_SHA.zip .
+        shell: bash
+
+      # AWS 자격 증명
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
         with:
           aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          application_name: hello-there
-          environment_name: hello-there-env
-          version_label: github-action-${{steps.current-time.outputs.formattedTime}}
-          region: ap-northeast-2
-          deployment_package: ./build/libs/${{env.artifact}}
+          aws-region: ap-northeast-2
+
+      - name: Upload to S3 # S3 업로드
+        run: aws s3 cp --region ap-northeast-2 ./$GITHUB_SHA.zip s3://$BUCKET_NAME/$PROJECT_NAME/$GITHUB_SHA.zip
+
+      - name: Code Deploy # CodeDeploy에 배포 요청
+        run: aws deploy create-deployment--application-name $CODE_DEPLOY_APP_NAME --deployment-config-name CodeDeployDefault.AllAtOnce --deployment-group-name $DEPLOYMENT_GROUP_NAME --s3-location bucket=$BUCKET_NAME,bundleType=zip,key=$PROJECT_NAME/$GITHUB_SHA.zip
