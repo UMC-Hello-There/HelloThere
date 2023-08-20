@@ -48,9 +48,9 @@ public class NoticeService {
         createNotice(user, notice); // 알림 생성 및 저장
 
         UserSetting userSetting = userSettingRepository.findByUserId(user.getId());
-        if(userSetting.isCommentCheck()) { // 해당 알림에 대한 UserSetting이 true인 경우
-            sendNotification(user, notice); // 푸시 알림 전송
-        }
+//        if(userSetting.isCommentCheck()) { // 해당 알림에 대한 UserSetting이 true인 경우
+//            sendNotification(user, notice); // 푸시 알림 전송
+//        }
         return new PostNoticeRes(notice, comment.getBoard().getBoardType());
     }
 
@@ -72,9 +72,9 @@ public class NoticeService {
         createNotice(user, notice);
 
         UserSetting userSetting = userSettingRepository.findByUserId(user.getId());
-        if(userSetting.isRecommentCheck()) {
-            sendNotification(user, notice);
-        }
+//        if(userSetting.isRecommentCheck()) {
+//            sendNotification(user, notice);
+//        }
         return new PostNoticeRes(notice, comment.getBoard().getBoardType());
     }
 
@@ -92,9 +92,9 @@ public class NoticeService {
         createNotice(user, notice);
 
         UserSetting userSetting = userSettingRepository.findByUserId(user.getId());
-        if(userSetting.isBestBoardCheck()) {
-            sendNotification(user, notice);
-        }
+//        if(userSetting.isBestBoardCheck()) {
+//            sendNotification(user, notice);
+//        }
         return new PostNoticeRes(notice, board.getBoardType());
     }
 
@@ -118,9 +118,9 @@ public class NoticeService {
         for (User user : userList) {
             createNotice(user, notice);
             UserSetting userSetting = userSettingRepository.findByUserId(user.getId());
-            if(userSetting.isMessageCheck()) {
-                sendNotification(user, notice);
-            }
+//            if(userSetting.isMessageCheck()) {
+//                sendNotification(user, notice);
+//            }
         }
         return new PostNoticeRes(notice, null);
     }
