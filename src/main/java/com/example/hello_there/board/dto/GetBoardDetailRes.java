@@ -1,5 +1,6 @@
 package com.example.hello_there.board.dto;
 
+import com.example.hello_there.advertisement.dto.GetAdRes;
 import com.example.hello_there.board.BoardType;
 import com.example.hello_there.board.photo.dto.GetS3Res;
 import com.example.hello_there.comment.dto.GetCommentByBoardRes;
@@ -21,6 +22,7 @@ public class GetBoardDetailRes {
     private String createTime; // ex) 3분 전
     private String nickName;
     private GetS3Res profile; // 작성자 프로필 이미지
+    private GetAdRes advertisement;
     private String title;
     private String content;
     private Long view;

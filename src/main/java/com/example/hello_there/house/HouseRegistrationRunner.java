@@ -30,26 +30,31 @@ public class HouseRegistrationRunner implements ApplicationRunner {
     private String songpaUrl;
 
     private final HouseService houseService;
+    private final HouseRepository houseRepository;
 
     /** 아파트 자동 등록 **/
     @Override
     public void run(ApplicationArguments args) {
-        try {
-            List<PostHouseReq> postHouseReqList = new ArrayList<>();
-            // 인천광역시 부평구 정보
-            postHouseReqList.addAll(houseService.getHouseInfoByRegion("인천광역시", "부평구", bupyeongUrl));
-            // 서울특별시 동작구 정보
-            postHouseReqList.addAll(houseService.getHouseInfoByRegion("서울특별시", "동작구", dongjakUrl));
-            // 서울특별시 관악구 정보
-            postHouseReqList.addAll(houseService.getHouseInfoByRegion("서울특별시", "관악구", gwanakUrl));
-            // 서울특별시 송파구 정보
-            postHouseReqList.addAll(houseService.getHouseInfoByRegion("서울특별시", "송파구", songpaUrl));
+        long houseCount = houseRepository.count(); // HouseRepository에 있는 데이터의 수를 가져옴
 
-            for(PostHouseReq postHouseReq : postHouseReqList) {
-                houseService.createHouse(postHouseReq); // 아파트 자동 등록
+        if (houseCount == 0) {
+            try {
+                List<PostHouseReq> postHouseReqList = new ArrayList<>();
+                // 인천광역시 부평구 정보
+                postHouseReqList.addAll(houseService.getHouseInfoByRegion("인천광역시", "부평구", bupyeongUrl));
+                // 서울특별시 동작구 정보
+                postHouseReqList.addAll(houseService.getHouseInfoByRegion("서울특별시", "동작구", dongjakUrl));
+                // 서울특별시 관악구 정보
+                postHouseReqList.addAll(houseService.getHouseInfoByRegion("서울특별시", "관악구", gwanakUrl));
+                // 서울특별시 송파구 정보
+                postHouseReqList.addAll(houseService.getHouseInfoByRegion("서울특별시", "송파구", songpaUrl));
+
+                for(PostHouseReq postHouseReq : postHouseReqList) {
+                    houseService.createHouse(postHouseReq); // 아파트 자동 등록
+                }
+            } catch (IllegalCharsetNameException | UnsupportedCharsetException | UnsupportedEncodingException e) {
+                throw new RuntimeException(e);
             }
-        } catch (IllegalCharsetNameException | UnsupportedCharsetException | UnsupportedEncodingException e) {
-            throw new RuntimeException(e);
         }
     }
 }
