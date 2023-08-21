@@ -34,7 +34,7 @@ public class UserController {
     /**
      * ELB의 정상 동작을 확인하는 API
      */
-    @GetMapping("/healthcheck")
+    @GetMapping("/health-check")
     public String healthcheck() {
         return "OK";
     }
