@@ -5,15 +5,15 @@ import json
 import requests
 
 # 이메일 설정
-send_email = "gmlstjq123@naver.com"
-send_pwd = "bhs0520"
+send_email = "{naverEmail}"
+send_pwd = "{naverPassword}"
 smtp_name = "smtp.naver.com"
 smtp_port = 587
 
 # Boto3 클라이언트 생성
-sqs = boto3.client('sqs', region_name='ap-northeast-2', aws_access_key_id='AKIA2NCQDTVF6UNPYNUL',
-                   aws_secret_access_key='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')
-queue_url = "https://sqs.ap-northeast-2.amazonaws.com/715280063819/UMCQueue"
+sqs = boto3.client('sqs', region_name='ap-northeast-2', aws_access_key_id='{accessKey}',
+                   aws_secret_access_key='{secretKey}')
+queue_url = "{SQS_URL}"
 
 # 스프링 API 엔드포인트 설정
 # spring_api_url = "http://localhost:8080/complete"
