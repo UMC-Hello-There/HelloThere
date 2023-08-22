@@ -68,7 +68,9 @@ public class CommentService {
             comment.addGroupId(groupId + 1L);
             Comment savedParentComment = commentRepository.save(comment);
             // 부모 댓글 저장
-            noticeService.sendCommentNotification(savedParentComment.getCommentId());
+            if(board.getUser().getId() != userId) {
+                noticeService.sendCommentNotification(savedParentComment.getCommentId());
+            }
             return new PostCommentRes(savedParentComment);
         } else {
             parentComment = commentRepository.findById(parentId)
@@ -79,7 +81,9 @@ public class CommentService {
         Comment savedChildComment = commentRepository.save(comment);
         System.out.println(savedChildComment);
         // 자식 댓글 저장
-        noticeService.sendCommentNotification(savedChildComment.getCommentId());
+        if(board.getUser().getId() != userId) {
+            noticeService.sendCommentNotification(savedChildComment.getCommentId());
+        }
         return new PostCommentRes(savedChildComment);
     }
 
