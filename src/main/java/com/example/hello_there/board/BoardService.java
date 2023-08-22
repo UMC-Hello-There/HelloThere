@@ -14,6 +14,7 @@ import com.example.hello_there.comment.CommentRepository;
 import com.example.hello_there.comment.dto.GetCommentRes;
 import com.example.hello_there.exception.BaseException;
 import com.example.hello_there.house.House;
+import com.example.hello_there.notice.NoticeService;
 import com.example.hello_there.report.Report;
 import com.example.hello_there.report.ReportRepository;
 import com.example.hello_there.report.ReportService;
@@ -61,6 +62,7 @@ public class BoardService {
     private final LikeBoardRepository likeBoardRepository;
     private final SQSService sqsService;
     private final AdService adService;
+    private final NoticeService noticeService;
 
     @Transactional
     public void save(Board board) {
@@ -384,6 +386,10 @@ public class BoardService {
                 this.likeBoardRepository.save(new LikeBoard(user, board));
                 // board의 좋아요 count + 1;
                 this.boardRepository.incrementlikesCountById(boardId);
+                board = utilService.findByBoardIdWithValidation(boardId);   //영속성 컨텍스트 초기화 후 재조회
+                if(board.getLikeCount() >= 10){
+                    noticeService.sendBestBoardNotification(boardId);
+                }
                 return "게시글에 좋아요를 눌렀습니다.";
             }
         } catch (BaseException exception) {
