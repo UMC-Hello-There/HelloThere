@@ -6,6 +6,7 @@ import com.example.hello_there.comment.dto.*;
 import com.example.hello_there.comment.likecomment.LikeComment;
 import com.example.hello_there.comment.likecomment.LikeCommentRepository;
 import com.example.hello_there.exception.BaseException;
+import com.example.hello_there.notice.NoticeService;
 import com.example.hello_there.report.Report;
 import com.example.hello_there.report.ReportRepository;
 import com.example.hello_there.report.ReportService;
@@ -38,6 +39,7 @@ public class CommentService {
     private final ReportService reportService;
     private final UtilService utilService;
     private final SQSService sqsService;
+    private final NoticeService noticeService;
 
 
     /**
@@ -66,6 +68,9 @@ public class CommentService {
             comment.addGroupId(groupId + 1L);
             Comment savedParentComment = commentRepository.save(comment);
             // 부모 댓글 저장
+            if(board.getUser().getId() != userId) {
+                noticeService.sendCommentNotification(savedParentComment.getCommentId());
+            }
             return new PostCommentRes(savedParentComment);
         } else {
             parentComment = commentRepository.findById(parentId)
@@ -76,6 +81,9 @@ public class CommentService {
         Comment savedChildComment = commentRepository.save(comment);
         System.out.println(savedChildComment);
         // 자식 댓글 저장
+        if(board.getUser().getId() != userId) {
+            noticeService.sendCommentNotification(savedChildComment.getCommentId());
+        }
         return new PostCommentRes(savedChildComment);
     }
 
