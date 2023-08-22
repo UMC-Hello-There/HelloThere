@@ -74,7 +74,7 @@ public interface BoardRepository extends JpaRepository<Board, Long> {
     @Query("delete from Board b where b.boardId = :boardId")
     void deleteBoard(@Param("boardId") Long boardId);
 
-    @Modifying
+    @Modifying(clearAutomatically = true)
     @Query("UPDATE Board b SET b.likeCount = b.likeCount + 1 WHERE b.boardId = :boardId")
     void incrementlikesCountById(@Param("boardId") Long boardId);
 
