@@ -125,7 +125,7 @@ Hello There 어플리케이션의 주요 키워드는 **소통, 연결, 나눔**
   <br>
 ## 📝 프로젝트 아키텍쳐
 <div align="center"><a href="https://www.figma.com/file/9wxIvelTAROHpKgBXLpWsm/UMC4th_HelloThere?type=design&node-id=0-1&mode=design&t=JGrHDwFWM2EideWs-0">
-<img src="./image/stacks.png" height="650"></a>
+<img src="./image/stacks.png" height="500"></a>
 </div>
 
 ## ✒️ 협업 규칙
@@ -151,7 +151,7 @@ Hello There 어플리케이션의 주요 키워드는 **소통, 연결, 나눔**
 <br>
 
 ## ⚙️ 기술 스택
-- **Server**: EC2
+- **Server**: Java, Python, EC2
 - **Load Balancing**: Auto Scaling, ELB
 - **DNS**: Route 53, ACM
 - **DataBase**: RDS, Datagrip, JPQL, ERD AqueryTool, S3, Redis
@@ -204,7 +204,7 @@ Hello There 어플리케이션의 주요 키워드는 **소통, 연결, 나눔**
 > ✔ 누적 신고 횟수 및 신고 종류에 따라 게시글, 채팅, 댓글 기능 이용이 수일 동안 제한됩니다. 
 <br>
 
-UI/UX 디자인: <https://www.figma.com/file/9wxIvelTAROHpKgBXLpWsm/UMC4th_HelloThere?type=design&node-id=0-1&mode=design&t=zsw87B0sTsoYX0hm-0>
+**UI/UX 디자인**: <https://www.figma.com/file/9wxIvelTAROHpKgBXLpWsm/UMC4th_HelloThere?type=design&node-id=0-1&mode=design&t=zsw87B0sTsoYX0hm-0>
 <br>
 <br>
 
@@ -218,6 +218,6 @@ UI/UX 디자인: <https://www.figma.com/file/9wxIvelTAROHpKgBXLpWsm/UMC4th_Hello
 
 <h2 id="api"> 📌 API </h2>
 
-API 명세서: <https://www.notion.so/API-eaf0d2d78321436c9b16bb79c03e228f?pvs=4>
+**API 명세서**: <https://www.notion.so/API-eaf0d2d78321436c9b16bb79c03e228f?pvs=4>
 
 
